@@ -72,10 +72,13 @@ def _positive_setting(name: str, default: float) -> float:
 
 def _terminate(proc: subprocess.Popen) -> None:
     if os.name == "nt":
-        subprocess.run(
-            ["taskkill", "/PID", str(proc.pid), "/T", "/F"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False,
-        )
+        try:
+            subprocess.run(
+                ["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False,
+            )
+        except OSError:
+            pass
     else:
         import signal
 
@@ -86,6 +89,20 @@ def _terminate(proc: subprocess.Popen) -> None:
     if proc.poll() is None:
         proc.kill()
     proc.wait()
+
+
+def run_process(command: list[str], cwd: Path, timeout: float, *, env: dict[str, str] | None = None) -> subprocess.CompletedProcess:
+    proc = subprocess.Popen(
+        command, cwd=cwd, env=env, stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        start_new_session=os.name != "nt",
+    )
+    try:
+        stdout, stderr = proc.communicate(timeout=timeout)
+    except BaseException:
+        _terminate(proc)
+        raise
+    return subprocess.CompletedProcess(command, proc.returncode, stdout, stderr)
 
 
 def _run_command(cmd: list[str], brief: dict, cwd: str) -> None:

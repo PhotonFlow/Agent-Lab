@@ -297,6 +297,39 @@ def optimize_prompt(brief: dict) -> str:
     ])
 
 
+def evaluation_plan_prompt(brief: dict) -> str:
+    return "\n".join([
+        "ROLE: evaluation_plan. Define application outcomes before inspecting evaluator results.",
+        "Read scenario_text and the candidate's interfaces. Use assets only to assess what evidence may be available.",
+        "Do not limit requirements to metrics already printed by the stack. Do not edit any code or execute robot actuation.",
+        "Write one JSON object to output: metrics and requirements arrays.",
+        'Metric: {"id":"quality", "description":"what is measured", "direction":"maximize", "role":"objective", "path":"/quality", "target":null, "noise":0, "min_effect":0, "max_regression":0, "aggregation":"median", "units":"unit", "witnesses":[]}.',
+        "Use role protected for constraints, worst aggregation for failure/safety counts, and hard_limit for non-negotiable bounds.",
+        "Targets may be null. Never invent a safety threshold, physical label, or a noise estimate; document unknowns as validation needs.",
+        'Requirement: {"text":"exact scenario requirement", "metrics":["quality"], "validation_needed":"specific data, oracle, conditions, or hardware still needed"}.',
+        "Separate noise, useful improvement, and allowed regression. Explicitly represent requirements that cannot yet be measured.",
+        "Do not optimize the candidate, score it, or change runner state. Do not claim verified coverage.",
+    ])
+
+
+def benchmark_build_prompt(brief: dict) -> str:
+    return "\n".join([
+        "ROLE: benchmark_build. Build or adapt evaluation for the supplied plan using available assets.",
+        "Read the candidate but write benchmark code, fixtures, and tests only under benchmark_dir. Do not modify the candidate or existing assets.",
+        "Reuse existing evaluation, native test frameworks, datasets, simulators and reference implementations first.",
+        "Use trusted references, analytical ground truth, or justified invariants. Do not use an LLM answer or current candidate output as ground truth.",
+        "Keep independent validation separate from the scalar evaluator. Use absolute benchmark paths; evaluated candidate code is in the process working directory.",
+        "Use the python executable in the brief when Python is appropriate. Run no hardware commands, downloads, or installations.",
+        "Return JSON to output with eval_command, validation_commands (array of command arrays), files (all scorer/test/config/data dependencies), oracle (explanation), limitations, and negative_controls.",
+        "The supplied eval_command, when present, cannot be replaced. Include transitive benchmark dependencies in files, but not editable candidate implementation files.",
+        "No inline -c commands, empty test suites, fake scores, or collection-only commands. Evaluator stdout must be one JSON object matching the plan's metric paths.",
+        'For every objective provide a negative control: {"metric":"quality", "path":"candidate-relative-file", "replacement":"complete valid deliberately incorrect implementation"}.',
+        "The runner tests controls in disposable copies. They must still execute and yield a measurably worse result, not merely crash or fail compilation.",
+        'If a defensible oracle or needed asset is absent, return {"missing_evidence":["specific required data or validation"]} instead.',
+        "Do not claim generated cases prove real-world accuracy, exhaustive coverage, or SOTA. Do not read held-out final validation data.",
+    ])
+
+
 def render_prompt(brief: dict) -> str:
     role = brief["role"]
     prompts = {
@@ -316,6 +349,8 @@ def render_prompt(brief: dict) -> str:
         "metric_discover": metric_discover_prompt,
         "edit": edit_prompt,
         "optimize": optimize_prompt,
+        "evaluation_plan": evaluation_plan_prompt,
+        "benchmark_build": benchmark_build_prompt,
     }
     if role not in prompts:
         raise ValueError(f"unknown worker role {role}")

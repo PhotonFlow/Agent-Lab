@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from pathlib import Path
 from typing import Any
@@ -112,6 +113,9 @@ def contract_changes(before: list[dict[str, Any]], after: list[dict[str, Any]]) 
             reasons.append(f"target {ident}")
         if not _same_number(metric.get("noise"), other.get("noise")):
             reasons.append(f"noise {ident}")
+        for key in ("aggregation", "min_effect", "max_regression", "hard_limit", "units"):
+            if metric.get(key) != other.get(key):
+                reasons.append(f"{key} {ident}")
     return reasons
 
 
@@ -132,8 +136,6 @@ def accept_discovered_metrics(
             raise ValueError("discovery metrics must be a list")
         for raw in metrics:
             metric = normalize_metric(raw, scenario_text)
-            if metric["id"] == "latency_ms":
-                continue
             prior = proposed.get(metric["id"])
             if prior is None:
                 proposed[metric["id"]] = metric
@@ -146,7 +148,7 @@ def accept_discovered_metrics(
     if sealed is None:
         accepted = list(proposed.values())
     else:
-        accepted = [_public_metric(metric) for metric in sealed if metric["id"] != "latency_ms"]
+        accepted = [_public_metric(metric) for metric in sealed]
         known = {metric["id"] for metric in accepted}
         for metric in proposed.values():
             if metric["id"] in known:
@@ -163,8 +165,6 @@ def accept_discovered_metrics(
     objectives = [metric for metric in accepted if metric["role"] == "objective"]
     if not objectives:
         raise ValueError("discovery produced no objective metric")
-    if not any(metric["target"] is not None for metric in objectives):
-        raise ValueError("an objective metric needs a target")
     return [_public_metric(metric) for metric in sorted(accepted, key=lambda item: item["id"])]
 
 
@@ -186,8 +186,6 @@ def normalize_metric(raw: Any, scenario_text: str) -> dict[str, Any]:
     path = str(raw.get("path") or "").strip()
     if _pointer_token(path) != ident:
         raise ValueError(f"metric path must name {ident}")
-    if "target" not in raw:
-        raise ValueError(f"{ident} needs a target")
     witnesses: list[str] = []
     raw_witnesses = raw.get("witnesses") or []
     if not isinstance(raw_witnesses, list):
@@ -196,23 +194,42 @@ def normalize_metric(raw: Any, scenario_text: str) -> dict[str, Any]:
         text = str(item)
         if text and text in scenario_text:
             _add(witnesses, text)
+    noise = _number(raw.get("noise", 0), f"{ident} noise")
+    if noise < 0:
+        raise ValueError(f"{ident} noise must be nonnegative")
+    policy = {}
+    for key in ("min_effect", "max_regression", "hard_limit"):
+        if raw.get(key) is not None:
+            value = _number(raw[key], f"{ident} {key}")
+            if key != "hard_limit" and value < 0:
+                raise ValueError(f"{ident} {key} must be nonnegative")
+            policy[key] = value
+    if "aggregation" in raw:
+        if raw["aggregation"] not in ("median", "mean", "worst"):
+            raise ValueError(f"{ident} aggregation must be median, mean, or worst")
+        policy["aggregation"] = raw["aggregation"]
+    if "units" in raw:
+        if not isinstance(raw["units"], str) or not raw["units"].strip():
+            raise ValueError(f"{ident} units must be a nonempty string")
+        policy["units"] = raw["units"].strip()
     return {
         "description": description,
         "direction": direction,
         "id": ident,
-        "noise": _number(raw.get("noise"), f"{ident} noise"),
+        "noise": noise,
         "path": path,
         "role": role,
         "target": None if raw.get("target") is None else _number(raw.get("target"), f"{ident} target"),
         "witnesses": witnesses,
+        **policy,
     }
 
 
 def bind_metrics(charter: dict[str, Any], metrics: list[dict[str, Any]]) -> None:
-    objectives = [metric for metric in metrics if metric["role"] == "objective" and metric["target"] is not None]
-    objectives.sort(key=lambda metric: metric["id"])
+    objectives = [metric for metric in metrics if metric["role"] == "objective"]
+    objectives.sort(key=lambda metric: (metric["target"] is None, metric["id"]))
     if not objectives:
-        raise ValueError("an objective metric needs a target")
+        raise ValueError("an objective metric is required")
     primary = objectives[0]
     protected = [metric for metric in metrics if metric["role"] == "protected"]
     charter["metrics"] = {
@@ -225,8 +242,6 @@ def bind_metrics(charter: dict[str, Any], metrics: list[dict[str, Any]]) -> None
         "protected": [_protected_row(metric) for metric in protected],
     }
     charter["required_outputs"] = [_objective_row(metric) for metric in objectives]
-    others = [metric for metric in metrics if metric["role"] == "objective" and metric["target"] is None]
-    charter["required_outputs"].extend(_objective_row(metric) for metric in others)
 
 
 def measurement_view(charter: dict[str, Any]) -> list[tuple[Any, ...]]:
@@ -239,6 +254,7 @@ def measurement_view(charter: dict[str, Any]) -> list[tuple[Any, ...]]:
                 spec["direction"],
                 None if spec.get("target") is None else float(spec["target"]),
                 float(spec["noise"]),
+                json.dumps(_policy_fields(spec), sort_keys=True),
             )
         )
     for item in charter.get("metrics", {}).get("protected", []):
@@ -249,6 +265,7 @@ def measurement_view(charter: dict[str, Any]) -> list[tuple[Any, ...]]:
                 item["direction"],
                 None if item.get("target") is None else float(item["target"]),
                 float(item["max_regression"]),
+                json.dumps(_policy_fields(item), sort_keys=True),
             )
         )
     return sorted(rows)
@@ -316,6 +333,10 @@ def resolve_pointer(document: dict[str, Any], pointer: str) -> Any:
     return current
 
 
+def _policy_fields(metric: dict[str, Any]) -> dict[str, Any]:
+    return {key: metric[key] for key in ("aggregation", "min_effect", "max_regression", "hard_limit", "units") if key in metric}
+
+
 def _public_metric(metric: dict[str, Any]) -> dict[str, Any]:
     return {
         "description": metric["description"],
@@ -326,14 +347,17 @@ def _public_metric(metric: dict[str, Any]) -> dict[str, Any]:
         "role": metric["role"],
         "target": metric["target"],
         "witnesses": list(metric.get("witnesses") or []),
+        **_policy_fields(metric),
     }
 
 
 def _protected_row(metric: dict[str, Any]) -> dict[str, Any]:
     row: dict[str, Any] = {
         "direction": metric["direction"],
-        "max_regression": metric["noise"],
+        "max_regression": metric.get("max_regression", metric["noise"]),
         "name": metric["id"],
+        "noise": metric["noise"],
+        **_policy_fields(metric),
     }
     if metric["target"] is not None:
         row["target"] = metric["target"]
@@ -347,6 +371,7 @@ def _objective_row(metric: dict[str, Any]) -> dict[str, Any]:
         "metric": metric["id"],
         "noise": metric["noise"],
         "target": metric["target"],
+        **_policy_fields(metric),
     }
 
 
@@ -379,14 +404,12 @@ def _require_measured(eval_payload: dict[str, Any], metric: dict[str, Any]) -> N
 
 
 def _require_number(value: Any, label: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise ValueError(f"eval JSON missing {label}")
-    return float(value)
+    return _number(value, f"eval JSON metric {label}")
 
 
 def _number(value: Any, label: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise ValueError(f"{label} must be a number")
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise ValueError(f"{label} must be a finite number")
     return float(value)
 
 

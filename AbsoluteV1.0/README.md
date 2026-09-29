@@ -7,6 +7,7 @@ Continuous, evaluator-guided optimization of a software stack. A Python coordina
 Requires Python 3.10+, Git, and an authenticated Cursor Agent CLI. No Python dependencies. From this directory:
 
 ```bash
+python -m absolute evolve --package <path> --scenario <file> --model <available-model-id>
 python -m absolute evolve --package <path> --scenario <file> --model <available-model-id> --eval <command> <args>
 python -m absolute evolve --run <run-folder>
 python -m absolute status --run <run-folder> --dashboard
@@ -15,7 +16,32 @@ python -m unittest discover -s tests -v
 
 Choose a model ID from `agent models`. Without `--model`, `ABSOLUTE_MODEL` or the previous `grok-4.7-xhigh` default is used; that default must be available to your account. `--eval` must be last, runs from the package copy, and must print one JSON object. Use an absolute interpreter path when `python` is not on PATH.
 
-Metric discovery runs once before editing, with an optional follow-up to identify coverage gaps. Passing `--metric`, `--direction`, `--noise`, and `--target` together instead seals an explicit objective. Discovery can protect additional measured objectives and constraints. A declared target is a milestone, not a continuous-search stop. Unmeasured scenario behaviors remain visible as gaps.
+The evaluator is optional for new continuous runs. Requirements and intended metrics are planned before running a benchmark. Passing `--metric`, `--direction`, and `--noise` supplies an explicit objective; `--target` is optional. Targets are milestones, not continuous-search stops. Legacy `--until-target` still requires an evaluator and all four goal flags when specifying a goal.
+
+## Evaluation Setup
+
+1. Inspect the scenario and candidate interfaces, and inventory available evaluators, tests, data, and build files. One planning worker defines intended metrics and missing validation, without seeing benchmark results.
+2. Reuse a supplied evaluator or a single discovered Python evaluator when compatible unittest tests are present. A package-local `absolute-evaluation.json` can explicitly declare native commands, dependencies, and an oracle. Otherwise one benchmark-building worker adapts or constructs evaluation outside the editable package.
+3. Run the independent regression gate and evaluator. A generated benchmark also needs a runnable negative control for every measurable objective: changing candidate code in a disposable copy must worsen the score. Crashes and constant scores do not qualify.
+4. Freeze the manifest, declared evaluator/test/data files, scenario, and plan. Then seal measurable metric policies and record the baseline. Missing protected measurements block setup; missing optional objectives remain explicit gaps.
+
+Setup is bounded to one planning/building attempt per invocation, with the worker deadline. Missing assets or failed qualification pause the same run with an actionable reason. Resume with `evolve --run`; a rejected generated proposal is retained and the builder can retry. The framework does not automatically download data, install dependencies, operate hardware, or invent labels.
+
+For native projects, a descriptor can contain:
+
+```json
+{
+	"eval_command": ["./benchmark", "cases.csv"],
+	"validation_commands": [["ctest", "--test-dir", "test-build", "--output-on-failure"]],
+	"files": ["benchmark", "cases.csv", "test-build/CTestTestfile.cmake"],
+	"oracle": "Describe the trusted reference or labels and the conditions they cover.",
+	"limitations": ["Independent held-out and hardware validation still required."]
+}
+```
+
+Commands run from the candidate directory; generated scripts also receive `ABSOLUTE_PACKAGE`. Explicit `files` may include directories. Declare **all** scorer, test, configuration, and dataset dependencies, including imported helpers and native test binaries. Automatic discovery only identifies direct entry points and visible assets; it cannot prove an arbitrary program's dependency closure. Test build artifacts must exist or be produced by a declared build command. Do not list editable candidate implementations as frozen scorer dependencies.
+
+Coverage reports distinguish `measured_proxy` from `unmeasured`, and state what additional evidence is needed. Neither an agent's scenario quote nor a negative-control pass proves domain coverage. Supplied/discovered benchmarks are executable-checked, not independently certified; generated benchmarks are sensitivity-checked, not oracle-certified.
 
 ## Search
 
@@ -23,7 +49,9 @@ Each experiment remeasures the incumbent, launches **one optimizer worker**, tes
 
 A keep requires an improvement beyond the declared noise on at least one metric, no regression beyond any metric's budget, no loss of an achieved target, and no cumulative budget violation against the original baseline. Quality-preserving latency or memory improvements are eligible, including after a quality target is reached. Existing passing tests are allowed for behavior-preserving optimizations; behavior changes should add regression tests. Public message fields and immutable scorer files stay protected.
 
-By default each measurement uses three evaluator samples and their per-metric median. `--eval-repeats N` selects 1-100 samples at run creation. Parent and candidate samples are saved separately. Repeats reduce sensitivity to outliers but are **not statistical significance tests**. Set noise tolerances from repeated runs on representative hardware and control seeds, workloads, warmup, and system load in the evaluator.
+By default each measurement uses three evaluator samples. Objectives use their declared aggregation (`median`, `mean`, or `worst`); protected metrics default to worst-case, and hard bounds always use worst-case so an intermittent violation cannot disappear in a median. `noise`, `min_effect`, `max_regression`, and `hard_limit` are separate finite policy values. `--eval-repeats N` selects 1-100 samples. Repeats are **not statistical significance tests**. Calibrate noise on representative hardware and control seeds, workloads, warmup, and system load in the evaluator.
+
+Every candidate must pass the frozen regression commands before measurement. Worker-suggested tests are additional checks, not replacements. Existing regression files and ROS message/service/action schemas are protected. A kept score is recorded against the actual Git tree, including when a worker unexpectedly committed its edits.
 
 Every attempt retains its patch, hypothesis, measurements, and outcome; kept implementations are Git checkpoints. Workers receive recent measured successes and failures instead of unbounded transcripts. This is conservative incumbent-based search, not a full population or Pareto-front algorithm. Improvements that require temporary measured regressions are not automatically accepted.
 
@@ -52,6 +80,11 @@ The terminal shows worker PIDs, phase, objective, strategy, heartbeats, elapsed 
 | `journal.jsonl`, `attempts/` | Full measured experiment history and patches |
 | `eval/*-parent.json`, `eval/*-candidate.json` | Individual samples and aggregate measurements |
 | `scoreboard.json`, `handoff.md` | Incumbent metrics and bounded restart summary |
+| `eval/plan.json`, `eval/assets.json` | Intended outcomes and discovered local assets |
+| `eval/benchmark.json` | Frozen benchmark version, commands, oracle, asset hashes and limitations |
+| `eval/coverage.json`, `eval/coverage.md` | Measured proxies, gaps, and required additional validation |
+| `eval/negative-control-*.json` | Recorded generated-benchmark sensitivity checks |
+| `recovery.sqlite3` | Transactional decision record used to recover interrupted JSON/journal publication |
 
 ## Evaluation And Safety
 
@@ -65,6 +98,9 @@ Promotion remains explicit and requires the existing validation procedure. `robo
 
 ## Compatibility
 
-Existing v1.0 folders retain their original workflow and stop semantics. `--until-target` creates a run using that legacy feature-board workflow. The historical runs contain machine-specific absolute paths and are evidence, not portable executable fixtures. They are not rewritten or silently migrated.
+Existing folders retain their workflow and are not silently migrated to the new setup. Start a new run to obtain the requirements-first plan and frozen regression manifest. `--until-target` creates the legacy feature-board workflow. Historical runs contain machine-specific absolute paths and are evidence, not portable executable fixtures.
+
+Automatic mid-run benchmark expansion is deliberately deferred. A frozen benchmark cannot be rewritten to justify a candidate. Changing its data, scenario or measurement semantics requires a new run, with requalification and baseline measurement; compare original and incumbent implementations under the same new benchmark before making cross-version claims. No in-place upgrade or automatic cross-version SOTA comparison is implemented.
 
 See [the evidence and design notes](docs/plans/2026-09-29-001-continuous-search-v1.1.md) and [agent instructions](SKILL.md).
+The [requirements-driven evaluation research](docs/plans/2026-09-29-002-requirements-driven-evaluation.md) records the primary sources, design decisions, and remaining limits.
