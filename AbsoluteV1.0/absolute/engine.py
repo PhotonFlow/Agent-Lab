@@ -14,7 +14,7 @@ import urllib.request
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from statistics import median
+from statistics import mean, median
 from typing import Any, Callable
 
 from absolute.package import hash_tree, message_fields, validation_ready
@@ -46,7 +46,8 @@ def validate_charter(charter: dict[str, Any]) -> None:
             raise ValueError(f"charter.metrics.primary.{key} is required")
     if primary["direction"] not in ("maximize", "minimize"):
         raise ValueError("primary.direction must be maximize or minimize")
-    float(primary["noise"])
+    if isinstance(primary["noise"], bool) or not math.isfinite(float(primary["noise"])) or float(primary["noise"]) < 0:
+        raise ValueError("primary.noise must be finite and nonnegative")
     command = charter.get("eval_command")
     if command is not None and (not isinstance(command, list) or not command):
         raise ValueError("eval_command must be a non-empty list of strings, or null")
@@ -68,16 +69,17 @@ def validate_charter(charter: dict[str, Any]) -> None:
     immutable = charter.get("immutable", [])
     if not isinstance(mutable, list) or not isinstance(immutable, list):
         raise ValueError("mutable and immutable must be lists")
-    if "loop" in charter and charter["loop"] != "until_target":
-        raise ValueError("loop must be until_target")
-    if charter.get("loop") == "until_target":
+    if "loop" in charter and charter["loop"] not in ("until_target", "continuous"):
+        raise ValueError("loop must be until_target or continuous")
+    if charter.get("loop") in ("until_target", "continuous"):
         if charter.get("edit_policy") != "except_immutable":
             raise ValueError("until_target requires edit_policy except_immutable")
         if not command:
             raise ValueError("until_target requires an eval command")
-        if primary.get("target") is None:
+        if primary.get("target") is None and charter["loop"] == "until_target":
             raise ValueError("until_target requires metrics.primary.target")
-        float(primary["target"])
+        if primary.get("target") is not None and (isinstance(primary["target"], bool) or not math.isfinite(float(primary["target"]))):
+            raise ValueError("primary.target must be finite")
     if command and charter.get("edit_policy") != "except_immutable":
         if not mutable:
             raise ValueError("a charter with an eval command requires a non-empty mutable list")
@@ -86,7 +88,9 @@ def validate_charter(charter: dict[str, Any]) -> None:
     for item in charter.get("metrics", {}).get("protected", []):
         if item.get("direction") not in ("maximize", "minimize"):
             raise ValueError("protected metric direction must be maximize or minimize")
-        float(item["max_regression"])
+        budget = item["max_regression"]
+        if isinstance(budget, bool) or not math.isfinite(float(budget)) or float(budget) < 0:
+            raise ValueError("protected max_regression must be finite and nonnegative")
 
 
 def protected_metrics(charter: dict[str, Any]) -> list[dict[str, Any]]:
@@ -196,12 +200,25 @@ def search_metric_specs(charter: dict[str, Any]) -> list[dict[str, Any]]:
     specs = [dict(spec) for spec in required_output_specs(charter)]
     names = {spec["metric"] for spec in specs}
     specs.extend(
-        {"metric": item["name"], "direction": item["direction"],
+        {**item, "metric": item["name"], "direction": item["direction"],
          "noise": item.get("noise", item["max_regression"]),
-         "target": item.get("target"), "budget": item["max_regression"]}
+         "target": item.get("target"), "max_regression": item["max_regression"],
+         "aggregation": item.get("aggregation", "worst"),
+         "hard_limit": item.get("hard_limit", item.get("target"))}
         for item in protected_metrics(charter) if item["name"] not in names
     )
     return specs
+
+
+def aggregate_metric(spec: dict[str, Any], values: list[float]) -> float:
+    policy = "worst" if spec.get("hard_limit") is not None else spec.get("aggregation", "median")
+    if policy == "worst":
+        return max(values) if spec["direction"] == "minimize" else min(values)
+    if policy == "mean":
+        return mean(values)
+    if policy == "median":
+        return median(values)
+    raise ValueError(f"unknown aggregation {policy}")
 
 
 def search_keep_reason(
@@ -216,14 +233,20 @@ def search_keep_reason(
             return f"eval JSON missing finite metric {name}"
         previous, candidate, original = map(float, values)
         noise = float(spec["noise"])
-        budget = float(spec.get("budget", noise))
+        margin = max(noise, float(spec.get("min_effect", noise)))
+        budget = float(spec.get("max_regression", noise))
+        if not all(math.isfinite(value) and value >= 0 for value in (noise, margin, budget)):
+            return f"metric {name} has invalid tolerances"
+        hard_limit = spec.get("hard_limit")
+        if hard_limit is not None and not target_hit({"direction": spec["direction"], "target": hard_limit}, candidate):
+            return f"metric {name} violated its hard limit"
         if not _within_budget(spec["direction"], previous, candidate, budget):
             return f"metric {name} regressed"
         if not _within_budget(spec["direction"], original, candidate, budget):
             return f"metric {name} exceeded baseline regression budget"
         if spec.get("target") is not None and target_hit(spec, previous) and not target_hit(spec, candidate):
             return f"metric {name} lost its achieved target"
-        improved |= _better(spec["direction"], previous, candidate, noise)
+        improved |= _better(spec["direction"], previous, candidate, margin)
     return None if improved else "no metric improved beyond noise"
 
 
@@ -321,7 +344,7 @@ _RUNNER_ARMED = False
 
 
 def _until_target(charter: dict[str, Any]) -> bool:
-    return charter.get("loop") == "until_target"
+    return charter.get("loop") in ("until_target", "continuous")
 
 
 def target_hit(primary: dict[str, Any], value: Any) -> bool:
@@ -358,18 +381,13 @@ class EvalFailure(RuntimeError):
 
 
 def run_eval(command: list[str], cwd: Path, timeout_sec: float) -> dict[str, Any]:
+    from absolute.launch import run_process
+
     try:
         env = os.environ.copy()
         env["PYTHONDONTWRITEBYTECODE"] = "1"
-        completed = subprocess.run(
-            command,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            timeout=timeout_sec,
-            check=False,
-            env=env,
-        )
+        env["ABSOLUTE_PACKAGE"] = str(cwd)
+        completed = run_process(command, cwd, timeout_sec, env=env)
     except subprocess.TimeoutExpired as exc:
         stdout = exc.stdout if isinstance(exc.stdout, str) else ""
         stderr = exc.stderr if isinstance(exc.stderr, str) else ""
@@ -393,8 +411,12 @@ def measure_search(run_dir: Path, charter: dict[str, Any], label: str) -> dict[s
     from absolute.contract import load_contract, resolve_pointer
     from absolute.launch import report
     from absolute.store import atomic_write
+    from absolute.evaluation import check_case_evidence, verify_benchmark
 
     run = load_run(run_dir)
+    benchmark = verify_benchmark(run_dir)
+    if benchmark and charter["eval_command"] != benchmark["eval_command"]:
+        raise RuntimeError("benchmark evaluator command changed")
     repeats = int(run.get("search", {}).get("eval_repeats", 3))
     document = load_contract(run_dir)
     paths = {row["id"]: row["path"] for row in document["metrics"]} if document else {}
@@ -402,6 +424,8 @@ def measure_search(run_dir: Path, charter: dict[str, Any], label: str) -> dict[s
     for index in range(repeats):
         report(run_dir, "evaluation", label=label, sample=index + 1, total=repeats)
         payload = run_eval(list(charter["eval_command"]), Path(run["package_copy"]), float(charter.get("eval_timeout_sec", 60)))
+        if benchmark:
+            check_case_evidence(benchmark, payload)
         sample = {}
         for spec in search_metric_specs(charter):
             name = spec["metric"]
@@ -410,8 +434,12 @@ def measure_search(run_dir: Path, charter: dict[str, Any], label: str) -> dict[s
                 raise EvalFailure(f"eval JSON missing finite metric {name}", "", "")
             sample[name] = float(value)
         samples.append(sample)
-    metrics = {name: median(sample[name] for sample in samples) for name in samples[0]}
+    metrics = {
+        spec["metric"]: aggregate_metric(spec, [sample[spec["metric"]] for sample in samples])
+        for spec in search_metric_specs(charter)
+    }
     atomic_write(run_dir / "eval" / f"{label}.json", {"metrics": metrics, "samples": samples})
+    verify_benchmark(run_dir)
     return metrics
 
 
@@ -867,6 +895,7 @@ def _record_stage(
         pass
     entry: dict[str, Any] = {
         "admit_sha": base_sha,
+        "attempt": scoreboard["edit_attempts"],
         "at": now(),
         "cycle": cycle_n,
         "error": reason,
@@ -880,7 +909,7 @@ def _record_stage(
         entry["patch"] = str(attempt.relative_to(run_dir)).replace("\\", "/")
     run = load_run(run_dir)
     if outcome == "keep" and keep_metrics is not None:
-        if _dirty_paths(package_copy):
+        if changed_paths(package_copy, base_sha):
             sha = commit_from(package_copy, base_sha, f"absolute: {hypothesis}")
         else:
             sha = base_sha
@@ -901,9 +930,9 @@ def _record_stage(
         if isinstance(admitted, dict) and str(admitted.get("feature_id") or "") == str(feature_id):
             summary = str(admitted.get("summary") or "")
         _append_listed_feature(run, "kept_features", str(feature_id), summary)
-    save_run(run_dir, run)
-    atomic_write(run_dir / "scoreboard.json", scoreboard)
-    append_journal(run_dir, entry)
+    from absolute.store import commit_stage
+
+    commit_stage(run_dir, run, scoreboard, entry)
     write_handoff(run_dir)
     return entry
 
@@ -1033,19 +1062,22 @@ def score_stage(
             feature_id=feature_id,
         )
     if stage == "search_edit":
-        from absolute.launch import report
+        from absolute.launch import report, run_process
+        from absolute.evaluation import run_validation, validate_command, verify_benchmark
 
         try:
             check_immutable(run_dir, package_copy)
+            benchmark = verify_benchmark(run_dir)
+            if benchmark:
+                run_validation(run_dir, benchmark["validation_commands"], package_copy, float(charter.get("eval_timeout_sec", 60)), f"cycle-{cycle_n:06d}")
+                validate_command(behavior_test)
             report(run_dir, "behavior_test", cycle=cycle_n)
-            result = subprocess.run(
-                list(behavior_test), cwd=package_copy, capture_output=True, text=True,
-                timeout=float(charter.get("eval_timeout_sec", 60)), check=False,
-            )
+            result = run_process(list(behavior_test), package_copy, float(charter.get("eval_timeout_sec", 60)), env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1"))
             test_output = result.stdout + "\n" + result.stderr
             write_text(run_dir / "eval" / f"cycle-{cycle_n:06d}-test.log", test_output)
             behavior_error = None if result.returncode == 0 else "behavior test failed: " + test_output[-2000:]
-        except (OSError, subprocess.TimeoutExpired, RuntimeError) as exc:
+            verify_benchmark(run_dir)
+        except (OSError, subprocess.TimeoutExpired, RuntimeError, ValueError) as exc:
             behavior_error = str(exc)
     else:
         behavior_error = _behavior_fails_then_passes(
@@ -1070,6 +1102,11 @@ def score_stage(
             feature_id=feature_id,
         )
     removed = missing_message_fields(package_copy, list(run.get("message_fields") or []))
+    if not removed and run.get("message_schema"):
+        from absolute.package import message_schema
+
+        current_schema = message_schema(package_copy)
+        removed = [name for name, schema in run["message_schema"].items() if current_schema.get(name) != schema]
     if removed:
         return _record_stage(
             run_dir,
@@ -1085,6 +1122,8 @@ def score_stage(
         )
     try:
         check_immutable(run_dir, package_copy)
+        if stage == "search_edit" and not changed_paths(package_copy, base_sha):
+            raise RuntimeError("candidate contains no changes")
         metrics = (
             measure_search(run_dir, charter, f"cycle-{cycle_n:06d}-candidate")
             if stage == "search_edit"

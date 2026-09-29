@@ -10,8 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from absolute.cli import build_parser, main
-from absolute.contract import contract_changes, obligation_sentences
-from absolute.engine import runner_authority, score_stage
+from absolute.contract import accept_discovered_metrics, bind_metrics, contract_changes, normalize_metric, obligation_sentences
+from absolute.engine import aggregate_metric, runner_authority, score_stage, search_keep_reason, search_metric_specs
 from absolute.loop import evolve_package, metric_discovery_queries, metric_followup_queries
 from absolute.store import load_run, read_json
 
@@ -73,6 +73,245 @@ def _ids(contract, role):
     return [item["id"] for item in contract["metrics"] if item["role"] == role]
 
 
+class EvaluationAssetsTests(unittest.TestCase):
+    def test_module_entrypoint_is_protected(self):
+        from absolute.evaluation import command_files
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "evaluate.py").write_text("pass\n", encoding="utf-8")
+            self.assertIn(root / "evaluate.py", command_files([sys.executable, "-m", "evaluate"], root))
+
+    def test_inline_regression_commands_are_rejected(self):
+        from absolute.evaluation import validate_command
+
+        with self.assertRaisesRegex(ValueError, "inline"):
+            validate_command([sys.executable, "-c", "pass"])
+
+    def test_manifest_detects_evaluator_and_dataset_changes(self):
+        from absolute.evaluation import MANIFEST, verify_benchmark
+        from absolute.package import file_hash
+        from absolute.store import atomic_write, save_run
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "evaluate.py").write_text("pass\n", encoding="utf-8")
+            (root / "test_api.py").write_text("pass\n", encoding="utf-8")
+            data = root / "cases.csv"
+            data.write_text("input,answer\n1,2\n", encoding="utf-8")
+            atomic_write(root / MANIFEST, {"hashes": {str(data): file_hash(data)}})
+            save_run(root, {"id": "test", "benchmark_sha256": file_hash(root / MANIFEST)})
+            self.assertIsNotNone(verify_benchmark(root))
+            data.write_text("input,answer\n1,3\n", encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "asset changed"):
+                verify_benchmark(root)
+
+    def test_required_cases_must_be_reported(self):
+        from absolute.evaluation import check_case_evidence
+
+        with self.assertRaisesRegex(ValueError, "required benchmark cases"):
+            check_case_evidence({"cases": [{"id": "roundtrip"}]}, {"quality": 1})
+        check_case_evidence({"cases": [{"id": "roundtrip"}]}, {"quality": 1, "_cases": ["roundtrip"]})
+
+
+class EvaluationPreparationTests(unittest.TestCase):
+    def test_module_entrypoint_is_discovered_without_importing_it(self):
+        from absolute.evaluation import command_files, inventory
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "evaluate.py").write_text("raise RuntimeError('must not import')", encoding="utf-8")
+            self.assertEqual(command_files([sys.executable, "-m", "evaluate"], root)[-1], (root / "evaluate.py").resolve())
+            self.assertEqual(inventory(root)["evaluators"], ["evaluate.py"])
+
+    def test_inline_and_empty_regression_commands_are_rejected(self):
+        from absolute.evaluation import validate_command
+
+        for command in ([], [sys.executable, "-c", "pass"], ["pytest", "--collect-only"], ["echo", "ok"]):
+            with self.subTest(command=command), self.assertRaises(ValueError):
+                validate_command(command)
+
+
+class EvaluationBootstrapTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.package = self.root / "candidate"
+        shutil.copytree(ROOT / "examples" / "toy_stack" / "algo_v1.1", self.package)
+        self.scenario = self.root / "scenario.md"
+        self.scenario.write_text("Improve the returned score.\nAvoid invalid outputs.\n", encoding="utf-8")
+        self.roles = []
+        self.missing = False
+        self.fake = False
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def launcher(self, brief):
+        self.roles.append(brief["role"])
+        if brief["role"] == "evaluation_plan":
+            self.assertFalse((Path(brief["run"]) / "eval" / "baseline.json").exists())
+            payload = {"metrics": [_metric("score", "maximize", None, "objective", "Returned score")],
+                       "requirements": [{"text": "Improve the returned score.", "metrics": ["score"], "validation_needed": "Independent representative workload"}]}
+        elif self.missing:
+            payload = {"missing_evidence": ["Provide labeled recordings for accuracy validation."]}
+        else:
+            folder = Path(brief["benchmark_dir"])
+            evaluator = folder / "measure.py"
+            expression = "1" if self.fake else "algo.VALUE"
+            evaluator.write_text(
+                "import json, sys\nfrom pathlib import Path\nsys.path.insert(0, str(Path.cwd()))\nimport algo\n"
+                f"print(json.dumps({{'score': {expression}, '_cases': ['nonnegative']}}))\n", encoding="utf-8",
+            )
+            guard = folder / "guard.py"
+            guard.write_text(
+                "import sys, unittest\nfrom pathlib import Path\nsys.path.insert(0, str(Path.cwd()))\nimport algo\n"
+                "class Guard(unittest.TestCase):\n    def test_valid(self):\n        self.assertGreaterEqual(algo.VALUE, 0)\n"
+                "unittest.main()\n", encoding="utf-8",
+            )
+            payload = {
+                "eval_command": [sys.executable, str(evaluator)], "validation_commands": [[sys.executable, str(guard)]],
+                "files": [str(evaluator), str(guard)], "oracle": "Toy domain exposes a numeric objective; guard checks a necessary invariant.",
+                "limitations": ["Toy fixture only; not domain validation."], "cases": [{"id": "nonnegative"}],
+                "negative_controls": [{"metric": "score", "path": "algo.py", "replacement": "VALUE = 0\nLATENCY_MS = 10\n"}],
+            }
+        destination = Path(brief["output"])
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(json.dumps(payload), encoding="utf-8")
+
+    def evolve(self, **kwargs):
+        return evolve_package(package=self.package, scenario=self.scenario, launcher=self.launcher,
+                              runs_root=self.root / "runs", completed_cycle_limit=0, eval_repeats=1, **kwargs)
+
+    def test_plan_precedes_reusing_an_existing_evaluator(self):
+        run = self.evolve()
+        self.assertEqual(self.roles, ["evaluation_plan"])
+        self.assertEqual(load_run(run)["evaluation_scope"], "discovered")
+        self.assertTrue(load_run(run)["setup_complete"])
+        self.assertIsNone(read_json(run / "charter.json")["metrics"]["primary"]["target"])
+        coverage = read_json(run / "eval" / "coverage.json")["requirements"]
+        self.assertEqual([item["status"] for item in coverage], ["measured_proxy", "unmeasured"])
+
+    def test_builder_qualifies_generated_benchmark_with_a_negative_control(self):
+        (self.package / "evaluate.py").unlink()
+        run = self.evolve()
+        self.assertEqual(self.roles, ["evaluation_plan", "benchmark_build"])
+        self.assertTrue(load_run(run)["setup_complete"])
+        self.assertEqual(load_run(run)["evaluation_scope"], "generated")
+        self.assertIn("VALUE = 1", (self.package / "algo.py").read_text())
+
+    def test_constant_generated_scorer_is_blocked(self):
+        (self.package / "evaluate.py").unlink()
+        self.fake = True
+        run = self.evolve()
+        self.assertFalse(load_run(run)["setup_complete"])
+        self.assertIn("did not worsen", load_run(run)["stop_reason"])
+        self.assertFalse((run / "scoreboard.json").exists())
+        from absolute.loop import continue_package
+
+        self.fake = False
+        continue_package(run, self.launcher, completed_cycle_limit=0)
+        self.assertTrue(load_run(run)["setup_complete"])
+
+    def test_missing_optional_objective_remains_an_explicit_gap(self):
+        original_launcher = self.launcher
+
+        def launcher(brief):
+            original_launcher(brief)
+            if brief["role"] == "evaluation_plan":
+                path = Path(brief["output"])
+                payload = read_json(path)
+                payload["metrics"].append(_metric("robustness", "maximize", None, "objective", "Unmeasured robustness"))
+                payload["requirements"].append({"text": "Avoid invalid outputs.", "metrics": ["robustness"]})
+                path.write_text(json.dumps(payload), encoding="utf-8")
+
+        self.launcher = launcher
+        run = self.evolve()
+        self.assertTrue(load_run(run)["setup_complete"])
+        self.assertNotIn("robustness", read_json(run / "scoreboard.json")["best"])
+        self.assertIn("robustness", (run / "eval" / "coverage.md").read_text())
+
+    def test_missing_protected_metric_blocks_optimization(self):
+        original_launcher = self.launcher
+
+        def launcher(brief):
+            original_launcher(brief)
+            if brief["role"] == "evaluation_plan":
+                path = Path(brief["output"])
+                payload = read_json(path)
+                payload["metrics"].append(_metric("failures", "minimize", 0, "protected", "Failure count"))
+                path.write_text(json.dumps(payload), encoding="utf-8")
+
+        self.launcher = launcher
+        run = self.evolve()
+        self.assertFalse(load_run(run)["setup_complete"])
+        self.assertIn("required measurement is unavailable", load_run(run)["stop_reason"])
+
+    def test_missing_evidence_pauses_and_can_resume_same_folder(self):
+        from absolute.loop import continue_package
+
+        (self.package / "evaluate.py").unlink()
+        self.missing = True
+        run = self.evolve()
+        self.assertEqual(load_run(run)["status"], "paused")
+        self.assertIn("labeled recordings", (run / "eval" / "coverage.md").read_text())
+        self.missing = False
+        continue_package(run, self.launcher, completed_cycle_limit=0)
+        self.assertTrue(load_run(run)["setup_complete"])
+        self.assertEqual(self.roles.count("evaluation_plan"), 1)
+
+
+class MetricPolicyTests(unittest.TestCase):
+    def test_intermittent_constraint_failures_cannot_hide_in_a_median(self):
+        charter = {}
+        bind_metrics(charter, [
+            _metric("quality", "maximize", None, "objective", "quality"),
+            _metric("failures", "minimize", 0, "protected", "failures"),
+        ])
+        spec = next(item for item in search_metric_specs(charter) if item["metric"] == "failures")
+        self.assertEqual(aggregate_metric(spec, [0, 1, 0]), 1)
+        before = {"quality": 1, "failures": 0}
+        self.assertIn("hard limit", search_keep_reason(charter, before, {"quality": 2, "failures": 1}, before))
+        self.assertEqual(aggregate_metric({"direction": "minimize", "aggregation": "mean"}, [1, 2, 3]), 2)
+
+    def test_latency_keeps_its_declared_role_target_and_noise(self):
+        metric = _metric("latency_ms", "minimize", 50, "objective", "runtime")
+        metric["noise"] = 0.5
+        rows = accept_discovered_metrics([{"metrics": [metric]}], {"latency_ms": 100}, "")
+        self.assertEqual(rows, [metric])
+        again = accept_discovered_metrics([{"metrics": [metric]}], {"latency_ms": 90}, "", sealed=rows)
+        self.assertEqual(again, rows)
+
+    def test_targetless_objectives_can_be_bound(self):
+        metric = _metric("quality", "maximize", None, "objective", "quality")
+        rows = accept_discovered_metrics([{"metrics": [metric]}], {"quality": 1}, "")
+        charter = {}
+        bind_metrics(charter, rows)
+        self.assertIsNone(charter["metrics"]["primary"]["target"])
+        self.assertEqual(len(charter["required_outputs"]), 1)
+
+    def test_invalid_numeric_policy_is_rejected(self):
+        for key in ("noise", "min_effect", "max_regression"):
+            for value in (-1, float("nan"), float("inf"), True):
+                with self.subTest(key=key, value=value):
+                    metric = _metric("quality", "maximize", None, "objective", "quality")
+                    metric[key] = value
+                    with self.assertRaises(ValueError):
+                        normalize_metric(metric, "")
+
+    def test_policy_fields_are_sealed_and_distinct(self):
+        metric = _metric("runtime", "minimize", None, "protected", "runtime")
+        metric.update(noise=0.2, min_effect=0.5, max_regression=0, hard_limit=50, aggregation="worst", units="ms")
+        normalized = normalize_metric(metric, "")
+        charter = {}
+        bind_metrics(charter, [_metric("quality", "maximize", None, "objective", "quality"), normalized])
+        protected = charter["metrics"]["protected"][0]
+        self.assertEqual(protected["noise"], 0.2)
+        self.assertEqual(protected["max_regression"], 0)
+        changed = dict(normalized, aggregation="median")
+        self.assertIn("aggregation runtime", contract_changes([normalized], [changed]))
+
+
 class MetricContractTests(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
@@ -115,7 +354,7 @@ class MetricContractTests(unittest.TestCase):
         )
         self.assertIsNone(args.metric)
         with self.assertRaises(SystemExit) as caught:
-            main(["evolve", "--package", "pkg", "--scenario", "scenario.md", "--runs-root", str(self.runs)])
+            main(["evolve", "--until-target", "--package", "pkg", "--scenario", "scenario.md", "--runs-root", str(self.runs)])
         self.assertIn("eval", str(caught.exception))
         self.assertFalse(self.runs.exists())
         with self.assertRaises(SystemExit) as partial:

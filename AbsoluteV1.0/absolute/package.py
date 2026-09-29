@@ -54,9 +54,23 @@ def message_fields(root: Path) -> list[str]:
     return found
 
 
+def message_schema(root: Path) -> dict[str, list[str]]:
+    return {
+        path.relative_to(root).as_posix(): [
+            " ".join(line.split())
+            for raw in path.read_text(encoding="utf-8").splitlines()
+            if (line := raw.split("#", 1)[0].strip())
+        ]
+        for pattern in ("*.msg", "*.srv", "*.action")
+        for path in sorted(root.rglob(pattern))
+    }
+
+
 def file_hash(path: Path) -> str:
     digest = hashlib.sha256()
-    digest.update(path.read_bytes())
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
     return digest.hexdigest()
 
 

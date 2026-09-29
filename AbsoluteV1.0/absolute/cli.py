@@ -220,11 +220,13 @@ def cmd_evolve(args: argparse.Namespace) -> None:
         return
     if args.package is None or args.scenario is None:
         raise SystemExit("evolve requires --package and --scenario")
-    if not args.eval:
-        raise SystemExit("evolve requires --eval COMMAND as the last argument")
-    named = (args.metric, args.direction, args.noise, args.target)
+    if args.until_target and not args.eval:
+        raise SystemExit("legacy evolve requires --eval COMMAND as the last argument")
+    named = (args.metric, args.direction, args.noise)
     if any(value is not None for value in named) and not all(value is not None for value in named):
-        raise SystemExit("pass --metric, --direction, --noise, and --target together, or omit all four")
+        raise SystemExit("pass --metric, --direction, and --noise together, or omit all four goal flags")
+    if args.target is not None and args.metric is None:
+        raise SystemExit("--target requires --metric, --direction, and --noise")
     evolve_package(
         package=Path(args.package),
         scenario=Path(args.scenario),
@@ -232,7 +234,7 @@ def cmd_evolve(args: argparse.Namespace) -> None:
         direction=args.direction,
         noise=args.noise,
         target=args.target,
-        eval_command=list(args.eval),
+        eval_command=list(args.eval) if args.eval else None,
         launcher=launcher,
         runs_root=Path(args.runs_root) if args.runs_root else None,
         timeout_sec=args.timeout,

@@ -48,10 +48,10 @@ from absolute.engine import (
     write_handoff,
 )
 from absolute.naming import allocate_run_id
-from absolute.package import copy_package, file_hash, hash_tree, message_fields
+from absolute.package import copy_package, file_hash, hash_tree, message_fields, message_schema
 from absolute.prompts import render_prompt
 from absolute.launch import LaunchError, WORKER_MODEL, report
-from absolute.store import atomic_write, load_run, read_journal, read_json, run_lock, save_run
+from absolute.store import atomic_write, checkpoint_cycle, load_run, read_journal, read_json, recover_checkpoint, repair_journal, run_lock, save_run
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parents[1]
 STAGE_ATTEMPTS = 5
@@ -145,30 +145,24 @@ def parse_decision(payload: Any) -> dict[str, Any]:
 
 
 def immutable_in_package(command: list[str], package: Path) -> list[str]:
+    from absolute.evaluation import command_files
+
     found: list[str] = []
     root = package.resolve()
-    for arg in command:
-        path = Path(arg)
-        if path.is_absolute():
-            if not path.is_file():
-                continue
-            try:
-                found.append(path.resolve().relative_to(root).as_posix())
-            except ValueError:
-                continue
-        elif (package / path).is_file():
-            found.append(path.as_posix())
+    for path in command_files(command, package):
+        try:
+            found.append(path.relative_to(root).as_posix())
+        except ValueError:
+            continue
     return found
 
 
 def external_scorer_files(command: list[str], package: Path) -> list[Path]:
+    from absolute.evaluation import command_files
+
     files: list[Path] = []
     root = package.resolve()
-    for arg in command:
-        path = Path(arg)
-        if not path.is_file():
-            continue
-        resolved = path.resolve()
+    for resolved in command_files(command, package):
         try:
             resolved.relative_to(root)
         except ValueError:
@@ -407,7 +401,7 @@ def _explicit_metrics(
     metric: str,
     direction: str,
     noise: float,
-    target: float,
+    target: float | None,
     protected: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     rows = [
@@ -418,7 +412,7 @@ def _explicit_metrics(
             "noise": float(noise),
             "path": f"/{metric}",
             "role": "objective",
-            "target": float(target),
+            "target": None if target is None else float(target),
             "witnesses": [],
         }
     ]
@@ -553,7 +547,7 @@ def prepare_run(
     direction: str | None = None,
     noise: float | None = None,
     target: float | None = None,
-    eval_command: list[str],
+    eval_command: list[str] | None = None,
     runs_root: Path | None = None,
     timeout_sec: float = 60,
     task: str | None = None,
@@ -564,8 +558,10 @@ def prepare_run(
     if not 1 <= eval_repeats <= 100:
         raise ValueError("eval_repeats must be between 1 and 100")
     explicit = metric is not None
-    if explicit and (direction is None or noise is None or target is None):
+    if explicit and (direction is None or noise is None or (target is None and not continuous)):
         raise ValueError("an explicit metric needs a direction, noise, and target")
+    if not continuous and not eval_command:
+        raise ValueError("legacy runs require an eval command")
     if not explicit and launcher is None:
         raise RuntimeError("metric discovery needs the worker launcher")
     scenario_path = scenario.resolve()
@@ -585,14 +581,14 @@ def prepare_run(
     destination = run_dir / "package" / source.name
     copy_package(source, destination)
     ensure_copy_repo(destination)
-    immutable = immutable_in_package(eval_command, destination)
+    immutable = immutable_in_package(eval_command or [], destination)
     save_run(
         run_dir,
         {
             "created_at": now(),
             "discovery_round": 1,
             "entry": "evolve",
-            "external_scorer": [str(path) for path in external_scorer_files(eval_command, destination)],
+            "external_scorer": [str(path) for path in external_scorer_files(eval_command or [], destination)],
             "framework": "Absolute",
             "id": run_name,
             "package_copy": str(destination),
@@ -604,9 +600,18 @@ def prepare_run(
             "stage": "application",
             "status": "starting",
             "version": __version__,
-            **({"search": {"eval_repeats": eval_repeats, "context_window_tokens": 500000}} if continuous else {}),
+            **({
+                "search": {"eval_repeats": eval_repeats, "context_window_tokens": 500000},
+                "setup_complete": False,
+                "setup": {"eval_command": eval_command, "metric": metric, "direction": direction,
+                          "noise": noise, "target": target, "timeout_sec": timeout_sec, "task": task},
+            } if continuous else {}),
         },
     )
+    if continuous:
+        with run_lock(run_dir):
+            _prepare_search_evaluation(run_dir, launcher)
+        return run_dir
     report(run_dir, "baseline_started", package=str(destination))
     eval_metrics = run_eval(list(eval_command), destination, timeout_sec)
     if explicit:
@@ -663,6 +668,7 @@ def prepare_run(
     run["eval_mode"] = "measured"
     run["immutable_hashes"] = hash_tree(destination, immutable) if immutable else {}
     run["message_fields"] = message_fields(destination)
+    run["message_schema"] = message_schema(destination)
     save_run(run_dir, run)
     if continuous:
         eval_metrics = measure_search(run_dir, read_json(run_dir / "charter.json"), "baseline-samples")
@@ -673,7 +679,79 @@ def prepare_run(
     return run_dir
 
 
+def _prepare_search_evaluation(run_dir: Path, launcher: Launcher | None) -> bool:
+    from absolute.evaluation import ensure_evaluation, plan_evaluation
+
+    run = load_run(run_dir)
+    settings = run["setup"]
+    package = Path(run["package_copy"])
+    run.update(status="starting", stage="evaluation_setup", stop_reason="")
+    save_run(run_dir, run)
+    try:
+        if not _tree_matches_script(run, package):
+            reset_to(package, run["script_head"])
+        explicit = None
+        if settings["metric"] is not None:
+            explicit = _explicit_metrics(settings["metric"], settings["direction"], settings["noise"], settings["target"], [])
+        plan = plan_evaluation(run_dir, launcher, explicit)
+        manifest = ensure_evaluation(run_dir, launcher, settings["eval_command"], plan)
+        rows = [metric for metric in plan["metrics"] if metric["id"] in manifest["measured_metric_ids"]]
+        if explicit and "latency_ms" in manifest.get("available_metrics", []) and settings["metric"] != "latency_ms":
+            rows.extend(_explicit_metrics("latency_ms", "minimize", 0, None, []))
+            rows[-1].update(role="protected", aggregation="worst", max_regression=0)
+        primary = next(item for item in rows if item["role"] == "objective")
+        command = manifest["eval_command"]
+        immutable = []
+        for name in manifest["hashes"]:
+            try:
+                immutable.append(Path(name).relative_to(package).as_posix())
+            except ValueError:
+                pass
+        charter = build_charter(
+            metric=primary["id"], direction=primary["direction"], noise=primary["noise"], target=primary["target"],
+            eval_command=command, immutable=immutable, task=settings["task"] or f"evolve {package.name} against qualified measurements",
+            timeout=settings["timeout_sec"],
+        )
+        charter["loop"] = "continuous"
+        scenario_text = Path(run["scenario_path"]).read_text(encoding="utf-8")
+        _write_sealed(run_dir, charter, rows, scenario_text, [item["text"] for item in plan["requirements"]], 1)
+        charter = read_json(run_dir / "charter.json")
+        metrics = measure_search(run_dir, charter, "baseline-samples")
+        run = load_run(run_dir)
+        run.update(
+            baseline_eval_command=command, eval_mode="measured", immutable_hashes=hash_tree(package, immutable),
+            message_fields=message_fields(package), message_schema=message_schema(package),
+        )
+        save_run(run_dir, run)
+        record_baseline(run_dir, metrics)
+        atomic_write(run_dir / "eval" / "baseline.json", metrics)
+        run = load_run(run_dir)
+        run.update(setup_complete=True, status="running", stage="search", stop_reason="", success=False, sota_verified=False)
+        run["uncovered_behaviors"] = _current_gaps(run_dir, scenario_text)
+        save_run(run_dir, run)
+        write_handoff(run_dir)
+        report(run_dir, "evaluation_ready", scope=run.get("evaluation_scope"), metrics=metrics)
+        return True
+    except (Exception, KeyboardInterrupt) as exc:
+        from absolute.evaluation import _coverage
+
+        run = load_run(run_dir)
+        reset_to(package, run["script_head"])
+        run.update(status="paused", stage="evaluation_setup", stop_reason=f"evaluation_setup: {str(exc)[:1500]}")
+        save_run(run_dir, run)
+        proposal = run_dir / "eval" / "proposal.json"
+        if not run.get("benchmark_sha256") and proposal.is_file() and read_json(proposal).get("origin") == "generated":
+            proposal.replace(run_dir / "eval" / "failed-proposal.json")
+        if (run_dir / "eval" / "plan.json").is_file():
+            _coverage(run_dir, read_json(run_dir / "eval" / "plan.json"), set(), [run["stop_reason"]])
+        report(run_dir, "evaluation_blocked", reason=run["stop_reason"], report=str(run_dir / "eval" / "coverage.md"))
+        return False
+
+
 def _current_gaps(run_dir: Path, scenario_text: str) -> list[str]:
+    coverage = run_dir / "eval" / "coverage.json"
+    if coverage.is_file():
+        return [item["text"] for item in read_json(coverage)["requirements"] if item["status"] == "unmeasured"]
     document = load_contract(run_dir)
     if document is None:
         return []
@@ -1184,7 +1262,9 @@ def one_cycle(run_dir: Path, launcher: Launcher) -> dict[str, Any]:
 
 def _search_cycle(run_dir: Path, launcher: Launcher) -> dict[str, Any]:
     from absolute.engine import _record_stage
+    from absolute.evaluation import MANIFEST, verify_benchmark
 
+    benchmark = verify_benchmark(run_dir)
     run = load_run(run_dir)
     charter = read_json(run_dir / "charter.json")
     scoreboard = read_json(run_dir / "scoreboard.json")
@@ -1217,9 +1297,12 @@ def _search_cycle(run_dir: Path, launcher: Launcher) -> dict[str, Any]:
         uncovered_behaviors=gaps, context_window_tokens=500000,
         immutable=list(charter.get("immutable") or []),
     )
-    protected = [run_dir / name for name in ("run.json", "charter.json", "scoreboard.json", "eval/contract.json")]
+    protected = [run_dir / name for name in ("run.json", "charter.json", "scoreboard.json", "eval/contract.json", "recovery.sqlite3")]
     protected.extend(external_scorer_files(list(charter["eval_command"]), package))
     protected.append(Path(run["scenario_path"]))
+    if benchmark:
+        protected.append(run_dir / MANIFEST)
+        protected.extend(Path(name) for name in benchmark["hashes"] if Path(name).is_relative_to(run_dir / "eval"))
     snapshot = _snapshot(protected)
     hypothesis = f"{strategy}: {focus['metric']}"
 
@@ -1257,6 +1340,9 @@ def _search_cycle(run_dir: Path, launcher: Launcher) -> dict[str, Any]:
         _restore(snapshot)
         entry = reject("worker_failed" if isinstance(exc, (LaunchError, OSError)) else "bad_edit", str(exc))
     except BaseException:
+        if checkpoint_cycle(run_dir) == cycle_n:
+            recover_checkpoint(run_dir, force=True)
+            raise
         _restore(snapshot)
         reset_to(package, base_sha)
         raise
@@ -1268,10 +1354,14 @@ def _search_cycle(run_dir: Path, launcher: Launcher) -> dict[str, Any]:
 
 
 def _pause(run_dir: Path, reason: str) -> None:
+    recover_checkpoint(run_dir)
     run = load_run(run_dir)
     run.update(status="paused", stop_reason=reason)
     save_run(run_dir, run)
-    write_handoff(run_dir)
+    try:
+        write_handoff(run_dir)
+    except (ValueError, KeyError):
+        pass
     report(run_dir, "paused", reason=reason)
 
 
@@ -1286,6 +1376,12 @@ def _cooldown(run_dir: Path, seconds: float) -> None:
 
 def run_cycles(run_dir: Path, launcher: Launcher, completed_cycle_limit: int | None = None) -> None:
     with run_lock(run_dir):
+        recover_checkpoint(run_dir)
+        repair_journal(run_dir)
+        state = load_run(run_dir)
+        if state.get("setup") and not state.get("setup_complete"):
+            if not _prepare_search_evaluation(run_dir, launcher):
+                return
         if not load_run(run_dir).get("search"):
             _run_legacy_cycles(run_dir, launcher, completed_cycle_limit)
             return
@@ -1354,7 +1450,7 @@ def evolve_package(
     *,
     package: Path,
     scenario: Path,
-    eval_command: list[str],
+    eval_command: list[str] | None = None,
     launcher: Launcher,
     metric: str | None = None,
     direction: str | None = None,
@@ -1383,6 +1479,8 @@ def evolve_package(
         eval_repeats=eval_repeats,
     )
     print(run_dir, flush=True)
+    if continuous and not load_run(run_dir).get("setup_complete"):
+        return run_dir
     run_cycles(run_dir, launcher, completed_cycle_limit)
     return run_dir
 

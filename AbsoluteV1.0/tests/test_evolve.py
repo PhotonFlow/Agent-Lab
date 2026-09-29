@@ -143,6 +143,44 @@ class CharterAndQueryTests(unittest.TestCase):
         self.assertNotIn("completed_cycle_limit", text)
 
 
+class StateRecoveryTests(unittest.TestCase):
+    def test_interrupted_publication_replays_without_duplicate_journal_entries(self):
+        from absolute.store import CheckpointError, atomic_write, commit_stage, recover_checkpoint
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            run = {"id": "test", "script_head": "accepted", "status": "running"}
+            board = {"best": {"score": 5}, "cycles": 1}
+            entry = {"cycle": 1, "attempt": 1, "outcome": "keep", "commit": "accepted"}
+            calls = []
+
+            def interrupted(path, payload):
+                calls.append(path)
+                if len(calls) == 2:
+                    raise OSError("simulated interrupted publication")
+                atomic_write(path, payload)
+
+            with patch("absolute.store.atomic_write", side_effect=interrupted), self.assertRaises(CheckpointError):
+                commit_stage(root, run, board, entry)
+            self.assertTrue(recover_checkpoint(root))
+            self.assertEqual(load_run(root), run)
+            self.assertEqual(read_json(root / "scoreboard.json"), board)
+            self.assertEqual(read_journal(root), [entry])
+            self.assertFalse(recover_checkpoint(root))
+            recover_checkpoint(root, force=True)
+            self.assertEqual(read_journal(root), [entry])
+
+    def test_torn_tail_is_ignored_and_repaired_before_append(self):
+        from absolute.store import append_journal
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "journal.jsonl").write_bytes(b'{"cycle": 1}\n{"cycle":')
+            self.assertEqual(read_journal(root, limit=2), [{"cycle": 1}])
+            append_journal(root, {"cycle": 2})
+            self.assertEqual(read_journal(root), [{"cycle": 1}, {"cycle": 2}])
+
+
 class LauncherProgressTests(unittest.TestCase):
     def test_only_one_runner_can_own_a_folder(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -548,6 +586,54 @@ class EvolveTests(unittest.TestCase):
         with patch("absolute.loop._cooldown"):
             run = self.evolve(launcher, continuous=True, completed_cycle_limit=2, eval_repeats=1)
         self.assertEqual([entry["outcome"] for entry in read_journal(run)], ["baseline", "worker_failed", "keep"])
+
+    def test_worker_commit_keeps_the_actual_candidate_on_resume(self):
+        from absolute.engine import _git, head_sha
+
+        def launcher(brief):
+            package = Path(brief["package_copy"])
+            _write_algo(package, 5, 4)
+            _behavior_test(package, 5, 4)
+            _git(package, ["add", "-A"])
+            _git(package, ["commit", "-m", "worker candidate"])
+            ToyLauncher._write(brief["result"], {"hypothesis": "candidate commit", "behavior_test": [sys.executable, "-B", "-m", "unittest", "test_behavior"]})
+
+        run = self.evolve(launcher, continuous=True, completed_cycle_limit=1, eval_repeats=1)
+        package = Path(load_run(run)["package_copy"])
+        self.assertEqual(load_run(run)["script_head"], head_sha(package))
+        continue_package(run, lambda brief: self.fail("must not launch"), completed_cycle_limit=1)
+        self.assertIn("VALUE = 5", (package / "algo.py").read_text())
+
+    def test_noop_behavior_command_cannot_replace_frozen_regression_gate(self):
+        def launcher(brief):
+            _write_algo(Path(brief["package_copy"]), 5, 4)
+            ToyLauncher._write(brief["result"], {"hypothesis": "skip testing", "behavior_test": [sys.executable, "-c", "pass"]})
+
+        run = self.evolve(launcher, continuous=True, completed_cycle_limit=1, eval_repeats=1)
+        self.assertEqual(read_journal(run)[-1]["outcome"], "bad_edit")
+        self.assertIn("inline", read_journal(run)[-1]["error"])
+
+    def test_frozen_regression_tests_cannot_be_weakened(self):
+        def launcher(brief):
+            package = Path(brief["package_copy"])
+            _write_algo(package, 5, 4)
+            (package / "test_algo.py").write_text("pass\n", encoding="utf-8")
+            _behavior_test(package, 5, 4)
+            ToyLauncher._write(brief["result"], {"hypothesis": "weaken tests", "behavior_test": [sys.executable, "-B", "-m", "unittest", "test_behavior"]})
+
+        run = self.evolve(launcher, continuous=True, completed_cycle_limit=1, eval_repeats=1)
+        self.assertEqual(read_journal(run)[-1]["outcome"], "bad_edit")
+        self.assertIn("test_algo.py", read_journal(run)[-1]["error"])
+
+
+    def test_message_schema_detects_type_and_order_changes(self):
+        from absolute.package import message_schema
+
+        path = self.tmp / "Pose.msg"
+        path.write_text("float64 position\nbool valid\n", encoding="utf-8")
+        before = message_schema(self.tmp)
+        path.write_text("string position\nbool valid\n", encoding="utf-8")
+        self.assertNotEqual(before, message_schema(self.tmp))
 
     def test_missing_scenario_does_not_copy_the_package(self):
         with redirect_stderr(StringIO()):
