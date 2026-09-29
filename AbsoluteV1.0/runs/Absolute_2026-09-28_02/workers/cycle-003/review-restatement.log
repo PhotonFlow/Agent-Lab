@@ -1,0 +1,7 @@
+Connection lost, reconnecting to https://agentn.global.api5.cursor.sh (attempt 1)...
+Retry attempt 1...
+The restatement review is in `runs/Absolute_2026-09-28_02/decisions/cycle-003/review-restatement.json`. None of the three proposals is only a restatement of `dimension_error_m` or `latency_ms`.
+
+- **pocket_opening_depth** (proposal 1) publishes the factory face, 1.20 m by 0.14 m, and a median far-side length through the two fork openings, with `has_body_depth` false when those openings show no body.
+- **pocket_opening_depth** (proposal 2) publishes the larger of the silhouette span and that factory face, and the same pocket-median depth, leaving `depth_m` unset when no far-side pocket sample exists.
+- **published_admission_split** writes the admitted and deferred source indices from `select_stage2_subset` onto `PalletPoseStamped`, and onto the failure diagnostic when no pose is published.

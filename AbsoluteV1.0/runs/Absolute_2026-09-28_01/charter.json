@@ -1,0 +1,33 @@
+{
+  "edit_policy": "except_immutable",
+  "eval_command": [
+    "python",
+    "evaluate.py"
+  ],
+  "eval_timeout_sec": 180.0,
+  "feature_catalog": [
+    {
+      "id": "inlier_face_extents",
+      "summary": "Publish the stage-2 inlier-face width, height, and depth in metres on /pps/pallet_pose_rich with the pose from that same estimate. Width is the camera-x span of the inlier face, height is the camera-y span, and depth is the mean range. The vehicle's dynamic handling process can then size the pallet from the pose it is about to use while the scene can still change."
+    }
+  ],
+  "immutable": [
+    "evaluate.py"
+  ],
+  "loop": "until_target",
+  "metrics": {
+    "primary": {
+      "direction": "minimize",
+      "name": "scenario_error",
+      "noise": 0.001,
+      "target": 0.0
+    },
+    "protected": []
+  },
+  "mutable": [],
+  "stops": {
+    "max_cycles": 1,
+    "plateau": 1
+  },
+  "task": "evolve src until scenario_error minimize reaches 0.0"
+}

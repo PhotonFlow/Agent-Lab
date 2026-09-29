@@ -1,0 +1,3 @@
+Literature findings for the deferred-pallet integration constraints are in `runs/Absolute_2026-09-28_02/sota/cycle-001/literature-5.json`.
+
+Stage 2 still runs once per synchronized pair, only on the pallet `select_detection` already chooses. Every other class-matched candidate is reported as its own OK diagnostic on `/pps/pallet_pose_diagnostics`, with its `Detection2DArray` index and that pair's RGB and depth capture stamps. The selected failure stays the only WARN, so a handler can tell which pallets were detected but not posed without treating them as a stage-2 failure.

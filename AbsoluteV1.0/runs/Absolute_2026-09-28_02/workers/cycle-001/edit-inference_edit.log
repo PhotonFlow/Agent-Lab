@@ -1,0 +1,5 @@
+The inference edit fuses each chamfer translation into the bilinear sample so stage 2 still poses only the pallet `select_detection` already chose.
+
+`chamfer_cost_from_rotated` was copying the rotated contour into `tls.translated` on every grid step, then sampling that copy. It now reads the rotated x and y columns, adds `tx` and `ty` in the sample loop, and keeps the same ascending trimmed mean. The search still calls that cost once per translation, not once per extra detection.
+
+The behavior test failed first because that copy was still there. After the change, `python geometry_core/test/test_fused_chamfer_sample.py` reported 2 tests, OK. The command is in `runs/Absolute_2026-09-28_02/workers/cycle-001/edit-result-inference_edit.json`.

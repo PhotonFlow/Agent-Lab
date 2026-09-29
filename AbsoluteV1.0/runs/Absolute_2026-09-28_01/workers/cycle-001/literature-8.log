@@ -1,0 +1,9 @@
+Literature for this cycle is in `runs/Absolute_2026-09-28_01/sota/cycle-001/literature-8.json`.
+
+Measured cost of publishing the stage-2 inlier-face width, height, and depth on `/pps/pallet_pose_rich`:
+
+- Camera-x and camera-y span plus mean range is one pass over the inliers. On a 2.33 GHz Core Duo that pass took 0.624 ms for 10,000 points; a PCA box on the same set took 36 ms and is a different measurement.
+- A scalar min/max loop was about 15× faster than `pcl::getMinMax3D` on multi-megabyte clouds. A 3D centroid is a second sweep and is not the mean range.
+- Three `float64` fields stay inside the flat part of the ROS 2 size curve (128 B through 10 KB measured equal). Serializing a pose is about 15 ns. A second topic costs another hop, about 113 µs P90 at 100 Hz in-process. Sending the inlier cloud instead is the millisecond path.
+
+No evolve command was started, and the run was not scored.

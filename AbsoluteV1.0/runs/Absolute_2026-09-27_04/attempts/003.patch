@@ -1,0 +1,49 @@
+diff --git a/geometry_core/src/pipeline_v3_2.cpp b/geometry_core/src/pipeline_v3_2.cpp
+index d05b410..9f4cad8 100644
+--- a/geometry_core/src/pipeline_v3_2.cpp
++++ b/geometry_core/src/pipeline_v3_2.cpp
+@@ -202,10 +202,10 @@ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+     best_cost = prior_data_cost;
+   }
+ 
+-  // 9. Lift refined 2D centre back to depth, then RGB frame.
+-  Eigen::Vector2d centre_2d(best_pose.tx, best_pose.ty);
+-  Eigen::Vector3d centre_d = lift_point_from_plane_2d(centre_2d, basis);
+-  Eigen::Vector3d centre_r = apply_se3(camera_cfg.R_dr, camera_cfg.t_dr, centre_d);
++  // 9. Publish the bbox-centre ray-plane hit in the RGB frame. The chamfer
++  // search still selects best_pose for debug, but that refined lift is not
++  // the reported translation.
++  Eigen::Vector3d centre_r = apply_se3(camera_cfg.R_dr, camera_cfg.t_dr, centre_d_init);
+   Eigen::Vector3d n_r = camera_cfg.R_dr * plane_d.normal;
+   n_r /= (n_r.norm() + 1e-12);
+   const double yaw = yaw_from_normal_camera(n_r);
+diff --git a/geometry_core/test/test_pipeline_v3_2.cpp b/geometry_core/test/test_pipeline_v3_2.cpp
+index 25c0452..d375811 100644
+--- a/geometry_core/test/test_pipeline_v3_2.cpp
++++ b/geometry_core/test/test_pipeline_v3_2.cpp
+@@ -35,6 +35,25 @@ cv::Mat make_flat_plane_depth(int h, int w, double z) {
+ 
+ }  // namespace
+ 
++TEST(PipelineV3_2, PublishesBboxCentreRayHitAsTranslationOnUniformZ2Probe) {
++  RgbDepthCameraConfig camera_cfg = make_synthetic_camera();
++  cv::Mat depth = make_flat_plane_depth(480, 640, 2.0);
++  // Centre is the RGB principal point (640, 480). On a uniform z=2 plane the
++  // optical-axis ray hits (0, 0, 2), which is the published translation.
++  Eigen::Vector4d bbox(340.0, 440.0, 940.0, 520.0);
++
++  Stage2Config cfg;
++  cfg.min_face_points = 100;
++  EstimatePoseParams params;
++  std::mt19937_64 rng(0);
++  auto outcome = estimate_pose_chamfer_v3_2(bbox, depth, camera_cfg, cfg, params,
++                                             std::nullopt, rng);
++  ASSERT_TRUE(outcome.ok) << outcome.failure.failure_reason;
++  EXPECT_NEAR(outcome.pose.tx, 0.0, 1e-12);
++  EXPECT_NEAR(outcome.pose.ty, 0.0, 1e-12);
++  EXPECT_NEAR(outcome.pose.tz, 2.0, 1e-12);
++}
++
+ TEST(PipelineV3_2, RecoversFrontoParallelPoseOnSyntheticScene) {
+   RgbDepthCameraConfig camera_cfg = make_synthetic_camera();
+   cv::Mat depth = make_flat_plane_depth(480, 640, 2.0);

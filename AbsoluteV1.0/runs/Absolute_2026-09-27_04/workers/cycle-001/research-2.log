@@ -1,0 +1,5 @@
+Research for cycle 1 is in `runs/Absolute_2026-09-27_04/sota/cycle-001/research-2.json`. Baseline `scenario_error` is 4.752, the sum of three defects in the package copy.
+
+- **Dimensions (3.0).** `EstimatePoseOutcome` has no face-size fields, and `estimate_pose_chamfer_v3_2` never measures the inlier face, so the metric stays at the 3.0 sentinel. The scored face is 1.0 m by 0.8 m at 2.5 m. The only size in the source is the fixed 1.20 m by 0.14 m prototype.
+- **Selection (1.75).** `detection_utils.hpp` only selects one box. The scored path admits the highest-confidence detection (index 0, which must be deferred) and records no deferred list. A top-2 largest-area cut should admit indices 1 and 2 and defer 0, 3, and 4.
+- **Pose (0.002 m).** The published translation is the chamfer-refined centre, not the bbox-centre ray hit at (0, 0, 2). Integer-pixel backprojection through the eroded mask shifts the face cloud about 2.22 mm off axis, and the prototype does not match that face, so the refined centre leaves the ray.

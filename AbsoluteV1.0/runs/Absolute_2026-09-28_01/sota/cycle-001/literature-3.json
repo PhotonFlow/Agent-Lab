@@ -1,0 +1,25 @@
+{
+  "query": "evidence that methods for Publish the stage-2 inlier-face width, height, and depth in metres on /pps/pallet_pose_rich with the pose from that same estimate. Width is the camera-x span of the inlier face, height is the camera-y span, and depth is the mean range. The vehicle's dynamic handling process can then size the pallet from the pose it is about to use while the scene can still change. are current",
+  "findings": [
+    "Putting metric size on the same message as the pose is current ROS 2 practice: vision_msgs BoundingBox3D carries a size vector in metres with the center pose, and Detection3D says the header must match the source so the consumer uses that frame rather than a later look.",
+    "Estimating width, height, and depth with the pose from one observation, without an instance CAD model, is current warehouse work. Yu et al., arXiv:2507.00984 (1 Jul 2025), estimate cuboid pose T in SE(3) and shape S = (width, height, depth) from the same stereo keypoints.",
+    "Camera-x and camera-y spans of a point set are still the current axis-aligned extent. Open3D 0.19 AxisAlignedBoundingBox.get_extent is max bound minus min bound along x, y, and z. In the ROS camera optical frame (REP-103), x is right and y is down, so those extents are the camera-x and camera-y spans. Plane inliers remain the 2025 definition of a face (Open3D segment_plane; Scientific Reports 2025, doi:10.1038/s41598-025-12660-w).",
+    "Mean range of those inliers is a current range summary and is not the z-extent. Open3D's z extent is the slab thickness, max z minus min z. The range a handler uses is the mean z of the same points, or the pose translation's z. Miura et al., VISAPP 2026 (DOI:10.5220/0014626800004084), fold metric depth into that same 6-DoF pose for a forklift.",
+    "Sizing from the pose about to be used, because the scene can still change, is current motivation. Wu et al., Sensors 2025, 25(7):2333, say hybrid warehouses must react when people or vehicles appear, and that RGB-D slot localization which assumes known pallet dimensions fails when the pallet type changes. Mueller et al., arXiv:2503.22965 (Mar 2025), still require known face sizes, 1200x144 mm or 800x144 mm, before PnP. Nguyen et al., arXiv:2508.15427 (Aug 2025), name inconsistent pallet dimensions as the outdoor forklift problem, then still pass a CAD model and fixed 0.6 m and 1.2 m offsets into FoundationPose.",
+    "The specific triple (camera-x span, camera-y span, mean range) is only partly current as a published pallet size. vision_msgs size is the full side length along the pose's local axes, not the camera axes (ros-perception/vision_msgs issue 101). A yawed face's camera-x span is the projected extent, larger than the face width. The 2025-2026 pallet papers above do not publish that camera-axis triple as the pallet size; they assume a known face, use a CAD model, or estimate an object-frame cuboid."
+  ],
+  "citations": [
+    "https://github.com/ros-perception/vision_msgs/blob/ros2/vision_msgs/msg/BoundingBox3D.msg",
+    "https://github.com/ros-perception/vision_msgs/blob/ros2/vision_msgs/msg/Detection3D.msg",
+    "https://github.com/ros-perception/vision_msgs/issues/101",
+    "https://www.ros.org/reps/rep-0103.html",
+    "https://www.open3d.org/docs/0.19.0/python_api/open3d.geometry.AxisAlignedBoundingBox.html",
+    "https://www.open3d.org/docs/latest/python_api/open3d.t.geometry.PointCloud.html",
+    "https://doi.org/10.1038/s41598-025-12660-w",
+    "Yu et al., Box Pose and Shape Estimation and Domain Adaptation for Large-Scale Warehouse Automation, arXiv:2507.00984, 1 Jul 2025, https://arxiv.org/abs/2507.00984",
+    "Mueller et al., Pallet Detection And Localisation From Synthetic Data, arXiv:2503.22965, Mar 2025, https://arxiv.org/abs/2503.22965",
+    "Wu et al., A New Pallet-Positioning Method Based on a Lightweight Component Segmentation Network for AGV Toward Intelligent Warehousing, Sensors 2025, 25(7), 2333, https://doi.org/10.3390/s25072333",
+    "Nguyen et al., Lang2Lift, arXiv:2508.15427, Aug 2025, https://arxiv.org/abs/2508.15427",
+    "Miura et al., Real-Time 6DoF Pallet Pose Estimation with Monocular Metric Depth, VISAPP 2026, DOI:10.5220/0014626800004084, https://www.scitepress.org/Papers/2026/146268/146268.pdf"
+  ]
+}

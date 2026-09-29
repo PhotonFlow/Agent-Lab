@@ -1,0 +1,8 @@
+{
+  "query": "defects in src that keep scenario_error away from its target",
+  "findings": [
+    "EstimatePoseOutcome has no has_dimensions, width_m, height_m, or depth_m, and estimate_pose_chamfer_v3_2 never measures the inlier face, so dimension_error stays the 3.0 sentinel. The scored depth rectangle is 1.0 m by 0.8 m at 2.5 m; src only has the fixed 1.20 by 0.14 m prototype.",
+    "detection_utils.hpp only has select_detection, so the scored path admits one highest_confidence box, source_index 0 (score 0.99, area 2000), which must be deferred, and records an empty deferred list. selection_error is 1 + 0.25*3 = 1.75. Top-2 largest_area should admit indices 1 and 2 (areas 50000 and 40000) and defer 0, 3, and 4.",
+    "Published translation is the chamfer-refined centre, not the bbox-centre ray-plane hit, which is (0,0,2) on this face. sample_face_points backprojects integer pixels, and erode_px=2 keeps depth window u 171-468, v 221-258, whose centroid is 2.22 mm off-axis on x and y. The 1.20 by 0.14 m prototype does not match that ~1.32 by 0.164 m face, so chamfer leaves the ray hit. Baseline pose_error_m is 0.002, which alone keeps scenario_error above 0."
+  ]
+}

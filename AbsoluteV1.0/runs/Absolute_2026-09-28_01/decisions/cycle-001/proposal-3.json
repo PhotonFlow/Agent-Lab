@@ -1,0 +1,5 @@
+{
+  "feature_id": "scene-moved-hold",
+  "summary": "After a pallet pose is published, compare the inlier face mean range on each newer depth frame with the range used for that pose, and republish PalletPoseStamped with accepted false and quality_reasons scene_moved once the range leaves a motion budget.",
+  "hypothesis": "The dynamic handler keeps using a pose only while accepted stays true, so a pose estimated before the face moved is withdrawn once the scene has changed."
+}

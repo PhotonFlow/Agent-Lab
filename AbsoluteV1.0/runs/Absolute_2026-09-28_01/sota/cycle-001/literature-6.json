@@ -1,0 +1,24 @@
+{
+  "query": "interfaces in src that a Publish the stage-2 inlier-face width, height, and depth in metres on /pps/pallet_pose_rich with the pose from that same estimate. Width is the camera-x span of the inlier face, height is the camera-y span, and depth is the mean range. The vehicle's dynamic handling process can then size the pallet from the pose it is about to use while the scene can still change. change must keep working",
+  "findings": [
+    "PalletPoseStamped, published on pallet_pose_topic (default /pps/pallet_pose_rich), has no width, height, or depth. Append those metres; keep header, pose, yaw_rad, face_normal_rgb, plane_inlier_ratio, n_face_points, chamfer_cost_m, accepted, quality_reasons, failure_reason, geometry_source, preset_id, input_rgb_stamp, and input_depth_stamp in place.",
+    "Keep the separate geometry_msgs/PoseStamped publisher on pose_topic (default /pps/pallet_pose). The lean pose and the rich message are both emitted from one successful estimate; dimensions belong on the rich message with that pose.",
+    "EstimatePoseOutcome already holds has_dimensions, width_m, height_m, and depth_m from the same stage-2 plane-inlier cloud used for the pose: camera-x span, camera-y span, and mean range, filled only when outcome.ok. publish_pose already receives that outcome beside PoseResult and copies the pose plus chamfer_cost_m, not the extents.",
+    "Do not reuse EstimatePoseParams.pallet_width_m (1.20) or pallet_height_m (0.14). Those size the chamfer prototype and the recorder overlay, not the measured inlier face.",
+    "eval_recorder joins a rich success on input_rgb_stamp and reads yaw_rad, pose.position, n_face_points, plane_inlier_ratio, and chamfer_cost_m. header.stamp stays publish time. WARN diagnostics stay the failure path (failure_reason and input_rgb_stamp); OK diagnostics stay duplicates and are ignored.",
+    "on_pair publishes one rich message per admitted success (max_stage2 default 2). Extents must come from that call's depth-frame inlier points, not from RGB pose tx/ty/tz and not from n_face_points, which counts face samples before the inlier cut.",
+    "Stage-2 failures return before dimensions are set and publish diagnostics only, with hardware_id dynamic_handling_ros_v1. A success still sets accepted true, failure_reason empty, geometry_source bbox_chamfer_v3_2, and preset_id geometry_core_default."
+  ],
+  "citations": [
+    "pps_perception_msgs/msg/PalletPoseStamped.msg",
+    "pps_perception_msgs/CMakeLists.txt",
+    "pps_pallet_pose_cpp/src/pallet_pose_node.cpp",
+    "pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp",
+    "geometry_core/include/geometry_core/pipeline_v3_2.hpp",
+    "geometry_core/src/pipeline_v3_2.cpp",
+    "geometry_core/include/geometry_core/schemas.hpp",
+    "pps_dataset_replay/pps_dataset_replay/eval_recorder_node.py",
+    "pps_perception_bringup/pps_perception_bringup/pipeline_nodes.py",
+    "pps_perception_bringup/config/pallet_pose_cpp.yaml"
+  ]
+}

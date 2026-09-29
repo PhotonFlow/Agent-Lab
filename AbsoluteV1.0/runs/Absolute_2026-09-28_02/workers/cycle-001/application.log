@@ -1,0 +1,7 @@
+The application brief is written to `runs/Absolute_2026-09-28_02/application/application.json`.
+
+**Purpose.** pps is the AGV pallet perception stack. RT-DETR finds pallets, then the chamfer stage-2 pipeline estimates the pallet face pose from synchronized detections and depth while the scene can still change.
+
+**Users.** The vehicle's dynamic handling process, which consumes that pose to approach and handle the pallet.
+
+**Outputs.** The pallet pose in the camera RGB optical frame, the pallet width, height, and depth in metres, and which detections go through stage 2 versus which are marked deferred, within the 5 ms latency budget.

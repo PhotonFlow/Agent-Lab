@@ -1,0 +1,5 @@
+Literature-only output is in `runs/Absolute_2026-09-28_01/sota/cycle-001/literature-3.json`.
+
+Publishing metric size with the pose from the same frame is current: ROS 2 `vision_msgs` `BoundingBox3D` still pairs a size in metres with the center pose, and Yu et al. (arXiv:2507.00984, July 2025) estimate cuboid width, height, and depth with the pose from one observation. Camera-x and camera-y spans are still the axis-aligned extent of a point set (Open3D 0.19), and mean range is the face distance, separate from the thin z-extent of the inlier slab.
+
+That exact triple is only partly what 2025–2026 pallet papers publish as size. They assume a known face, use a CAD model, or estimate an object-frame cuboid. `vision_msgs` size is along the pose’s own axes, so a yawed face’s camera-x span is the projected extent, larger than the face width.

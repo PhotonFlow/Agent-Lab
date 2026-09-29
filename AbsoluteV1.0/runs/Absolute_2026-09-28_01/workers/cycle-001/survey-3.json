@@ -1,0 +1,16 @@
+{
+  "brief_path": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\workers\\cycle-001\\survey-3.json",
+  "cycle": 1,
+  "framework_root": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0",
+  "index": 3,
+  "model": "grok-4.7-xhigh",
+  "named_penalties": [
+    "scenario_error"
+  ],
+  "output": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\sota\\cycle-001\\survey-3.json",
+  "package_copy": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\package\\src",
+  "prompt": "ROLE: survey\nRead the package copy. Name hot paths, algorithmic complexity, extra copies, and dependencies that dominate inference.\nWrite only this JSON file: C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\sota\\cycle-001\\survey-3.json\nSchema: {\"points\": [\"one implementation point\"]}\nDo not read or write the scorer.\nDo not open an immutable file.\nDo not admit. Do not score. Do not mark a keep.\nDo not start python -m absolute evolve.",
+  "role": "survey",
+  "run": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01",
+  "skill": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\SKILL.md"
+}

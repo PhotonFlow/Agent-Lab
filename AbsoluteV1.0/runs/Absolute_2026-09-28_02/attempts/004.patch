@@ -1,0 +1,319 @@
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
+index 5e2bcfd..1f49d62 100644
+--- a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
+@@ -30,4 +30,9 @@ std::vector<DetectionCandidate> extract_detection_candidates(
+ std::optional<DetectionCandidate> select_detection(
+     const std::vector<DetectionCandidate>& candidates, const std::string& strategy);
+ 
++// Source indexes of candidates select_detection did not choose, in candidate
++// order. The chosen pallet is the only one sent through stage 2.
++std::vector<int> unselected_source_indexes(
++    const std::vector<DetectionCandidate>& candidates, int selected_source_index);
++
+ }  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+index e37fb64..fa704f9 100644
+--- a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+@@ -5,6 +5,7 @@
+ #include <optional>
+ #include <random>
+ #include <string>
++#include <vector>
+ 
+ #include <diagnostic_msgs/msg/diagnostic_array.hpp>
+ #include <geometry_msgs/msg/pose_stamped.hpp>
+@@ -38,11 +39,13 @@ class PalletPoseNode : public rclcpp::Node {
+                      const builtin_interfaces::msg::Time& input_depth_stamp);
+   void publish_failure_diagnostics(const geometry_core::FailureResult& failure,
+                                      const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                     const builtin_interfaces::msg::Time& input_depth_stamp);
++                                     const builtin_interfaces::msg::Time& input_depth_stamp,
++                                     const std::vector<int>& deferred);
+   void publish_ok_diagnostics(const geometry_core::PoseResult& pose,
+                                const geometry_core::EstimatePoseOutcome& outcome,
+                                const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                               const builtin_interfaces::msg::Time& input_depth_stamp);
++                               const builtin_interfaces::msg::Time& input_depth_stamp,
++                               const std::vector<int>& deferred);
+ 
+   geometry_core::RgbDepthCameraConfig camera_cfg_;
+   geometry_core::Stage2Config stage2_cfg_;
+diff --git a/pps_pallet_pose_cpp/src/detection_utils.cpp b/pps_pallet_pose_cpp/src/detection_utils.cpp
+index fc3a226..3ef8dde 100644
+--- a/pps_pallet_pose_cpp/src/detection_utils.cpp
++++ b/pps_pallet_pose_cpp/src/detection_utils.cpp
+@@ -71,4 +71,15 @@ std::optional<DetectionCandidate> select_detection(
+   throw std::invalid_argument("Unknown detection selection strategy: " + strategy);
+ }
+ 
++std::vector<int> unselected_source_indexes(
++    const std::vector<DetectionCandidate>& candidates, int selected_source_index) {
++  std::vector<int> deferred;
++  for (const auto& candidate : candidates) {
++    if (candidate.source_index != selected_source_index) {
++      deferred.push_back(candidate.source_index);
++    }
++  }
++  return deferred;
++}
++
+ }  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+index 5594916..0aea1d1 100644
+--- a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
++++ b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+@@ -123,11 +123,13 @@ void PalletPoseNode::on_pair(const sensor_msgs::msg::Image::ConstSharedPtr& dept
+   // very message depth_image_to_meters() converted into depth_m above.
+   const auto& input_rgb_stamp = det_msg->header.stamp;
+   const auto& input_depth_stamp = depth_msg->header.stamp;
++  const std::vector<int> deferred =
++      unselected_source_indexes(candidates, candidate->source_index);
+   if (!outcome.ok) {
+-    publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp);
++    publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp, deferred);
+     return;
+   }
+-  publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp);
++  publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp, deferred);
+   publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp);
+ }
+ 
+@@ -174,7 +176,8 @@ void PalletPoseNode::publish_pose(const geometry_core::PoseResult& pose,
+ 
+ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureResult& failure,
+                                                    const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                                   const builtin_interfaces::msg::Time& input_depth_stamp) {
++                                                   const builtin_interfaces::msg::Time& input_depth_stamp,
++                                                   const std::vector<int>& deferred) {
+   diagnostic_msgs::msg::DiagnosticArray diag;
+   diag.header.stamp = this->get_clock()->now();
+   diagnostic_msgs::msg::DiagnosticStatus status;
+@@ -194,6 +197,12 @@ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureRes
+   depth_kv.key = "input_depth_stamp";
+   depth_kv.value = stamp_to_string(input_depth_stamp);
+   status.values.push_back(depth_kv);
++  for (int source_index : deferred) {
++    diagnostic_msgs::msg::KeyValue kv;
++    kv.key = "deferred_source_index";
++    kv.value = std::to_string(source_index);
++    status.values.push_back(kv);
++  }
+   diag.status.push_back(status);
+   diag_pub_->publish(diag);
+ }
+@@ -201,7 +210,8 @@ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureRes
+ void PalletPoseNode::publish_ok_diagnostics(const geometry_core::PoseResult& pose,
+                                              const geometry_core::EstimatePoseOutcome& outcome,
+                                              const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                             const builtin_interfaces::msg::Time& input_depth_stamp) {
++                                             const builtin_interfaces::msg::Time& input_depth_stamp,
++                                             const std::vector<int>& deferred) {
+   diagnostic_msgs::msg::DiagnosticArray diag;
+   diag.header.stamp = this->get_clock()->now();
+   diagnostic_msgs::msg::DiagnosticStatus status;
+@@ -220,6 +230,12 @@ void PalletPoseNode::publish_ok_diagnostics(const geometry_core::PoseResult& pos
+   add("n_face_points", std::to_string(pose.n_face_points));
+   add("input_rgb_stamp", stamp_to_string(input_rgb_stamp));
+   add("input_depth_stamp", stamp_to_string(input_depth_stamp));
++  for (int source_index : deferred) {
++    diagnostic_msgs::msg::KeyValue kv;
++    kv.key = "deferred_source_index";
++    kv.value = std::to_string(source_index);
++    status.values.push_back(kv);
++  }
+   diag.status.push_back(status);
+   diag_pub_->publish(diag);
+ }
+diff --git a/pps_pallet_pose_cpp/test/test_unselected_source_indexes.py b/pps_pallet_pose_cpp/test/test_unselected_source_indexes.py
+new file mode 100644
+index 0000000..a488253
+--- /dev/null
++++ b/pps_pallet_pose_cpp/test/test_unselected_source_indexes.py
+@@ -0,0 +1,185 @@
++"""Unselected detections on a synced pair stay out of stage 2 and are marked deferred.
++
++select_detection still chooses the one pallet estimate_pose_chamfer_v3_2
++receives. Every other candidate's Detection2DArray source index is published
++on that same pose diagnostic status, which already carries this pair's RGB
++and depth capture stamps.
++"""
++
++from __future__ import annotations
++
++import sys
++import unittest
++from pathlib import Path
++
++PACKAGE_SRC = Path(__file__).resolve().parents[2]
++DETECTION_CPP = PACKAGE_SRC / "pps_pallet_pose_cpp" / "src" / "detection_utils.cpp"
++NODE_CPP = PACKAGE_SRC / "pps_pallet_pose_cpp" / "src" / "pallet_pose_node.cpp"
++
++
++class Candidate:
++    def __init__(self, source_index: int) -> None:
++        self.source_index = source_index
++
++
++def function_body(text: str, name: str) -> str:
++    start = text.find(name)
++    if start < 0:
++        raise AssertionError(f"{name} is missing")
++    brace = text.find("{", start)
++    if brace < 0:
++        raise AssertionError(f"{name} has no body")
++    depth = 0
++    for index in range(brace, len(text)):
++        char = text[index]
++        if char == "{":
++            depth += 1
++        elif char == "}":
++            depth -= 1
++            if depth == 0:
++                return text[brace + 1 : index]
++    raise AssertionError(f"{name} body does not close")
++
++
++def _statements(body: str) -> list:
++    lines = []
++    for raw in body.splitlines():
++        line = raw.strip()
++        if not line or line.startswith("//"):
++            continue
++        lines.append(line)
++    return _parse_block(lines, 0)[0]
++
++
++def _parse_block(lines: list[str], index: int) -> tuple[list, int]:
++    statements: list = []
++    while index < len(lines):
++        line = lines[index]
++        if line == "}":
++            return statements, index + 1
++        if line.endswith("{"):
++            nested, index = _parse_block(lines, index + 1)
++            statements.append((line[:-1].strip(), nested))
++            continue
++        statements.append(line)
++        index += 1
++    return statements, index
++
++
++def _lookup(expr: str, env: dict):
++    expr = expr.strip().rstrip(";")
++    if expr in env and not expr.startswith("candidate."):
++        return env[expr]
++    if "." in expr:
++        root, field = expr.split(".", 1)
++        return getattr(env[root], field)
++    raise AssertionError(f"unknown name {expr}")
++
++
++def _execute(statements: list, env: dict):
++    for statement in statements:
++        if isinstance(statement, tuple):
++            header, nested = statement
++            if header.startswith("for ("):
++                inner = header[len("for (") :].strip()
++                if inner.endswith(")"):
++                    inner = inner[:-1].strip()
++                declared, collection = [part.strip() for part in inner.split(":")]
++                loop_name = declared.split()[-1]
++                for item in list(env[collection]):
++                    env[loop_name] = item
++                    _execute(nested, env)
++                continue
++            if header.startswith("if ("):
++                cond = header[len("if (") :].strip()
++                if cond.endswith(")"):
++                    cond = cond[:-1].strip()
++                left, right = [part.strip() for part in cond.split("!=")]
++                if _lookup(left, env) != _lookup(right, env):
++                    _execute(nested, env)
++                continue
++            raise AssertionError(f"unsupported block: {header}")
++        if statement.startswith("std::vector<int> "):
++            env[statement[len("std::vector<int> ") :].rstrip(";").strip()] = []
++            continue
++        if statement.startswith("return "):
++            return _lookup(statement[len("return ") :], env)
++        if ".push_back(" in statement:
++            target, arg = statement[:-2].split(".push_back(", 1)
++            env[target.strip()].append(_lookup(arg, env))
++            continue
++        raise AssertionError(f"unsupported statement: {statement}")
++    return None
++
++
++def unselected_source_indexes(candidates: list[Candidate], selected_source_index: int) -> list[int]:
++    text = DETECTION_CPP.read_text(encoding="utf-8")
++    body = function_body(text, "unselected_source_indexes")
++    result = _execute(
++        _statements(body),
++        {"candidates": list(candidates), "selected_source_index": selected_source_index},
++    )
++    if not isinstance(result, list):
++        raise AssertionError("unselected_source_indexes did not return the other source indexes")
++    return result
++
++
++class UnselectedSourceIndexesTest(unittest.TestCase):
++    def test_other_candidates_stay_deferred_in_detection_order(self) -> None:
++        deferred = unselected_source_indexes(
++            [Candidate(0), Candidate(1), Candidate(2)], 1
++        )
++        self.assertEqual(deferred, [0, 2])
++        self.assertEqual(
++            unselected_source_indexes([Candidate(2), Candidate(0), Candidate(5)], 0),
++            [2, 5],
++        )
++        self.assertEqual(unselected_source_indexes([Candidate(4)], 4), [])
++        self.assertNotIn(1, deferred)
++
++    def test_pose_diagnostics_list_deferred_indexes_beside_this_pairs_stamps(self) -> None:
++        cpp = NODE_CPP.read_text(encoding="utf-8")
++        on_pair = function_body(cpp, "PalletPoseNode::on_pair")
++        failure = function_body(cpp, "PalletPoseNode::publish_failure_diagnostics")
++        ok = function_body(cpp, "PalletPoseNode::publish_ok_diagnostics")
++        pose = function_body(cpp, "PalletPoseNode::publish_pose")
++
++        empty_return = on_pair.find("return;", on_pair.find("if (!candidate.has_value())"))
++        catch_return = on_pair.find("return;", on_pair.find("catch ("))
++        mark = on_pair.find("unselected_source_indexes(candidates, candidate->source_index)")
++        self.assertGreaterEqual(empty_return, 0)
++        self.assertGreaterEqual(catch_return, 0)
++        self.assertGreater(mark, catch_return)
++        self.assertGreater(mark, empty_return)
++        self.assertLess(mark, on_pair.find("publish_failure_diagnostics("))
++        self.assertLess(mark, on_pair.find("publish_ok_diagnostics("))
++        self.assertIn(
++            "publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp, deferred)",
++            on_pair,
++        )
++        self.assertIn(
++            "publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp, deferred)",
++            on_pair,
++        )
++        self.assertEqual(cpp.count("estimate_pose_chamfer_v3_2("), 1)
++        self.assertIn("candidate->bbox_xyxy", on_pair)
++        self.assertNotIn("estimate_pose_chamfer_v3_2", on_pair[on_pair.find("catch (") : catch_return])
++
++        for body in (failure, ok):
++            self.assertIn('kv.key = "deferred_source_index"', body)
++            self.assertIn("kv.value = std::to_string(source_index)", body)
++            self.assertIn("stamp_to_string(input_rgb_stamp)", body)
++            self.assertIn("stamp_to_string(input_depth_stamp)", body)
++            self.assertLess(
++                body.find("stamp_to_string(input_depth_stamp)"),
++                body.find('kv.key = "deferred_source_index"'),
++            )
++        self.assertIn("failure_reason", failure)
++        self.assertNotIn("deferred_source_index", pose)
++        self.assertNotIn("unselected_source_indexes", pose)
++
++
++if __name__ == "__main__":
++    suite = unittest.defaultTestLoader.loadTestsFromTestCase(UnselectedSourceIndexesTest)
++    result = unittest.TextTestRunner(verbosity=2).run(suite)
++    sys.exit(0 if result.wasSuccessful() else 1)

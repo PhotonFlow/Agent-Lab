@@ -1,0 +1,5 @@
+The stage-2 chamfer cost no longer copies the rotated contour or the sampled distances on every pose. The behavior test is `python geometry_core/test/test_inplace_chamfer_cost.py`.
+
+`chamfer_cost_from_rotated` was assigning the rotated contour into `tls.translated`, then copying the sampled distances into `tls.sorted` before sorting. The test failed on that assignment. It now samples the rotated columns plus this translation directly, and sorts the distance buffer in place. The trimmed mean is still the ascending prefix of those samples, and the pose node still estimates only the one admitted pallet.
+
+The new test passed (1 test). The existing admission-split test still passed (13 tests). No C++ compiler was on PATH, so this session did not compile `chamfer.cpp`.

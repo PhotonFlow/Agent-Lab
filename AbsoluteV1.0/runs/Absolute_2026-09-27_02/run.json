@@ -1,0 +1,22 @@
+{
+  "baseline_eval_command": [
+    "C:\\Users\\alanpeng\\anaconda3\\python.exe",
+    "evaluate.py"
+  ],
+  "created_at": "2026-09-27T06:30:55+00:00",
+  "eval_mode": "measured",
+  "framework": "Absolute",
+  "id": "Absolute_2026-09-27_02",
+  "immutable_hashes": {
+    "evaluate.py": "388f058cb563ef6865f2af04c44b06e3e2b98b2b14e809bb6da2df7e15a1b881",
+    "geometry_core/test/test_pipeline_v3_2.cpp": "85a68ee725fe8f400c0c60550c8ae8c1e4035d91d0135b1a608e7969f3401d1b"
+  },
+  "open_admit": null,
+  "package_copy": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_02\\package\\src",
+  "script_head": "0da4ace1fe7efb7c4829b145a3df5e98e78c607a",
+  "source_package": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\pps_v3.4_ros\\src",
+  "status": "stopped",
+  "stop_reason": "plateau",
+  "task": "evolve the pps source stack, add pallet dimension estimation, and send only a bounded subset of pallets through stage 2",
+  "version": "1.0"
+}

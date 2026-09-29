@@ -1,0 +1,7 @@
+The admission verdict is written to `runs/Absolute_2026-09-28_02/decisions/cycle-001/admission.json`.
+
+**Accepted:** `deferred_detection_marks`. The scenario review treats source index plus this pair's RGB and depth stamps as the named stage-2 versus deferred distinction, and the feasibility review says those indices can be added on the existing diagnostic paths.
+
+**Rejected:** `inlier_face_extents`. Inlier spans are a partial visible face, and the proposed depth repeats the face-centre range the pose already carries.
+
+**Rejected:** `face_extent_prototype`. The changing-scene sentence does not replace the factory face, and the in-plane rotation that would separate width from height is an output of the match, so it cannot size that prototype.

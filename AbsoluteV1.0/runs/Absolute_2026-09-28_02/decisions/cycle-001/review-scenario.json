@@ -1,0 +1,16 @@
+{
+  "judgments": [
+    {
+      "feature_id": "deferred_detection_marks",
+      "concern": "The scenario names which detected pallets are sent through stage 2 versus marked deferred, and the handling process needs that distinction while the scene can still change. Publishing every candidate select_detection does not choose, by source index, with this pair's RGB and depth stamps, is that named distinction for this synchronized capture. The stamps are the part the user did not have to name: the marks belong to this pair, because a later frame can already be a different scene. The scenario states no rule that a deferred detection must be left unapproached, and no rule that handling must not wait for a later frame. A pallet deferred on this pair can be the one sent through stage 2 once the scene moves, and that pallet still needs a pose and a width, height, and depth. A source index on the diagnostics is that detection's identity in this message. This proposal leaves the pallet pose and the pallet width, height, and depth unchanged."
+    },
+    {
+      "feature_id": "inlier_face_extents",
+      "concern": "The scenario names the pallet width, height, and depth in metres as an output separate from the pallet pose, for the pallet the vehicle handles while the scene can still change. Width and height as the spans of this frame's plane inliers are the visible face extent along that estimate's plane axes. The scenario does not equate a partial plane fit with the pallet's width and height. Depth as the mean z of those same inliers, after the depth-to-RGB transform that already places the face centre, is the range of that centre. The pose already carries that range: the estimator lifts the face centre through the same transform and stores it as the pose position. The scenario lists depth with width and height, and lists the pose on its own, so face-centre range is the pose's range. The factory face in this stack is 1.20 m by 0.14 m and has no pallet-depth size. Which detections are sent through stage 2 versus marked deferred stays unaddressed."
+    },
+    {
+      "feature_id": "face_extent_prototype",
+      "concern": "The handling process needs a pallet pose while the scene can still change, plus the pallet's width, height, and depth, and which detections are deferred. That scene sentence is temporal: a later frame can already have moved. It does not say the pallet face differs from the factory 1.20 m by 0.14 m, and it does not say a search locked to that face matches a different pallet than the one in this depth frame. The factory face is the template matched to this capture, and the pose is still the face centre lifted from this frame. Building that template from the same frame's inlier width and height copies the visible blob into the search, so the pose can follow a partial face. The proposal keeps pallet depth as the face-centre range, which is the pose, and it does not publish width, height, and depth to the handling process or mark which detections were deferred."
+    }
+  ]
+}

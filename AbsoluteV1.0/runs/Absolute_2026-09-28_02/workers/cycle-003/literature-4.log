@@ -1,0 +1,10 @@
+The literature report is in `runs\Absolute_2026-09-28_02\sota\cycle-003\literature-4.json`. The query matches the brief.
+
+Older methods that were replaced:
+
+- Passing the whole detection array into stage 2 was replaced by publishing one detection: the first box whose score is strictly greater than the running maximum. Isaac ROS `Detection2DArrayFilter` does that and drops every other detection.
+- An unfiltered box list was replaced by non-maximum suppression that returns only the kept indices. Soft-NMS then replaced hard deletion of overlaps by decaying their scores. The boxes that are not kept are still not returned in their original order.
+- Dropping every box below a score threshold before the next stage was replaced, for tracking, by ByteTrack's high-score and low-score split. The result is tracks, not source indices on a pose.
+- Posing one pallet and ignoring the stack was replaced by an in-view geometric priority (upper pallet first). A language prompt then replaced a detector that cannot tell loads apart. Lang2Lift still sends one mask, `M_best`, to FoundationPose.
+
+What has not been replaced: ifm `getPallet` still returns up to 10 pallets reordered by score, depth, or lateral position, and a 2026 pallet-bin pipeline still writes a 6D pose for each detected bin. `PoseStamped` is still a header and a pose, and a failure diagnostic is still key-value status. No fetched source puts the admitted source index and the order-preserving deferred source indices on the pose the handling process reads.

@@ -1,0 +1,3 @@
+Wrote the feature proposal to `runs\Absolute_2026-09-28_01\decisions\cycle-001\proposal-3.json`.
+
+**scene-moved-hold.** After a pallet pose is published, each newer depth frame is compared with the inlier-face range used for that pose. Once the range leaves a motion budget, the same pose is republished with `accepted` false and `quality_reasons` set to `scene_moved`, so the handler stops using a pose from a face that has already moved.

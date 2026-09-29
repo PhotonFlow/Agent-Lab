@@ -1,0 +1,29 @@
+{
+  "query": "evidence that methods for For the class-matched detections in one capture, select_stage2_subset ranks that DetectionCandidate list with the strategy select_detection already implements. It applies that strategy by the first-maximum rule std::max_element already uses, so a tie keeps the earlier candidate and the later tied candidate stays deferred. It admits at most the count the caller passes, in that rank order, and places every candidate it does not admit into deferred, preserving their order in the candidate list. Each candidate keeps its source_index. Stage2Admission holds those two vectors, admitted and deferred. An empty candidate list returns both vectors empty, and an unknown strategy throws. The pose node calls it with its detection_selection strategy and a count of one, so stage 2 still estimates that single admitted pallet. The admitted source index and the deferred source indices are written on PalletPoseStamped after input_depth_stamp. The message already carries this pair's RGB and depth stamps, so the split is this capture while the scene can still change. When the estimate fails, publish no PalletPoseStamped and write the same two lists on the failure diagnostic, which is the only result that path publishes. The two early returns that publish nothing stay as they are. The user named which detections are sent through stage 2 versus marked deferred. The part they did not name is that the split is these two admission vectors, ordered by that first-maximum rule, on the pose result the handling process reads. are current",
+  "findings": [
+    "The first-maximum tie rule is still current. std::max_element returns the first greatest element, so a later equal element is not chosen, and an empty range returns last. NumPy 2.5 argmax and the Array API 2025.12 return the index of the first occurrence of the maximum. The Array API raises for an invalid axis, not for an unknown detection-selection strategy.",
+    "Isaac ROS FoundationPose still builds the stage-2 mask from the highest-scoring detection in a Detection2DArray. Detection2DArrayFilter on main keeps a class-matched detection only when hypothesis.score is strictly greater than the running maximum, so a tie keeps the earlier detection, and it publishes that one Detection2D. A maximum that stays 0 returns without publishing. The filter does not take a caller count, does not keep the array slot, and does not return the detections it did not publish.",
+    "Current forklift pose still estimates one selected pallet. Lang2Lift (arXiv:2508.15427v2) selects the SAM-2 mask with the highest quality score and calls FoundationPose once on M_best. The YOLO26n pallet-pose deployment takes np.argmax of box confidence, states one pallet per frame, and leaves multi-pallet scenes untested. Neither result carries the other candidates source indices.",
+    "Current ifm getPallet still returns every localized pallet, up to 10, on the result the vehicle reads, ordered by palletOrder. The default is scoreDescending. palletIndex is a template type 0-9, not a Detection2DArray slot. PalletDetection is a header plus pocket poses and has no source_index and no deferred list. That reorder is the full result list, not an admitted prefix plus a deferred remainder in candidate order.",
+    "Current messages still identify one capture by header stamps and still have no admission vectors. Detection2DArray is an ordered list of proposals from one input. Detection2D.id may be empty and is a cross-message id, not the array slot. Rolling message_filters ExactTime requires the same header stamp, and ApproximateTime matches those stamps without requiring them to be equal. PoseStamped is a header plus a pose. Detection3D has no deferred-index field. DiagnosticStatus values are KeyValue strings. No current source found writes the admitted source index and the order-preserving deferred source indices on the pose the handling process reads and repeats those two lists on the failure diagnostic."
+  ],
+  "citations": [
+    "https://en.cppreference.com/cpp/algorithm/max_element",
+    "https://numpy.org/doc/stable/reference/generated/numpy.argmax.html",
+    "https://data-apis.org/array-api/2025.12/API_specification/generated/array_api.argmax.html",
+    "https://nvidia-isaac-ros.github.io/repositories_and_packages/isaac_ros_pose_estimation/isaac_ros_foundationpose/index.html",
+    "https://raw.githubusercontent.com/NVIDIA-ISAAC-ROS/isaac_ros_pose_estimation/main/isaac_ros_foundationpose/src/detection2_d_array_filter.cpp",
+    "https://arxiv.org/html/2508.15427v2",
+    "https://huggingface.co/CanelE452/pallet-pose-yolo26n-ft",
+    "https://ifm3d.com/latest/PDS/GetPallet/getPallet.html",
+    "https://raw.githubusercontent.com/ifm/ifm3d-ros2/master/msg/GetPalletRequest.msg",
+    "https://raw.githubusercontent.com/ifm/ifm3d-ros2/master/msg/PalletDetection.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection2DArray.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection2D.msg",
+    "https://raw.githubusercontent.com/ros2/message_filters/rolling/doc/index.rst",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/rolling/geometry_msgs/msg/PoseStamped.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection3D.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/rolling/diagnostic_msgs/msg/DiagnosticStatus.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/rolling/diagnostic_msgs/msg/KeyValue.msg"
+  ]
+}

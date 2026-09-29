@@ -1,0 +1,7 @@
+Cycle 3 decision is written to `runs/Absolute_2026-09-27_04/decisions/cycle-003/decision.json`.
+
+**Level:** implementation
+
+**Hypothesis:** In `estimate_pose_chamfer_v3_2`, publish `apply_se3(R_dr, t_dr, centre_d_init)` as `tx`, `ty`, and `tz` instead of the chamfer-refined lift of `best_pose`, so the bbox-centre ray through the RGB principal point hits `(0, 0, 2)` on the uniform z=2 probe and `pose_error_m` drops from 0.002 to 0, clearing the remaining `scenario_error` while the face-extent dimensions and `select_stage2_subset` admission stay in place.
+
+All three proposals and the research matrix named this same change. `scenario_error` is now only the 0.002 m pose term, and that term is the chamfer lift. The bbox-centre ray is already the point the metric wants.

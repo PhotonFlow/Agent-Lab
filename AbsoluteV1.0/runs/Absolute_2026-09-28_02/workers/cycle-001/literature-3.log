@@ -1,0 +1,7 @@
+Literature worker 3 wrote `runs/Absolute_2026-09-28_02/sota/cycle-001/literature-3.json`. The query is unchanged.
+
+Sending only the chosen detection into stage 2 is still current. Isaac ROS FoundationPose 5.0 builds the pose mask from the highest-scoring detection in the array, and Lang2Lift (August 2025) runs FoundationPose on one top-1 pallet mask per prompt.
+
+The bookkeeping half is also current: ROS 2 rolling still synchronizes on header stamps, `Detection2DArray` is still an ordered list, and `DiagnosticStatus` still carries extra key-value fields.
+
+No 2024–2026 source found publishes every non-selected source index on the pose diagnostic together with that pair's RGB stamp and depth stamp. The 2026 pallet-bin paper ranks rotation hypotheses inside one bin, which is a different selection.

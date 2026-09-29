@@ -1,0 +1,11 @@
+Survey review for cycle 1 is in `runs/Absolute_2026-09-28_01/sota/cycle-001/survey-review.json`. Seven points are kept.
+
+They are the distinct hot-path facts from the three surveys that change either the inlier-face extents or measured latency:
+
+- The chamfer grid is the latency cost: about 45,692 evaluations per detection when the prior search runs.
+- The published pose is the ray-plane hit and the plane-normal yaw. Width, height, and depth are one later pass over `plane_points_3d`, and only when that inlier face exists.
+- Each hypothesis still copies and fully sorts the 182-point prototype.
+- The distance image is a padding-dominated precise OpenCV transform.
+- The full depth frame is scanned for every admitted box, and that cloud is what the extents measure.
+- RANSAC rebuilds the same inlier cloud the extents loop reads.
+- Stage-1 detection and preprocess run before any of that. The default backend is mock.

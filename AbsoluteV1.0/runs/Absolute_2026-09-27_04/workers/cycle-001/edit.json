@@ -1,0 +1,47 @@
+{
+  "blocked_levels": [],
+  "brief_path": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_04\\workers\\cycle-001\\edit.json",
+  "cycle": 1,
+  "decision": {
+    "feature_id": "face-extent-dimensions",
+    "hypothesis": "Add face-extent dimensions on EstimatePoseOutcome so the pose estimate sets has_dimensions and reports camera-frame width as max x minus min x, height as max y minus min y, and depth as mean z of the valid face points, which is 1.0 m by 0.8 m at 2.5 m and clears the 3.0 dimension sentinel.",
+    "level": "feature",
+    "summary": "Publish the camera-frame extent of valid face points as has_dimensions, width_m, height_m, and depth_m on EstimatePoseOutcome."
+  },
+  "eval_command": [
+    "python",
+    "c:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_02\\package\\src\\evaluate.py"
+  ],
+  "framework_root": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0",
+  "goal": {
+    "direction": "minimize",
+    "metric": "scenario_error",
+    "noise": 0.001,
+    "target": 0.0
+  },
+  "handoff": "# Absolute handoff\n\nstatus: running\nstop_reason: \nrun: C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_04\nsource_package: C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\pps_v3.4_ros\\src\npackage_copy: C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_04\\package\\src\nbaseline: {\"dimension_error_m\": 3.0, \"latency_ms\": 47.407906, \"pose_error_m\": 0.001999999999999993, \"scenario_error\": 4.752, \"selection_error\": 1.75}\nbest: {\"dimension_error_m\": 3.0, \"latency_ms\": 47.407906, \"pose_error_m\": 0.001999999999999993, \"scenario_error\": 4.752, \"selection_error\": 1.75}\ncycles: 0 keeps: 0\n\nattempts:\n- none\n\njournal_tail:\n{\"at\": \"2026-09-27T14:49:44+00:00\", \"cycle\": 0, \"hypothesis\": \"baseline\", \"metrics\": {\"dimension_error_m\": 3.0, \"latency_ms\": 47.407906, \"pose_error_m\": 0.001999999999999993, \"scenario_error\": 4.752, \"selection_error\": 1.75}, \"outcome\": \"baseline\"}\n\nThis run stops only when the measured primary metric hits its target. A revert, a failed eval, and a bad edit stay on this folder for the next cycle. Plateau and max_cycles do not stop it. Do not mark a keep. Do not open a new run.\n",
+  "immutable": [],
+  "matrix": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_04\\sota\\cycle-001\\matrix.json",
+  "measurement": {
+    "baseline": {
+      "dimension_error_m": 3.0,
+      "latency_ms": 47.407906,
+      "pose_error_m": 0.001999999999999993,
+      "scenario_error": 4.752,
+      "selection_error": 1.75
+    },
+    "best": {
+      "dimension_error_m": 3.0,
+      "latency_ms": 47.407906,
+      "pose_error_m": 0.001999999999999993,
+      "scenario_error": 4.752,
+      "selection_error": 1.75
+    }
+  },
+  "model": "grok-4.7-xhigh",
+  "package_copy": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_04\\package\\src",
+  "prompt": "ROLE: edit\nYou implement exactly one already chosen change on the package copy, then stop.\nLevel: feature\nHypothesis: Add face-extent dimensions on EstimatePoseOutcome so the pose estimate sets has_dimensions and reports camera-frame width as max x minus min x, height as max y minus min y, and depth as mean z of the valid face points, which is 1.0 m by 0.8 m at 2.5 m and clears the 3.0 dimension sentinel.\nFeature id: face-extent-dimensions\nPackage copy: C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_04\\package\\src\nImmutable files: []\nEval command, which you must not change: ['python', 'c:\\\\Users\\\\alanpeng\\\\Desktop\\\\Self-envolve_agent\\\\AbsoluteV1.0\\\\runs\\\\Absolute_2026-09-27_02\\\\package\\\\src\\\\evaluate.py']\nFollow Superpowers test-driven development on the package copy: write a failing test, watch it fail, then make the smallest change that passes.\nFollow Superpowers verification-before-completion: run that test and read its output before you stop.\nDo not commit.\nDo not open a git worktree.\nDo not ask a person to sign the design.\nDo not run finishing-a-development-branch.\nDo not merge.\nDo not edit an immutable file. Do not write the scorer.\nDo not admit. Do not score. Do not mark a keep. The runner's script decides keep or revert.\nDo not start python -m absolute evolve.",
+  "role": "edit",
+  "run": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_04",
+  "skill": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\SKILL.md"
+}

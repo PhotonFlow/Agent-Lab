@@ -1,0 +1,3 @@
+Research for cycle 3 is in `runs/Absolute_2026-09-27_04/sota/cycle-003/research-1.json`.
+
+`scenario_error` is `pose_error_m` + `dimension_error_m` + `selection_error`. The best split is about 0.002 + 0 + 0. The remaining method is to publish the bbox-centre ray-plane hit (`centre_d_init`, mapped by `R_dr` and `t_dr`) as `tx`, `ty`, `tz`. On the uniform depth-2 probe that hit is `(0, 0, 2)`, so the pose term becomes 0. The face-extent dimensions and `largest_area` stage-2 subset stay as they are.

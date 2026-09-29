@@ -1,0 +1,16 @@
+{
+  "judgments": [
+    {
+      "feature_id": "deferred_detection_marks",
+      "concern": "Deferred-candidate mark on the synchronized pair: stage 2 still poses only the pallet select_detection already chooses, and every other candidate is published as deferred by its source index together with that pair's RGB and depth stamps, so handling can tell which pallets were detected but not posed while the scene can still change. That is a selection signal for the handling process. It does not restate dimension_error_m (metres of error in pallet width, height, and depth) or latency_ms (measured inference latency)."
+    },
+    {
+      "feature_id": "inlier_face_extents",
+      "concern": "Measured face extents on the pose: publish width and height as the spans of the plane inliers along the estimate's plane axes, and depth as the mean z of those same inliers after the depth-to-RGB transform, on the stage-2 outcome and on PalletPoseStamped, so handling can size the approach from this capture. The proposal is that measurement and publication for the approach. It does not restate dimension_error_m or latency_ms."
+    },
+    {
+      "feature_id": "face_extent_prototype",
+      "concern": "Chamfer template from this frame: build the stage-2 prototype from the width and height of the plane-inlier face in the current depth frame instead of the fixed 1.20 m by 0.14 m factory face, so the template is the pallet about to be handled, while depth stays the face-centre range that estimate already lifts. The proposal is that change to how the prototype is built. It does not restate dimension_error_m or latency_ms."
+    }
+  ]
+}

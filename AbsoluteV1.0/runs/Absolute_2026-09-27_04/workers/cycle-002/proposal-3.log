@@ -1,0 +1,3 @@
+Proposal 3 is written to `runs/Absolute_2026-09-27_04/decisions/cycle-002/proposal-3.json`.
+
+It is one feature, `stage2-subset-admission`: add `select_stage2_subset` and `Stage2Admission` so `largest_area` with `k=2` admits source indices 1 and 2 and defers 0, 3, and 4. That is the remaining 1.75 selection term. The face-extent keep already zeroed the dimension error, and the 0.002 pose residual is a separate change.

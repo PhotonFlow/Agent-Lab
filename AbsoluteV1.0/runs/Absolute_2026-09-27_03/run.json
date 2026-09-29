@@ -1,0 +1,29 @@
+{
+  "baseline_eval_command": [
+    "C:\\Users\\alanpeng\\anaconda3\\python.exe",
+    "c:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\tests\\fixtures\\pps_dimension_eval.py"
+  ],
+  "created_at": "2026-09-27T07:44:05+00:00",
+  "entry": "evolve",
+  "eval_mode": "measured",
+  "external_scorer": [
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\tests\\fixtures\\pps_dimension_eval.py"
+  ],
+  "framework": "Absolute",
+  "goal": {
+    "direction": "minimize",
+    "metric": "dimension_error_m",
+    "noise": 0.001,
+    "target": 0.0
+  },
+  "id": "Absolute_2026-09-27_03",
+  "immutable_hashes": {},
+  "open_admit": null,
+  "package_copy": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_03\\package\\src",
+  "script_head": "8e201af3b8a34d09d989c3e506f313ed4c66c435",
+  "source_package": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\pps_v3.4_ros\\src",
+  "status": "stopped",
+  "stop_reason": "target",
+  "task": "evolve src until dimension_error_m minimize reaches 0.0",
+  "version": "1.0"
+}

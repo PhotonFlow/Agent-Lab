@@ -1,0 +1,383 @@
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/deferred_detection_marks.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/deferred_detection_marks.hpp
+new file mode 100644
+index 0000000..4d62410
+--- /dev/null
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/deferred_detection_marks.hpp
+@@ -0,0 +1,30 @@
++#pragma once
++
++#include <string>
++#include <utility>
++#include <vector>
++
++namespace pps_pallet_pose_cpp {
++
++inline std::vector<int> deferred_source_indexes(
++    const std::vector<int>& candidate_source_indexes, int selected_source_index) {
++  std::vector<int> deferred;
++  for (int source_index : candidate_source_indexes) {
++    if (source_index != selected_source_index) {
++      deferred.push_back(source_index);
++    }
++  }
++  return deferred;
++}
++
++inline void append_deferred_detection_marks(
++    std::vector<std::pair<std::string, std::string>>& values, const std::vector<int>& deferred,
++    const std::string& input_rgb_stamp, const std::string& input_depth_stamp) {
++  values.emplace_back("input_rgb_stamp", input_rgb_stamp);
++  values.emplace_back("input_depth_stamp", input_depth_stamp);
++  for (int source_index : deferred) {
++    values.emplace_back("deferred_source_index", std::to_string(source_index));
++  }
++}
++
++}  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+index e37fb64..fa704f9 100644
+--- a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+@@ -5,6 +5,7 @@
+ #include <optional>
+ #include <random>
+ #include <string>
++#include <vector>
+ 
+ #include <diagnostic_msgs/msg/diagnostic_array.hpp>
+ #include <geometry_msgs/msg/pose_stamped.hpp>
+@@ -38,11 +39,13 @@ class PalletPoseNode : public rclcpp::Node {
+                      const builtin_interfaces::msg::Time& input_depth_stamp);
+   void publish_failure_diagnostics(const geometry_core::FailureResult& failure,
+                                      const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                     const builtin_interfaces::msg::Time& input_depth_stamp);
++                                     const builtin_interfaces::msg::Time& input_depth_stamp,
++                                     const std::vector<int>& deferred);
+   void publish_ok_diagnostics(const geometry_core::PoseResult& pose,
+                                const geometry_core::EstimatePoseOutcome& outcome,
+                                const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                               const builtin_interfaces::msg::Time& input_depth_stamp);
++                               const builtin_interfaces::msg::Time& input_depth_stamp,
++                               const std::vector<int>& deferred);
+ 
+   geometry_core::RgbDepthCameraConfig camera_cfg_;
+   geometry_core::Stage2Config stage2_cfg_;
+diff --git a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+index 5594916..64fb989 100644
+--- a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
++++ b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+@@ -4,6 +4,10 @@
+ #include <cmath>
+ #include <iomanip>
+ #include <sstream>
++#include <utility>
++#include <vector>
++
++#include "pps_pallet_pose_cpp/deferred_detection_marks.hpp"
+ 
+ #ifdef _OPENMP
+ #include <omp.h>
+@@ -123,11 +127,18 @@ void PalletPoseNode::on_pair(const sensor_msgs::msg::Image::ConstSharedPtr& dept
+   // very message depth_image_to_meters() converted into depth_m above.
+   const auto& input_rgb_stamp = det_msg->header.stamp;
+   const auto& input_depth_stamp = depth_msg->header.stamp;
++  std::vector<int> candidate_source_indexes;
++  candidate_source_indexes.reserve(candidates.size());
++  for (const auto& item : candidates) {
++    candidate_source_indexes.push_back(item.source_index);
++  }
++  const std::vector<int> deferred =
++      deferred_source_indexes(candidate_source_indexes, candidate->source_index);
+   if (!outcome.ok) {
+-    publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp);
++    publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp, deferred);
+     return;
+   }
+-  publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp);
++  publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp, deferred);
+   publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp);
+ }
+ 
+@@ -174,7 +185,8 @@ void PalletPoseNode::publish_pose(const geometry_core::PoseResult& pose,
+ 
+ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureResult& failure,
+                                                    const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                                   const builtin_interfaces::msg::Time& input_depth_stamp) {
++                                                   const builtin_interfaces::msg::Time& input_depth_stamp,
++                                                   const std::vector<int>& deferred) {
+   diagnostic_msgs::msg::DiagnosticArray diag;
+   diag.header.stamp = this->get_clock()->now();
+   diagnostic_msgs::msg::DiagnosticStatus status;
+@@ -186,14 +198,15 @@ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureRes
+   kv.key = "failure_reason";
+   kv.value = failure.failure_reason;
+   status.values.push_back(kv);
+-  diagnostic_msgs::msg::KeyValue rgb_kv;
+-  rgb_kv.key = "input_rgb_stamp";
+-  rgb_kv.value = stamp_to_string(input_rgb_stamp);
+-  status.values.push_back(rgb_kv);
+-  diagnostic_msgs::msg::KeyValue depth_kv;
+-  depth_kv.key = "input_depth_stamp";
+-  depth_kv.value = stamp_to_string(input_depth_stamp);
+-  status.values.push_back(depth_kv);
++  std::vector<std::pair<std::string, std::string>> marks;
++  append_deferred_detection_marks(
++      marks, deferred, stamp_to_string(input_rgb_stamp), stamp_to_string(input_depth_stamp));
++  for (const auto& mark : marks) {
++    diagnostic_msgs::msg::KeyValue mark_kv;
++    mark_kv.key = mark.first;
++    mark_kv.value = mark.second;
++    status.values.push_back(mark_kv);
++  }
+   diag.status.push_back(status);
+   diag_pub_->publish(diag);
+ }
+@@ -201,7 +214,8 @@ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureRes
+ void PalletPoseNode::publish_ok_diagnostics(const geometry_core::PoseResult& pose,
+                                              const geometry_core::EstimatePoseOutcome& outcome,
+                                              const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                             const builtin_interfaces::msg::Time& input_depth_stamp) {
++                                             const builtin_interfaces::msg::Time& input_depth_stamp,
++                                             const std::vector<int>& deferred) {
+   diagnostic_msgs::msg::DiagnosticArray diag;
+   diag.header.stamp = this->get_clock()->now();
+   diagnostic_msgs::msg::DiagnosticStatus status;
+@@ -218,8 +232,12 @@ void PalletPoseNode::publish_ok_diagnostics(const geometry_core::PoseResult& pos
+   add("chamfer_cost_m", outcome.has_debug ? std::to_string(outcome.debug.chamfer_cost_m) : "");
+   add("plane_inlier_ratio", std::to_string(pose.plane_inlier_ratio));
+   add("n_face_points", std::to_string(pose.n_face_points));
+-  add("input_rgb_stamp", stamp_to_string(input_rgb_stamp));
+-  add("input_depth_stamp", stamp_to_string(input_depth_stamp));
++  std::vector<std::pair<std::string, std::string>> marks;
++  append_deferred_detection_marks(
++      marks, deferred, stamp_to_string(input_rgb_stamp), stamp_to_string(input_depth_stamp));
++  for (const auto& mark : marks) {
++    add(mark.first, mark.second);
++  }
+   diag.status.push_back(status);
+   diag_pub_->publish(diag);
+ }
+diff --git a/pps_pallet_pose_cpp/test/test_deferred_detection_marks.py b/pps_pallet_pose_cpp/test/test_deferred_detection_marks.py
+new file mode 100644
+index 0000000..1b75647
+--- /dev/null
++++ b/pps_pallet_pose_cpp/test/test_deferred_detection_marks.py
+@@ -0,0 +1,218 @@
++"""Unselected candidates on a synced pair are marked deferred on pose diagnostics.
++
++Stage 2 still runs once, on the candidate select_detection already chose.
++Every other candidate's Detection2DArray source index is published on that
++same diagnostic status as this pair's RGB and depth capture stamps.
++"""
++
++from __future__ import annotations
++
++import sys
++import unittest
++from pathlib import Path
++
++PACKAGE_SRC = Path(__file__).resolve().parents[2]
++HEADER = (
++    PACKAGE_SRC
++    / "pps_pallet_pose_cpp"
++    / "include"
++    / "pps_pallet_pose_cpp"
++    / "deferred_detection_marks.hpp"
++)
++NODE_CPP = PACKAGE_SRC / "pps_pallet_pose_cpp" / "src" / "pallet_pose_node.cpp"
++NODE_HPP = PACKAGE_SRC / "pps_pallet_pose_cpp" / "include" / "pps_pallet_pose_cpp" / "pallet_pose_node.hpp"
++
++
++def function_body(text: str, name: str) -> str:
++    start = text.find(name)
++    if start < 0:
++        raise AssertionError(f"{name} is missing")
++    brace = text.find("{", start)
++    if brace < 0:
++        raise AssertionError(f"{name} has no body")
++    depth = 0
++    for index in range(brace, len(text)):
++        char = text[index]
++        if char == "{":
++            depth += 1
++        elif char == "}":
++            depth -= 1
++            if depth == 0:
++                return text[brace + 1 : index]
++    raise AssertionError(f"{name} body does not close")
++
++
++def _statements(body: str) -> list:
++    lines = []
++    for raw in body.splitlines():
++        line = raw.strip()
++        if not line or line.startswith("//"):
++            continue
++        lines.append(line)
++    return _parse_block(lines, 0)[0]
++
++
++def _parse_block(lines: list[str], index: int) -> tuple[list, int]:
++    statements: list = []
++    while index < len(lines):
++        line = lines[index]
++        if line == "}":
++            return statements, index + 1
++        if line.endswith("{"):
++            nested, index = _parse_block(lines, index + 1)
++            statements.append((line[:-1].strip(), nested))
++            continue
++        statements.append(line)
++        index += 1
++    return statements, index
++
++
++def _ident(expr: str, env: dict):
++    expr = expr.strip()
++    if expr.startswith('"') and expr.endswith('"'):
++        return expr[1:-1]
++    if expr.startswith("std::to_string(") and expr.endswith(")"):
++        return str(env[expr[len("std::to_string(") : -1].strip()])
++    if expr not in env:
++        raise AssertionError(f"unknown name {expr}")
++    return env[expr]
++
++
++def _execute(statements: list, env: dict):
++    for statement in statements:
++        if isinstance(statement, tuple):
++            header, nested = statement
++            if header.startswith("for ("):
++                inner = header[len("for (") : -1].strip()
++                declared, collection = [part.strip() for part in inner.split(":")]
++                loop_name = declared.split()[-1]
++                for item in list(env[collection]):
++                    env[loop_name] = item
++                    _execute(nested, env)
++                continue
++            if header.startswith("if ("):
++                cond = header[len("if (") : -1].strip()
++                left, right = [part.strip() for part in cond.split("!=")]
++                if _ident(left, env) != _ident(right, env):
++                    _execute(nested, env)
++                continue
++            raise AssertionError(f"unsupported block: {header}")
++        if statement.startswith("std::vector<int> "):
++            env[statement[len("std::vector<int> ") : -1].strip()] = []
++            continue
++        if statement.startswith("return "):
++            return _ident(statement[len("return ") : -1], env)
++        if ".push_back(" in statement:
++            target, arg = statement[:-2].split(".push_back(")
++            env[target.strip()].append(_ident(arg, env))
++            continue
++        if ".emplace_back(" in statement:
++            target, args = statement[:-2].split(".emplace_back(", 1)
++            key_expr, value_expr = args.split(",", 1)
++            env[target.strip()].append((_ident(key_expr, env), _ident(value_expr, env)))
++            continue
++        raise AssertionError(f"unsupported statement: {statement}")
++    return None
++
++
++def deferred_source_indexes(candidate_source_indexes: list[int], selected_source_index: int) -> list[int]:
++    if not HEADER.is_file():
++        raise AssertionError("deferred_detection_marks.hpp is missing")
++    body = function_body(HEADER.read_text(encoding="utf-8"), "deferred_source_indexes")
++    result = _execute(
++        _statements(body),
++        {
++            "candidate_source_indexes": list(candidate_source_indexes),
++            "selected_source_index": selected_source_index,
++        },
++    )
++    if not isinstance(result, list):
++        raise AssertionError("deferred_source_indexes did not return the unselected indexes")
++    return result
++
++
++def append_deferred_detection_marks(
++    deferred: list[int], input_rgb_stamp: str, input_depth_stamp: str
++) -> list[tuple[str, str]]:
++    if not HEADER.is_file():
++        raise AssertionError("deferred_detection_marks.hpp is missing")
++    body = function_body(HEADER.read_text(encoding="utf-8"), "append_deferred_detection_marks")
++    values: list[tuple[str, str]] = []
++    _execute(
++        _statements(body),
++        {
++            "values": values,
++            "deferred": list(deferred),
++            "input_rgb_stamp": input_rgb_stamp,
++            "input_depth_stamp": input_depth_stamp,
++        },
++    )
++    return values
++
++
++class DeferredDetectionMarksTest(unittest.TestCase):
++    def test_unselected_source_indexes_are_deferred_in_candidate_order(self) -> None:
++        self.assertEqual(deferred_source_indexes([0, 1, 2], 1), [0, 2])
++        self.assertEqual(deferred_source_indexes([2, 0, 5], 0), [2, 5])
++        self.assertEqual(deferred_source_indexes([4], 4), [])
++        self.assertNotIn(1, deferred_source_indexes([0, 1, 2], 1))
++
++    def test_marks_publish_deferred_indexes_with_this_pairs_capture_stamps(self) -> None:
++        marks = append_deferred_detection_marks([0, 2], "1720000000.000000001", "1720000000.000000002")
++        self.assertEqual(
++            marks,
++            [
++                ("input_rgb_stamp", "1720000000.000000001"),
++                ("input_depth_stamp", "1720000000.000000002"),
++                ("deferred_source_index", "0"),
++                ("deferred_source_index", "2"),
++            ],
++        )
++        empty = append_deferred_detection_marks([], "10.000000000", "11.000000000")
++        self.assertEqual(
++            empty,
++            [
++                ("input_rgb_stamp", "10.000000000"),
++                ("input_depth_stamp", "11.000000000"),
++            ],
++        )
++        self.assertNotIn("deferred_source_index", [key for key, _ in empty])
++
++    def test_stage2_poses_only_the_selected_candidate_and_diagnostics_carry_the_rest(self) -> None:
++        cpp = NODE_CPP.read_text(encoding="utf-8")
++        hpp = NODE_HPP.read_text(encoding="utf-8")
++        on_pair = function_body(cpp, "PalletPoseNode::on_pair")
++        failure = function_body(cpp, "PalletPoseNode::publish_failure_diagnostics")
++        ok = function_body(cpp, "PalletPoseNode::publish_ok_diagnostics")
++        pose = function_body(cpp, "PalletPoseNode::publish_pose")
++
++        self.assertEqual(cpp.count("estimate_pose_chamfer_v3_2"), 1)
++        self.assertIn("candidate->bbox_xyxy", on_pair)
++        self.assertLess(on_pair.find("if (!candidate.has_value())"), on_pair.find("return;"))
++        self.assertLess(on_pair.find("return;"), on_pair.find("estimate_pose_chamfer_v3_2"))
++        self.assertLess(on_pair.find("return;"), on_pair.find("deferred_source_indexes("))
++        self.assertIn("for (const auto& item : candidates)", on_pair)
++        self.assertIn("item.source_index", on_pair)
++        self.assertIn(
++            "publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp, deferred)",
++            on_pair,
++        )
++        self.assertIn(
++            "publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp, deferred)",
++            on_pair,
++        )
++
++        for body in (failure, ok):
++            self.assertIn("append_deferred_detection_marks(", body)
++            self.assertIn("stamp_to_string(input_rgb_stamp)", body)
++            self.assertIn("stamp_to_string(input_depth_stamp)", body)
++        self.assertIn("failure_reason", failure)
++        self.assertNotIn("append_deferred_detection_marks", pose)
++        self.assertNotIn("deferred_source_index", pose)
++        self.assertEqual(hpp.count("const std::vector<int>& deferred"), 2)
++
++
++if __name__ == "__main__":
++    suite = unittest.defaultTestLoader.loadTestsFromTestCase(DeferredDetectionMarksTest)
++    result = unittest.TextTestRunner(verbosity=2).run(suite)
++    sys.exit(0 if result.wasSuccessful() else 1)

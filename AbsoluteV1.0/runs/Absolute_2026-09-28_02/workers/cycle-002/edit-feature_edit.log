@@ -1,0 +1,7 @@
+Connection lost, reconnecting to https://agentn.global.api5.cursor.sh (attempt 1)...
+Retry attempt 1...
+Each synchronized detection and depth pair now records which class-matched slot went through stage 2 and which slots stayed deferred.
+
+`select_detection` still chooses one candidate, and stage 2 still runs once on that candidate. `PalletPoseStamped` carries `stage2_source_index` and `deferred_source_indices` after the depth stamp. On a failed estimate, no pose is published; the same two lists are `KeyValue` entries on the existing WARN diagnostic, with the deferred slots as one comma-separated string. An empty candidate list and a depth-conversion exception still publish nothing. A sent index of 0 is a real detection slot, and an empty deferred list means this pair had one class-matched candidate.
+
+`python pps_pallet_pose_cpp/test/test_class_matched_split.py` failed before the change because the header, message fields, and node wiring were absent. After the change it passed: 3 tests, OK. The behavior-test command is in `runs\Absolute_2026-09-28_02\workers\cycle-002\edit-result-feature_edit.json`.

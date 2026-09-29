@@ -1,0 +1,7 @@
+The literature report is in `runs/Absolute_2026-09-28_02/sota/cycle-002/literature-6.json`. The query is unchanged.
+
+The interfaces this roster change has to keep working:
+
+- **Success result.** `PalletPoseStamped` on `/pps/pallet_pose_rich` is the pose the AGV controller reads. The only in-package subscriber is `eval_recorder_node`, which joins on `input_rgb_stamp` and copies yaw, position, and the three quality fields. It ignores OK diagnostics, so both the sent index and the deferred indices belong on this message. `geometry_msgs/PoseStamped` on `/pps/pallet_pose` stays a header plus a pose.
+- **Index meaning.** `source_index` is the slot in that pair's `Detection2DArray.detections`. Empty results and a class mismatch are skipped and not renumbered. `Detection2D.id` stays unused. Stage 2 still runs once, on the `select_detection` winner.
+- **Failure path.** A failed estimate still publishes only one WARN diagnostic (`pps_pallet_pose_cpp`, `failure_reason`, and both stamp strings). The same two lists are extra keys on that status. The empty-candidate return and the depth-conversion return still publish nothing, so those samples stay `no_response`.Those URL checks were stopped after they hung. The literature report was already written to `runs/Absolute_2026-09-28_02/sota/cycle-002/literature-6.json`, and the citations were checked separately.

@@ -1,0 +1,3 @@
+Research for cycle 2 is in `runs/Absolute_2026-09-27_04/sota/cycle-002/research-2.json`.
+
+`scenario_error` is still 1.752 because `detection_utils` only has single-winner `select_detection`. The scored path admits source index 0 and leaves `deferred` empty, which is `selection_error` 1.75. The remaining 0.002 is the chamfer pose residual on the flat z=2 scene. Dimension error is already 0.

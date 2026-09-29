@@ -1,0 +1,7 @@
+Cycle 3 admission is written to `runs/Absolute_2026-09-28_02/decisions/cycle-003/admission.json`.
+
+**Accepted:** `published_admission_split`. The scenario review says the handling process needs which detections in this capture are sent through stage 2 and which are deferred. This proposal ranks the class-matched candidates with the selection the node already uses, poses the one pallet that node asks for, and writes the admitted source index and the deferred source indices on `PalletPoseStamped`, and on the failure diagnostic when no pose is published. That is the split the rejected `stage2_subset_admission` left with the caller.
+
+**Rejected:** `pocket_opening_depth`. Both proposals share this id. The factory-face version can publish a successful pose with no body depth, and the scenario review says the pocket median is not the pallet depth. The silhouette version can publish an inlier span past the factory face as a larger pallet. The feasibility review says the pocket test and the silhouette are not available once the estimate returns.
+
+Neither proposal only restates `dimension_error_m` or `latency_ms`. No keep was marked, and the run was not scored.

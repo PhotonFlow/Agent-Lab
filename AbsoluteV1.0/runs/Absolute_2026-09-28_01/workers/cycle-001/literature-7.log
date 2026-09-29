@@ -1,0 +1,8 @@
+Literature for cycle 1 is in `runs\Absolute_2026-09-28_01\sota\cycle-001\literature-7.json`. The query is the measured cost of publishing stage-2 inlier-face width, height, and depth on `/pps/pallet_pose_rich` with that same pose.
+
+The cited measurements say:
+
+- Width, height, and depth are one linear pass (camera-x span, camera-y span, mean range). A minimum-volume oriented box is a different problem and was measured in minutes to about a week.
+- `pcl::getMinMax3D` was about 15–17× slower than a scalar loop on multi-megabyte clouds because each point builds an Eigen map. A covariance or PCA size was about 4× a scalar centroid and is not this statistic.
+- Three extra metres on the same small pose message stay in the flat ROS 2 band (equal latency from 128 B through 10 KB). A second topic pays another full hop.
+- Published pallet pose pipelines take about 27.5–300 ms. The heavy point-cloud work is plane fitting and clustering, not this reduction.

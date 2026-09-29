@@ -1,0 +1,13 @@
+Literature for cycle 1 is in `runs/Absolute_2026-09-28_01/sota/cycle-001/literature-2.json`.
+
+The source method is a camera-axis min/max span and a mean range on `/pps/pallet_pose_rich`. This pass lists other published ways to size the face with the same pose:
+
+- Interquartile and occupancy-quantile boxes
+- Covariance oriented boxes
+- Rotating-calipers minimum-area rectangles
+- Contour, line, and particle-filter dimensions
+- Pallet-template edge matching
+- Pocket width and height from a depth hint
+- A percentile fit in place of the mean range
+
+These do not replace the required camera-x span, camera-y span, and mean range. No evolve run was started, and the run was not scored.

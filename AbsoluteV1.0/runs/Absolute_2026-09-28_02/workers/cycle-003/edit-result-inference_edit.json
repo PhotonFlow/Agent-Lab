@@ -1,0 +1,1 @@
+{"behavior_test": ["python", "geometry_core/test/test_inplace_chamfer_cost.py"]}

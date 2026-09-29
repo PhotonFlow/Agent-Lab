@@ -1,0 +1,25 @@
+{
+  "query": "evidence that methods for For each synchronized detection and depth pair, send stage 2 only the pallet select_detection already chooses, and write both sides of that split onto the result the handling process reads. PalletPoseStamped gains the chosen candidate's source index as the pallet sent through stage 2, and the source indices of the other class-matched candidates in that same Detection2DArray as deferred. Those indices are the slots extract_detection_candidates already stored. The message already carries this pair's RGB and depth stamps, so the roster is this capture while the scene can still change. When the estimate fails, the same two lists go on the failure diagnostic, which is the only result that path publishes. The two early returns that publish nothing stay as they are. Stage 2 still runs once. The user named which detections are sent versus deferred; the part they did not name is that both lists sit on PalletPoseStamped, the pose result for the AGV controller, rather than only on a diagnostic the success path does not use. are current",
+  "findings": [
+    "Isaac ROS 5.0 still builds the stage-2 mask from only the highest-scoring detection in a Detection2DArray, and the pose it publishes is vision_msgs/Detection3DArray. A frame that fails the point-cloud support check is still not published. That output does not carry the other detections source indices.",
+    "Lang2Lift (Nguyen et al., arXiv:2508.15427v2) still calls FoundationPose once on the selected mask M_best and couples that 6D pose to the forklift controller. It does not write the other detection indices onto that pose.",
+    "Current ifm getPallet still returns every localized pallet, up to 10, on the result the vehicle reads. palletIndex is a template type 0-9, not a Detection2DArray slot. PalletDetection is a header plus pocket PoseStamped fields and has no deferred index list. /diagnostics stays a separate topic from pallet_detection.",
+    "Current vision_msgs/Detection3D and geometry_msgs/PoseStamped still have one header and no deferred-index field. Detection2D.id is a cross-message id that may be empty, not the array slot, and Detection2DArray is still an ordered list of proposals from one input. ROS 2 rolling message_filters still matches the pair by header stamps: ExactTime requires the same stamp, and ApproximateTime does not, so both RGB and depth stamps identify the capture.",
+    "Rolling diagnostic_msgs/DiagnosticStatus still carries extra fields only as KeyValue strings on the diagnostic channel. No 2024-2026 source found puts the chosen source index and the other class-matched source indices on the pose message the AGV controller reads and repeats those two lists on the failure diagnostic. Wu and Demeester, VISIGRAPP 2026, still rank FoundationPose rotation hypotheses inside one bin; that selection is not a deferred sibling index on the pose."
+  ],
+  "citations": [
+    "https://nvidia-isaac-ros.github.io/v/release-5.0/repositories_and_packages/isaac_ros_pose_estimation/isaac_ros_foundationpose/index.html",
+    "https://arxiv.org/html/2508.15427v2",
+    "https://ifm3d.com/latest/PDS/GetPallet/getPallet.html",
+    "https://raw.githubusercontent.com/ifm/ifm3d-ros2/master/msg/PalletDetection.msg",
+    "https://ros2.ifm3d.com/latest/doc/pds_node/pds_topics.html",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection3D.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection2D.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection2DArray.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/rolling/geometry_msgs/msg/PoseStamped.msg",
+    "https://raw.githubusercontent.com/ros2/message_filters/rolling/doc/index.rst",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/rolling/diagnostic_msgs/msg/DiagnosticStatus.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/rolling/diagnostic_msgs/msg/KeyValue.msg",
+    "https://www.scitepress.org/Papers/2026/144556/144556.pdf"
+  ]
+}

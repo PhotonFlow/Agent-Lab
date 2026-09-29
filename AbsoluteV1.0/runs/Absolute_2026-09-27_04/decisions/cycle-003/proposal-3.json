@@ -1,0 +1,4 @@
+{
+  "hypothesis": "In estimate_pose_chamfer_v3_2, publish apply_se3(R_dr, t_dr, centre_d_init) as tx, ty, and tz — the bbox-centre ray-plane hit computed before chamfer — so the uniform z=2 probe whose RGB bbox (340, 440, 940, 520) is centred on the principal point (640, 480) reports (0, 0, 2) and pose_error_m falls from 0.002 to 0, while face-extent dimensions and select_stage2_subset stay unchanged.",
+  "level": "implementation"
+}

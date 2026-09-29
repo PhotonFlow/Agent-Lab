@@ -1,0 +1,715 @@
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
+index 5e2bcfd..b0abcc2 100644
+--- a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
+@@ -30,4 +30,19 @@ std::vector<DetectionCandidate> extract_detection_candidates(
+ std::optional<DetectionCandidate> select_detection(
+     const std::vector<DetectionCandidate>& candidates, const std::string& strategy);
+ 
++// First-maximum admission of one capture's class-matched candidates.
++// An empty list returns both vectors empty before the strategy is checked.
++// An unknown strategy throws std::invalid_argument. admitted is rank order,
++// at most count. deferred keeps candidate-list order. Each copy keeps source_index.
++struct Stage2Admission {
++  std::vector<DetectionCandidate> admitted;
++  std::vector<DetectionCandidate> deferred;
++};
++
++Stage2Admission select_stage2_subset(
++    const std::vector<DetectionCandidate>& candidates, const std::string& strategy, int count);
++
++// One diagnostic value. An empty deferred list is an empty string.
++std::string deferred_source_indices_text(const std::vector<DetectionCandidate>& deferred);
++
+ }  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+index e37fb64..29aa296 100644
+--- a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+@@ -20,6 +20,8 @@
+ #include <geometry_core/pipeline_v3_2.hpp>
+ #include <pps_perception_msgs/msg/pallet_pose_stamped.hpp>
+ 
++#include "pps_pallet_pose_cpp/detection_utils.hpp"
++
+ namespace pps_pallet_pose_cpp {
+ 
+ class PalletPoseNode : public rclcpp::Node {
+@@ -35,10 +37,12 @@ class PalletPoseNode : public rclcpp::Node {
+   void publish_pose(const geometry_core::PoseResult& pose,
+                      const geometry_core::EstimatePoseOutcome& outcome, const std::string& frame_id,
+                      const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                     const builtin_interfaces::msg::Time& input_depth_stamp);
++                     const builtin_interfaces::msg::Time& input_depth_stamp,
++                     const Stage2Admission& admission);
+   void publish_failure_diagnostics(const geometry_core::FailureResult& failure,
+                                      const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                     const builtin_interfaces::msg::Time& input_depth_stamp);
++                                     const builtin_interfaces::msg::Time& input_depth_stamp,
++                                     const Stage2Admission& admission);
+   void publish_ok_diagnostics(const geometry_core::PoseResult& pose,
+                                const geometry_core::EstimatePoseOutcome& outcome,
+                                const builtin_interfaces::msg::Time& input_rgb_stamp,
+diff --git a/pps_pallet_pose_cpp/src/detection_utils.cpp b/pps_pallet_pose_cpp/src/detection_utils.cpp
+index fc3a226..ea07e9c 100644
+--- a/pps_pallet_pose_cpp/src/detection_utils.cpp
++++ b/pps_pallet_pose_cpp/src/detection_utils.cpp
+@@ -15,6 +15,20 @@ Eigen::Vector4d bbox_to_xyxy(const vision_msgs::msg::BoundingBox2D& bbox) {
+   return Eigen::Vector4d(cx - half_w, cy - half_h, cx + half_w, cy + half_h);
+ }
+ 
++bool less_highest_confidence(const DetectionCandidate& a, const DetectionCandidate& b) {
++  if (a.score != b.score) {
++    return a.score < b.score;
++  }
++  return a.area_px < b.area_px;
++}
++
++bool less_largest_area(const DetectionCandidate& a, const DetectionCandidate& b) {
++  if (a.area_px != b.area_px) {
++    return a.area_px < b.area_px;
++  }
++  return a.score < b.score;
++}
++
+ }  // namespace
+ 
+ std::vector<DetectionCandidate> extract_detection_candidates(
+@@ -55,20 +69,64 @@ std::optional<DetectionCandidate> select_detection(
+     return std::nullopt;
+   }
+   if (strategy == "highest_confidence") {
+-    return *std::max_element(
+-        candidates.begin(), candidates.end(), [](const DetectionCandidate& a, const DetectionCandidate& b) {
+-          if (a.score != b.score) return a.score < b.score;
+-          return a.area_px < b.area_px;
+-        });
++    return *std::max_element(candidates.begin(), candidates.end(), less_highest_confidence);
+   }
+   if (strategy == "largest_area") {
+-    return *std::max_element(
+-        candidates.begin(), candidates.end(), [](const DetectionCandidate& a, const DetectionCandidate& b) {
+-          if (a.area_px != b.area_px) return a.area_px < b.area_px;
+-          return a.score < b.score;
+-        });
++    return *std::max_element(candidates.begin(), candidates.end(), less_largest_area);
+   }
+   throw std::invalid_argument("Unknown detection selection strategy: " + strategy);
+ }
+ 
++Stage2Admission select_stage2_subset(
++    const std::vector<DetectionCandidate>& candidates, const std::string& strategy, int count) {
++  Stage2Admission admission;
++  if (candidates.empty()) {
++    return admission;
++  }
++  const bool highest = strategy == "highest_confidence";
++  const bool largest = strategy == "largest_area";
++  if (!highest && !largest) {
++    throw std::invalid_argument("Unknown detection selection strategy: " + strategy);
++  }
++  const auto less = highest ? less_highest_confidence : less_largest_area;
++  std::vector<unsigned char> chosen(candidates.size(), 0);
++  const int admit_limit = count > 0 ? count : 0;
++  for (int admitted_n = 0; admitted_n < admit_limit; ++admitted_n) {
++    std::vector<std::size_t> open;
++    open.reserve(candidates.size());
++    for (std::size_t index = 0; index < candidates.size(); ++index) {
++      if (!chosen[index]) {
++        open.push_back(index);
++      }
++    }
++    if (open.empty()) {
++      break;
++    }
++    const auto best = std::max_element(
++        open.begin(), open.end(),
++        [&](std::size_t left, std::size_t right) {
++          return less(candidates[left], candidates[right]);
++        });
++    chosen[*best] = 1;
++    admission.admitted.push_back(candidates[*best]);
++  }
++  for (std::size_t index = 0; index < candidates.size(); ++index) {
++    if (!chosen[index]) {
++      admission.deferred.push_back(candidates[index]);
++    }
++  }
++  return admission;
++}
++
++std::string deferred_source_indices_text(const std::vector<DetectionCandidate>& deferred) {
++  std::string text;
++  for (std::size_t index = 0; index < deferred.size(); ++index) {
++    if (index != 0) {
++      text.push_back(',');
++    }
++    text += std::to_string(deferred[index].source_index);
++  }
++  return text;
++}
++
+ }  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+index 5594916..a7ebfd4 100644
+--- a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
++++ b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+@@ -98,8 +98,9 @@ PalletPoseNode::PalletPoseNode() : rclcpp::Node("pallet_pose_cpp_node") {
+ void PalletPoseNode::on_pair(const sensor_msgs::msg::Image::ConstSharedPtr& depth_msg,
+                               const vision_msgs::msg::Detection2DArray::ConstSharedPtr& det_msg) {
+   auto candidates = extract_detection_candidates(*det_msg, target_class_id_);
+-  auto candidate = select_detection(candidates, detection_selection_);
+-  if (!candidate.has_value()) {
++  const Stage2Admission admission =
++      select_stage2_subset(candidates, detection_selection_, 1);
++  if (admission.admitted.empty()) {
+     return;
+   }
+ 
+@@ -111,9 +112,10 @@ void PalletPoseNode::on_pair(const sensor_msgs::msg::Image::ConstSharedPtr& dept
+     return;
+   }
+ 
++  const DetectionCandidate& admitted_candidate = admission.admitted.front();
+   auto outcome = geometry_core::estimate_pose_chamfer_v3_2(
+-      candidate->bbox_xyxy, depth_m, camera_cfg_, stage2_cfg_, params_, candidate->source_index,
+-      rng_);
++      admitted_candidate.bbox_xyxy, depth_m, camera_cfg_, stage2_cfg_, params_,
++      admitted_candidate.source_index, rng_);
+ 
+   const std::string frame_id = det_msg->header.frame_id.empty() ? camera_frame_id_
+                                                                   : det_msg->header.frame_id;
+@@ -124,18 +126,19 @@ void PalletPoseNode::on_pair(const sensor_msgs::msg::Image::ConstSharedPtr& dept
+   const auto& input_rgb_stamp = det_msg->header.stamp;
+   const auto& input_depth_stamp = depth_msg->header.stamp;
+   if (!outcome.ok) {
+-    publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp);
++    publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp, admission);
+     return;
+   }
+   publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp);
+-  publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp);
++  publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp, admission);
+ }
+ 
+ void PalletPoseNode::publish_pose(const geometry_core::PoseResult& pose,
+                                    const geometry_core::EstimatePoseOutcome& outcome,
+                                    const std::string& frame_id,
+                                    const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                   const builtin_interfaces::msg::Time& input_depth_stamp) {
++                                   const builtin_interfaces::msg::Time& input_depth_stamp,
++                                   const Stage2Admission& admission) {
+   double qx, qy, qz, qw;
+   yaw_to_quaternion_optical(pose.yaw_rad, qx, qy, qz, qw);
+   const auto stamp = this->get_clock()->now();
+@@ -169,12 +172,17 @@ void PalletPoseNode::publish_pose(const geometry_core::PoseResult& pose,
+   rich.preset_id = "geometry_core_default";
+   rich.input_rgb_stamp = input_rgb_stamp;
+   rich.input_depth_stamp = input_depth_stamp;
++  rich.admitted_source_index = admission.admitted.front().source_index;
++  for (const DetectionCandidate& deferred_candidate : admission.deferred) {
++    rich.deferred_source_indices.push_back(deferred_candidate.source_index);
++  }
+   rich_pub_->publish(rich);
+ }
+ 
+ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureResult& failure,
+                                                    const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                                   const builtin_interfaces::msg::Time& input_depth_stamp) {
++                                                   const builtin_interfaces::msg::Time& input_depth_stamp,
++                                                   const Stage2Admission& admission) {
+   diagnostic_msgs::msg::DiagnosticArray diag;
+   diag.header.stamp = this->get_clock()->now();
+   diagnostic_msgs::msg::DiagnosticStatus status;
+@@ -194,6 +202,14 @@ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureRes
+   depth_kv.key = "input_depth_stamp";
+   depth_kv.value = stamp_to_string(input_depth_stamp);
+   status.values.push_back(depth_kv);
++  diagnostic_msgs::msg::KeyValue admitted_kv;
++  admitted_kv.key = "admitted_source_index";
++  admitted_kv.value = std::to_string(admission.admitted.front().source_index);
++  status.values.push_back(admitted_kv);
++  diagnostic_msgs::msg::KeyValue deferred_kv;
++  deferred_kv.key = "deferred_source_indices";
++  deferred_kv.value = deferred_source_indices_text(admission.deferred);
++  status.values.push_back(deferred_kv);
+   diag.status.push_back(status);
+   diag_pub_->publish(diag);
+ }
+diff --git a/pps_pallet_pose_cpp/test/test_published_admission_split.py b/pps_pallet_pose_cpp/test/test_published_admission_split.py
+new file mode 100644
+index 0000000..640e8e0
+--- /dev/null
++++ b/pps_pallet_pose_cpp/test/test_published_admission_split.py
+@@ -0,0 +1,458 @@
++"""Admission split for one synchronized capture.
++
++select_stage2_subset ranks class-matched DetectionCandidate values with the
++same strict-weak ordering select_detection uses. std::max_element keeps the
++first maximum, so a tie on both keys leaves the later candidate deferred.
++Admitted candidates are that rank order, at most the caller's count. Deferred
++candidates stay in candidate-list order and keep source_index.
++
++The pose node calls it with detection_selection and a count of one, estimates
++that one pallet, and writes admitted_source_index plus deferred_source_indices
++on PalletPoseStamped after input_depth_stamp. A failed estimate publishes no
++pose and writes those same lists on the WARN diagnostic.
++"""
++
++from __future__ import annotations
++
++import unittest
++from pathlib import Path
++
++PACKAGE_SRC = Path(__file__).resolve().parents[2]
++NODE_CPP = PACKAGE_SRC / "pps_pallet_pose_cpp" / "src" / "pallet_pose_node.cpp"
++NODE_HPP = (
++    PACKAGE_SRC / "pps_pallet_pose_cpp" / "include" / "pps_pallet_pose_cpp" / "pallet_pose_node.hpp"
++)
++UTILS_CPP = PACKAGE_SRC / "pps_pallet_pose_cpp" / "src" / "detection_utils.cpp"
++UTILS_HPP = (
++    PACKAGE_SRC / "pps_pallet_pose_cpp" / "include" / "pps_pallet_pose_cpp" / "detection_utils.hpp"
++)
++POSE_MSG = PACKAGE_SRC / "pps_perception_msgs" / "msg" / "PalletPoseStamped.msg"
++
++POSE_FIELDS = [
++    ("std_msgs/Header", "header"),
++    ("geometry_msgs/Pose", "pose"),
++    ("float64", "yaw_rad"),
++    ("float64[3]", "face_normal_rgb"),
++    ("float64", "plane_inlier_ratio"),
++    ("int32", "n_face_points"),
++    ("float64", "chamfer_cost_m"),
++    ("bool", "accepted"),
++    ("string[]", "quality_reasons"),
++    ("string", "failure_reason"),
++    ("string", "geometry_source"),
++    ("string", "preset_id"),
++    ("builtin_interfaces/Time", "input_rgb_stamp"),
++    ("builtin_interfaces/Time", "input_depth_stamp"),
++    ("int32", "admitted_source_index"),
++    ("int32[]", "deferred_source_indices"),
++]
++
++
++def function_body(text: str, signature: str) -> str:
++    start = text.find(signature)
++    if start < 0:
++        raise AssertionError(f"{signature} is missing")
++    brace = text.find("{", start)
++    if brace < 0:
++        raise AssertionError(f"{signature} has no body")
++    depth = 0
++    for index in range(brace, len(text)):
++        char = text[index]
++        if char == "{":
++            depth += 1
++        elif char == "}":
++            depth -= 1
++            if depth == 0:
++                return text[brace + 1 : index]
++    raise AssertionError(f"{signature} body does not close")
++
++
++def message_fields(text: str) -> list[tuple[str, str]]:
++    fields = []
++    for raw in text.splitlines():
++        line = raw.split("#", 1)[0].strip()
++        if not line:
++            continue
++        parts = line.split()
++        if len(parts) < 2:
++            continue
++        fields.append((parts[0], parts[1].split("=", 1)[0]))
++    return fields
++
++
++def assert_in_order(text: str, markers: list[str]) -> None:
++    cursor = 0
++    for marker in markers:
++        found = text.find(marker, cursor)
++        if found < 0:
++            raise AssertionError(f"{marker!r} is missing after position {cursor}")
++        cursor = found + len(marker)
++
++
++def compile_less(body: str, primary: str, secondary: str):
++    normalized = " ".join(body.split())
++    expected = (
++        f"if (a.{primary} != b.{primary}) {{ return a.{primary} < b.{primary}; }} "
++        f"return a.{secondary} < b.{secondary};"
++    )
++    if normalized != expected:
++        raise AssertionError(
++            f"comparator is not strict < on {primary} then {secondary}: {normalized}"
++        )
++    if "<=" in body or "source_index" in body:
++        raise AssertionError("comparator is not a strict weak ordering of the two keys")
++
++    def less(left: dict, right: dict) -> bool:
++        if left[primary] != right[primary]:
++            return left[primary] < right[primary]
++        return left[secondary] < right[secondary]
++
++    return less
++
++
++def first_maximum(candidates: list[dict], less) -> int:
++    """std::max_element: replace the champion only when it is strictly less."""
++    best = 0
++    for index in range(1, len(candidates)):
++        if less(candidates[best], candidates[index]):
++            best = index
++    return best
++
++
++def admit(candidates: list[dict], less, count: int) -> tuple[list[dict], list[dict]]:
++    """First-maximum admission. Empty input yields two empty vectors."""
++    if not candidates:
++        return [], []
++    chosen = [False] * len(candidates)
++    admitted: list[dict] = []
++    limit = count if count > 0 else 0
++    for _ in range(limit):
++        open_indexes = [index for index, taken in enumerate(chosen) if not taken]
++        if not open_indexes:
++            break
++        best_local = 0
++        for local in range(1, len(open_indexes)):
++            if less(candidates[open_indexes[best_local]], candidates[open_indexes[local]]):
++                best_local = local
++        chosen[open_indexes[best_local]] = True
++        admitted.append(candidates[open_indexes[best_local]])
++    deferred = [candidates[index] for index, taken in enumerate(chosen) if not taken]
++    return admitted, deferred
++
++
++def source_indexes(candidates: list[dict]) -> list[int]:
++    return [candidate["source_index"] for candidate in candidates]
++
++
++def box(score: float, area_px: float, source_index: int) -> dict:
++    return {"score": score, "area_px": area_px, "source_index": source_index}
++
++
++class PublishedAdmissionSplitTest(unittest.TestCase):
++    def setUp(self) -> None:
++        self.utils_cpp = UTILS_CPP.read_text(encoding="utf-8")
++        self.utils_hpp = UTILS_HPP.read_text(encoding="utf-8")
++        self.highest = compile_less(
++            function_body(self.utils_cpp, "bool less_highest_confidence("),
++            "score",
++            "area_px",
++        )
++        self.largest = compile_less(
++            function_body(self.utils_cpp, "bool less_largest_area("),
++            "area_px",
++            "score",
++        )
++
++    def test_select_detection_uses_those_same_comparators(self) -> None:
++        body = function_body(self.utils_cpp, "select_detection(")
++        assert_in_order(
++            body,
++            [
++                "if (candidates.empty())",
++                "return std::nullopt;",
++                "less_highest_confidence",
++                "less_largest_area",
++                "throw std::invalid_argument",
++            ],
++        )
++        self.assertIn("std::max_element", body)
++        self.assertNotIn("<=", body)
++
++    def test_empty_candidates_return_before_strategy_and_max_element(self) -> None:
++        self.assertIn("struct Stage2Admission", self.utils_hpp)
++        self.assertIn("std::vector<DetectionCandidate> admitted", self.utils_hpp)
++        self.assertIn("std::vector<DetectionCandidate> deferred", self.utils_hpp)
++        declaration = function_body(self.utils_hpp, "struct Stage2Admission")
++        self.assertIn("admitted", declaration)
++        self.assertIn("deferred", declaration)
++        body = function_body(self.utils_cpp, "select_stage2_subset(")
++        assert_in_order(
++            body,
++            [
++                "if (candidates.empty())",
++                "return admission;",
++                '"highest_confidence"',
++                '"largest_area"',
++                "throw std::invalid_argument",
++                "std::max_element",
++            ],
++        )
++        self.assertNotIn("stable_sort", body)
++        self.assertNotIn("partial_sort", body)
++        self.assertNotIn("stable_partition", body)
++        self.assertNotIn("source_index", body)
++        self.assertNotIn("<=", body)
++        admitted, deferred = admit([], self.highest, 1)
++        self.assertEqual(admitted, [])
++        self.assertEqual(deferred, [])
++
++    def test_highest_confidence_keeps_the_first_maximum(self) -> None:
++        higher_score = [box(0.2, 100.0, 0), box(0.8, 10.0, 3)]
++        admitted, deferred = admit(higher_score, self.highest, 1)
++        self.assertEqual(source_indexes(admitted), [3])
++        self.assertEqual(source_indexes(deferred), [0])
++
++        larger_area = [box(0.5, 10.0, 1), box(0.5, 40.0, 4)]
++        admitted, deferred = admit(larger_area, self.highest, 1)
++        self.assertEqual(source_indexes(admitted), [4])
++        self.assertEqual(source_indexes(deferred), [1])
++
++        full_tie = [box(0.5, 10.0, 2), box(0.5, 10.0, 7)]
++        admitted, deferred = admit(full_tie, self.highest, 1)
++        self.assertEqual(source_indexes(admitted), [2])
++        self.assertEqual(source_indexes(deferred), [7])
++        self.assertEqual(first_maximum(full_tie, self.highest), 0)
++
++        index_is_not_a_key = [box(0.4, 8.0, 9), box(0.4, 8.0, 0)]
++        admitted, deferred = admit(index_is_not_a_key, self.highest, 1)
++        self.assertEqual(source_indexes(admitted), [9])
++        self.assertEqual(source_indexes(deferred), [0])
++
++    def test_largest_area_reverses_the_key_order(self) -> None:
++        larger_area = [box(0.9, 5.0, 0), box(0.1, 50.0, 1)]
++        admitted, deferred = admit(larger_area, self.largest, 1)
++        self.assertEqual(source_indexes(admitted), [1])
++        self.assertEqual(source_indexes(deferred), [0])
++
++        higher_score = [box(0.2, 30.0, 0), box(0.8, 30.0, 5)]
++        admitted, deferred = admit(higher_score, self.largest, 1)
++        self.assertEqual(source_indexes(admitted), [5])
++        self.assertEqual(source_indexes(deferred), [0])
++
++        full_tie = [box(0.4, 12.0, 3), box(0.4, 12.0, 8)]
++        admitted, deferred = admit(full_tie, self.largest, 1)
++        self.assertEqual(source_indexes(admitted), [3])
++        self.assertEqual(source_indexes(deferred), [8])
++
++    def test_count_admits_in_rank_order_and_defers_in_list_order(self) -> None:
++        candidates = [
++            box(0.2, 1.0, 0),
++            box(0.9, 1.0, 2),
++            box(0.5, 1.0, 6),
++            box(0.9, 50.0, 7),
++        ]
++        admitted, deferred = admit(candidates, self.highest, 2)
++        self.assertEqual(source_indexes(admitted), [7, 2])
++        self.assertEqual(source_indexes(deferred), [0, 6])
++
++        admitted, deferred = admit(candidates, self.highest, 1)
++        self.assertEqual(source_indexes(admitted), [source_indexes(candidates)[first_maximum(candidates, self.highest)]])
++        self.assertEqual(admitted[0]["source_index"], 7)
++
++        admitted, deferred = admit(candidates, self.highest, 5)
++        self.assertEqual(source_indexes(admitted), [7, 2, 6, 0])
++        self.assertEqual(deferred, [])
++
++        admitted, deferred = admit(candidates, self.highest, 0)
++        self.assertEqual(admitted, [])
++        self.assertEqual(source_indexes(deferred), [0, 2, 6, 7])
++
++        areas = [
++            box(0.9, 10.0, 1),
++            box(0.2, 40.0, 4),
++            box(0.8, 40.0, 5),
++            box(0.1, 10.0, 8),
++        ]
++        admitted, deferred = admit(areas, self.largest, 2)
++        self.assertEqual(source_indexes(admitted), [5, 4])
++        self.assertEqual(source_indexes(deferred), [1, 8])
++
++    def test_tie_on_both_keys_defers_the_later_candidate_in_list_order(self) -> None:
++        tied = [box(0.7, 3.0, 0), box(0.7, 5.0, 1), box(0.7, 5.0, 2)]
++        admitted, deferred = admit(tied, self.highest, 1)
++        self.assertEqual(source_indexes(admitted), [1])
++        self.assertEqual(source_indexes(deferred), [0, 2])
++        admitted, deferred = admit(tied, self.highest, 2)
++        self.assertEqual(source_indexes(admitted), [1, 2])
++        self.assertEqual(source_indexes(deferred), [0])
++
++    def test_slot_zero_and_a_class_filter_gap_stay_source_indexes(self) -> None:
++        sole = [box(0.6, 4.0, 0)]
++        admitted, deferred = admit(sole, self.highest, 1)
++        self.assertEqual(source_indexes(admitted), [0])
++        self.assertEqual(deferred, [])
++
++        gap = [box(0.2, 4.0, 0), box(0.8, 4.0, 2)]
++        admitted, deferred = admit(gap, self.highest, 1)
++        self.assertEqual(source_indexes(admitted), [2])
++        self.assertEqual(source_indexes(deferred), [0])
++        self.assertNotIn(1, source_indexes(admitted) + source_indexes(deferred))
++
++    def test_subset_copies_unchosen_candidates_in_one_forward_pass(self) -> None:
++        body = function_body(self.utils_cpp, "select_stage2_subset(")
++        assert_in_order(
++            body,
++            [
++                "std::vector<unsigned char> chosen",
++                "count > 0",
++                "if (!chosen[index])",
++                "open.push_back(index)",
++                "if (open.empty())",
++                "break;",
++                "std::max_element",
++                "less(candidates[left], candidates[right])",
++                "chosen[*best] = 1",
++                "admission.admitted.push_back(candidates[",
++                "if (!chosen[index])",
++                "admission.deferred.push_back(candidates[",
++                "return admission;",
++            ],
++        )
++
++    def test_deferred_diagnostic_text_is_one_comma_separated_string(self) -> None:
++        body = function_body(self.utils_cpp, "deferred_source_indices_text(")
++        normalized = " ".join(body.split())
++        expected = (
++            "std::string text; "
++            "for (std::size_t index = 0; index < deferred.size(); ++index) { "
++            "if (index != 0) { text.push_back(','); } "
++            "text += std::to_string(deferred[index].source_index); } "
++            "return text;"
++        )
++        self.assertEqual(normalized, expected)
++
++        def deferred_text(source_indexes_in_order: list[int]) -> str:
++            text = ""
++            for index, source_index in enumerate(source_indexes_in_order):
++                if index != 0:
++                    text += ","
++                text += str(source_index)
++            return text
++
++        self.assertEqual(deferred_text([]), "")
++        self.assertEqual(deferred_text([0]), "0")
++        self.assertEqual(deferred_text([4, 8]), "4,8")
++        self.assertEqual(deferred_text([1, 10]), "1,10")
++
++    def test_pose_message_appends_the_split_after_the_depth_stamp(self) -> None:
++        fields = message_fields(POSE_MSG.read_text(encoding="utf-8"))
++        self.assertEqual(fields, POSE_FIELDS)
++
++    def test_success_path_writes_both_lists_on_the_pose_for_this_pair(self) -> None:
++        header = NODE_HPP.read_text(encoding="utf-8")
++        self.assertIn('#include "pps_pallet_pose_cpp/detection_utils.hpp"', header)
++        self.assertIn("const Stage2Admission& admission", header)
++        pose = function_body(NODE_CPP.read_text(encoding="utf-8"), "PalletPoseNode::publish_pose(")
++        plain, rich = pose.split("pps_perception_msgs::msg::PalletPoseStamped rich;", 1)
++        self.assertIn("const auto stamp = this->get_clock()->now();", plain)
++        self.assertIn("ps.header.stamp = stamp;", plain)
++        self.assertIn("pose_pub_->publish(ps);", plain)
++        self.assertNotIn("admitted_source_index", plain)
++        self.assertNotIn("deferred_source_indices", plain)
++        self.assertNotIn("header.stamp = input_rgb_stamp", pose)
++        self.assertNotIn("header.stamp = input_depth_stamp", pose)
++        for assignment in (
++            "rich.yaw_rad = pose.yaw_rad;",
++            "rich.face_normal_rgb",
++            "rich.plane_inlier_ratio = pose.plane_inlier_ratio;",
++            "rich.n_face_points = pose.n_face_points;",
++            "rich.chamfer_cost_m",
++            "rich.accepted = true;",
++            'rich.failure_reason = "";',
++            "rich.geometry_source = pose.geometry_source;",
++            'rich.preset_id = "geometry_core_default";',
++            "rich.input_rgb_stamp = input_rgb_stamp;",
++            "rich.input_depth_stamp = input_depth_stamp;",
++        ):
++            self.assertIn(assignment, rich)
++        assert_in_order(
++            rich,
++            [
++                "rich.input_depth_stamp = input_depth_stamp;",
++                "rich.admitted_source_index = admission.admitted.front().source_index;",
++                "for (const DetectionCandidate& deferred_candidate : admission.deferred)",
++                "rich.deferred_source_indices.push_back(deferred_candidate.source_index);",
++                "rich_pub_->publish(rich);",
++            ],
++        )
++        self.assertNotIn("if (admission.admitted.front().source_index", rich)
++        self.assertNotIn("if (!admission.deferred.empty())", rich)
++
++    def test_failure_diagnostic_writes_both_lists_and_no_pose(self) -> None:
++        source = NODE_CPP.read_text(encoding="utf-8")
++        failure = function_body(source, "PalletPoseNode::publish_failure_diagnostics(")
++        self.assertIn('status.name = "pps_pallet_pose_cpp";', failure)
++        self.assertIn('status.hardware_id = "dynamic_handling_ros_v1";', failure)
++        self.assertIn("DiagnosticStatus::WARN", failure)
++        self.assertIn("status.message = failure.failure_reason;", failure)
++        self.assertIn('kv.key = "failure_reason";', failure)
++        self.assertIn('rgb_kv.key = "input_rgb_stamp";', failure)
++        self.assertIn('depth_kv.key = "input_depth_stamp";', failure)
++        assert_in_order(
++            failure,
++            [
++                'depth_kv.key = "input_depth_stamp";',
++                'admitted_kv.key = "admitted_source_index";',
++                "admitted_kv.value = std::to_string(admission.admitted.front().source_index);",
++                'deferred_kv.key = "deferred_source_indices";',
++                "deferred_kv.value = deferred_source_indices_text(admission.deferred);",
++            ],
++        )
++        self.assertEqual(failure.count('deferred_kv.key = "deferred_source_indices";'), 1)
++        self.assertEqual(failure.count('admitted_kv.key = "admitted_source_index";'), 1)
++        self.assertNotIn("if (!admission.deferred.empty())", failure)
++        self.assertNotIn("if (admission.admitted.front().source_index", failure)
++        self.assertNotIn("PalletPoseStamped", failure)
++        self.assertNotIn("rich_pub_", failure)
++        ok = function_body(source, "PalletPoseNode::publish_ok_diagnostics(")
++        self.assertNotIn("admitted_source_index", ok)
++        self.assertNotIn("deferred_source_indices", ok)
++
++    def test_pair_estimates_only_the_one_admitted_pallet(self) -> None:
++        source = NODE_CPP.read_text(encoding="utf-8")
++        self.assertEqual(source.count("estimate_pose_chamfer_v3_2("), 1)
++        on_pair = function_body(source, "PalletPoseNode::on_pair(")
++        assert_in_order(
++            on_pair,
++            [
++                "extract_detection_candidates(",
++                "select_stage2_subset(candidates, detection_selection_, 1)",
++                "if (admission.admitted.empty())",
++                "return;",
++                "depth_image_to_meters(",
++                "catch (const std::exception& exc)",
++                "return;",
++                "const DetectionCandidate& admitted_candidate = admission.admitted.front();",
++                "estimate_pose_chamfer_v3_2(",
++                "admitted_candidate.bbox_xyxy",
++                "admitted_candidate.source_index",
++                "if (!outcome.ok)",
++                "publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp, admission)",
++                "return;",
++                "publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp);",
++                "publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp, admission)",
++            ],
++        )
++        estimate_at = on_pair.find("estimate_pose_chamfer_v3_2(")
++        before_estimate = on_pair[:estimate_at]
++        self.assertNotIn("publish_", before_estimate)
++        self.assertEqual(on_pair.count("estimate_pose_chamfer_v3_2("), 1)
++        self.assertNotIn("select_detection(", on_pair)
++        self.assertEqual(on_pair.count("select_stage2_subset("), 1)
++        estimate_call = on_pair[estimate_at : on_pair.find(");", estimate_at)]
++        self.assertNotIn("deferred", estimate_call)
++        self.assertEqual(before_estimate.count("catch ("), 1)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pps_perception_msgs/msg/PalletPoseStamped.msg b/pps_perception_msgs/msg/PalletPoseStamped.msg
+index 73a44bb..8a721e8 100644
+--- a/pps_perception_msgs/msg/PalletPoseStamped.msg
++++ b/pps_perception_msgs/msg/PalletPoseStamped.msg
+@@ -37,3 +37,8 @@ string preset_id
+ # above is the publish time).
+ builtin_interfaces/Time input_rgb_stamp
+ builtin_interfaces/Time input_depth_stamp
++
++# Detection2DArray slot admitted to stage 2 for this capture. 0 is a real slot.
++# Slots not admitted stay deferred, in candidate-list order.
++int32 admitted_source_index
++int32[] deferred_source_indices

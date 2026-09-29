@@ -1,0 +1,5 @@
+The feature panel for cycle 1 is written to `runs/Absolute_2026-09-28_01/decisions/cycle-001/panel.json`. Exactly one feature is accepted.
+
+**Accepted:** `inlier_face_extents`. Stage 2 already stores the inlier-face width, height, and depth, and `/pps/pallet_pose_rich` does not carry them. Publishing those extents with the same pose is the output the dynamic handler needs.
+
+**Rejected:** `partial_face_hold` and `scene-moved-hold`. Both are real quality gates, and neither only restates `scenario_error`. They withhold or withdraw the pose instead of publishing the paired extents.

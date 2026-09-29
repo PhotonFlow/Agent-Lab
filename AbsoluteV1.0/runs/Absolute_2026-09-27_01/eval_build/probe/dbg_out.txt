@@ -1,0 +1,1 @@
+snapped tx 6.93889e-18 ty -0.002 tz 2 yaw -0 theta 1.54985 cost 0.0226415 prior 1

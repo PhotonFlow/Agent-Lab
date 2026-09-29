@@ -1,0 +1,8 @@
+Survey-only output is in `runs/Absolute_2026-09-28_02/sota/cycle-002/survey-3.json`.
+
+The inference cost in this package copy sits in stage 2, not in detection selection:
+
+- The free chamfer grid is 20,181 coarse cells plus 8,125 fine cells, each sampling the 182-point prototype. When the free cost is above about 6.2 mm, the prior search adds another 9,261 plus 8,125 cells.
+- Each cell copies the rotated prototype and sorts a distance vector. The precise OpenCV distance transform is built once on a padded grid of roughly 561×349 pixels.
+- `sample_face_points` transforms every depth pixel before the bbox test, and plane fitting copies the face cloud several times.
+- Upstream, the RT-DETR path copies the RGB frame through resize, CHW conversion, and TensorRT host/device transfers. The mock backend skips the engine.

@@ -1,0 +1,5 @@
+Scenario review for cycle 2 is in `runs/Absolute_2026-09-28_02/decisions/cycle-002/review-scenario.json`. It judges the three proposals against the scenario and does not admit a feature.
+
+- **stage2_subset_admission** — The split matches the named sent-versus-deferred output for this capture, with one pallet admitted. `Stage2Admission` stays with the caller, so the handling process still does not see it on `PalletPoseStamped`.
+- **sent_deferred_roster** — Both sides of that named split are written on `PalletPoseStamped`, the pose result for this synchronized pair. The unnamed part is putting those lists on that message, and on the failure diagnostic when no pose is published.
+- **largest_face_admission** — The scenario does not say this capture should send the two largest faces. Deferred source indices are stamped to this pair, and a sent face whose estimate fails is neither posed nor marked deferred.

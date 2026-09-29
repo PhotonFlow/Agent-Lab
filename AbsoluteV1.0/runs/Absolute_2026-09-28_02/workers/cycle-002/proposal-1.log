@@ -1,0 +1,3 @@
+Proposed **stage2_subset_admission** in `runs/Absolute_2026-09-28_02/decisions/cycle-002/proposal-1.json`.
+
+For one capture, `select_stage2_subset` ranks detections with the strategies `select_detection` already uses, admits at most the count this capture will pose, and returns the rest as deferred. `Stage2Admission` keeps both lists, with each candidate’s source index. The pose node still sends one pallet through stage 2; the other detections in that array stay on the deferred list while the scene can still change.

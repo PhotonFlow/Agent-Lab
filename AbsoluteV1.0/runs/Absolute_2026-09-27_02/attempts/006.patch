@@ -1,0 +1,14 @@
+diff --git a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+index ed180fe..e8298d3 100644
+--- a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
++++ b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+@@ -131,6 +131,9 @@ void PalletPoseNode::on_pair(const sensor_msgs::msg::Image::ConstSharedPtr& dept
+   }
+ 
+   for (const auto& candidate : admission.admitted) {
++    if (!candidate.bbox_xyxy.allFinite()) {
++      continue;
++    }
+     auto outcome = geometry_core::estimate_pose_chamfer_v3_2(
+         candidate.bbox_xyxy, depth_m, camera_cfg_, stage2_cfg_, params_, candidate.source_index,
+         rng_);

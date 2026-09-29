@@ -1,0 +1,5 @@
+`select_stage2_subset` now admits the two largest-area pallet boxes and defers the rest.
+
+`Stage2Admission` holds `admitted` and `deferred` vectors of `DetectionCandidate`. For `largest_area` and `k=2`, the five boxes are ranked by area, then score. Source indices 1 and 2 are admitted. Indices 0, 3, and 4 stay deferred in their original order.
+
+The new test failed first because the stub returned an empty admission (`admitted.size()` was 0, expected 2). After the ranking change, the detection-utils suite passed 9/9, including `Stage2LargestAreaAdmitsTopTwoAndDefersTheRest`.

@@ -1,0 +1,10 @@
+Literature-2 is written to `runs/Absolute_2026-09-28_02/sota/cycle-002/literature-2.json`. The query is unchanged.
+
+These are other methods, separate from putting the chosen index and the deferred indices on `PalletPoseStamped`:
+
+- **Faster R-CNN** sends the second stage the proposals that survive NMS at IoU 0.7 (about 2000 in training, 300 at test for VGG-16) and discards the rest.
+- **Cascade R-CNN** refines the surviving set through heads at IoU 0.5, 0.6, and 0.7, and drops outliers instead of listing them.
+- **BYTE** (default score threshold 0.6) runs a second IoU association on the low-score boxes, then deletes unmatched low-score boxes as background.
+- **RT-DETR** initializes the decoder from the top 300 encoder features and does not keep a deferred list of the rest.
+- **DenseFusion**, **GDR-Net**, and **CosyPose** pose each detection or segment. The others are further pose inputs, not deferred slots on one pose.
+- **`Detection2DArray` / `Detection2D.id`** carries the proposal list and an optional cross-message id. **REP-107** puts key/value status on `/diagnostics` at 1 Hz, which is the health stream rather than the pose the handling process reads.

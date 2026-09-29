@@ -1,0 +1,3 @@
+Proposal 2 is written to `runs/Absolute_2026-09-27_04/decisions/cycle-001/proposal-2.json`.
+
+It is one feature, `face-extent-dimensions`: have `estimate_pose_chamfer_v3_2` set `has_dimensions` and report the camera-frame extent of the valid face points (`width_m` = max x − min x, `height_m` = max y − min y, `depth_m` = mean z). On the scored rectangle that extent is 1.0 × 0.8 × 2.5 m, which clears the 3.0 dimension term inside the 4.752 baseline.

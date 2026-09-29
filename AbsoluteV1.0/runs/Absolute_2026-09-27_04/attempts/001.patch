@@ -1,0 +1,81 @@
+diff --git a/geometry_core/include/geometry_core/pipeline_v3_2.hpp b/geometry_core/include/geometry_core/pipeline_v3_2.hpp
+index 0294dfc..7af5736 100644
+--- a/geometry_core/include/geometry_core/pipeline_v3_2.hpp
++++ b/geometry_core/include/geometry_core/pipeline_v3_2.hpp
+@@ -74,6 +74,10 @@ struct EstimatePoseOutcome {
+   FailureResult failure{std::nullopt, "", 0};
+   ChamferDebugV3_2 debug;
+   bool has_debug = false;
++  bool has_dimensions = false;
++  double width_m = 0.0;
++  double height_m = 0.0;
++  double depth_m = 0.0;
+ };
+ 
+ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+diff --git a/geometry_core/src/pipeline_v3_2.cpp b/geometry_core/src/pipeline_v3_2.cpp
+index 3be8856..d05b410 100644
+--- a/geometry_core/src/pipeline_v3_2.cpp
++++ b/geometry_core/src/pipeline_v3_2.cpp
+@@ -237,6 +237,13 @@ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+   outcome.debug.prior_lambda_eff = lambda_eff;
+   outcome.debug.used_prior_fallback = used_prior_fallback;
+ 
++  const Eigen::MatrixXd face_cam =
++      apply_se3_batch(camera_cfg.R_dr, camera_cfg.t_dr, samples.points_depth_frame);
++  outcome.has_dimensions = true;
++  outcome.width_m = face_cam.col(0).maxCoeff() - face_cam.col(0).minCoeff();
++  outcome.height_m = face_cam.col(1).maxCoeff() - face_cam.col(1).minCoeff();
++  outcome.depth_m = face_cam.col(2).mean();
++
+   return outcome;
+ }
+ 
+diff --git a/geometry_core/test/test_pipeline_v3_2.cpp b/geometry_core/test/test_pipeline_v3_2.cpp
+index 5504600..25c0452 100644
+--- a/geometry_core/test/test_pipeline_v3_2.cpp
++++ b/geometry_core/test/test_pipeline_v3_2.cpp
+@@ -58,6 +58,43 @@ TEST(PipelineV3_2, RecoversFrontoParallelPoseOnSyntheticScene) {
+   EXPECT_GT(outcome.pose.plane_inlier_ratio, 0.9);
+ }
+ 
++TEST(PipelineV3_2, ReportsCameraFrameExtentOfValidFacePoints) {
++  RgbDepthCameraConfig camera_cfg;
++  camera_cfg.rgb = PinholeIntrinsics{450.0, 450.0, 320.0, 240.0, 640, 480};
++  camera_cfg.depth = camera_cfg.rgb;
++  camera_cfg.R_dr = Eigen::Matrix3d::Identity();
++  camera_cfg.t_dr = Eigen::Vector3d::Zero();
++  camera_cfg.depth_scale = 0.001;
++
++  // Filled rectangle whose integer-pixel back-projection at 2.5 m spans
++  // 1.0 m in x and 0.8 m in y. The bbox is larger than that rectangle so
++  // the default erosion still admits every valid depth pixel.
++  const int u0 = 230;
++  const int u1 = 410;
++  const int v0 = 168;
++  const int v1 = 312;
++  const double z_face = 2.5;
++  cv::Mat depth = cv::Mat::zeros(480, 640, CV_32FC1);
++  for (int v = v0; v <= v1; ++v) {
++    for (int u = u0; u <= u1; ++u) {
++      depth.at<float>(v, u) = static_cast<float>(z_face);
++    }
++  }
++  Eigen::Vector4d bbox(224.0, 162.0, 416.0, 318.0);
++
++  Stage2Config cfg;
++  cfg.min_face_points = 100;
++  EstimatePoseParams params;
++  std::mt19937_64 rng(0);
++  auto outcome = estimate_pose_chamfer_v3_2(bbox, depth, camera_cfg, cfg, params,
++                                             std::nullopt, rng);
++  ASSERT_TRUE(outcome.ok) << outcome.failure.failure_reason;
++  EXPECT_TRUE(outcome.has_dimensions);
++  EXPECT_NEAR(outcome.width_m, 1.0, 1e-9);
++  EXPECT_NEAR(outcome.height_m, 0.8, 1e-9);
++  EXPECT_NEAR(outcome.depth_m, 2.5, 1e-9);
++}
++
+ TEST(PipelineV3_2, EmptyBboxAfterErosionFails) {
+   RgbDepthCameraConfig camera_cfg = make_synthetic_camera();
+   cv::Mat depth = make_flat_plane_depth(480, 640, 2.0);

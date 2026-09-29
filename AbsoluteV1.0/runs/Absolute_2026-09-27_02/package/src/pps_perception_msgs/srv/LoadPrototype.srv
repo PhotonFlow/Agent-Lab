@@ -1,0 +1,6 @@
+string prototype_id
+string json_path
+float64 contour_spacing_m
+---
+bool success
+string message

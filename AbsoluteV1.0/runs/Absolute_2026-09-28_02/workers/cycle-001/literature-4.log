@@ -1,0 +1,6 @@
+Literature for cycle 1 is in `runs/Absolute_2026-09-28_02/sota/cycle-001/literature-4.json`. The query is unchanged.
+
+Older methods split into two groups:
+
+- **Superseded.** Whole-scene cloud registration that returns one pose and names no other pallet (Shao et al., Sensors 2023) gave way to a detector-then-crop pipeline (Lourenço et al., ICINCO 2024), which still poses every pallet. Dropping every box below a score threshold, with no identity left, was superseded by ByteTrack’s second association. Pairing RGB and depth by arrival time, or by one clock reading, was superseded by each image’s acquisition stamp.
+- **Still current.** A 6D pose for every detected pallet has not been retired (Wu and Demeester, VISIGRAPP 2026). Meng et al. (Sensors 2024) and Lang2Lift keep one target and do not publish the others as detected-but-not-posed. `Detection2D.id` is an optional cross-message id, not this pair’s source index.

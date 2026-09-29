@@ -1,0 +1,3 @@
+Literature findings for cycle 1 are in `runs/Absolute_2026-09-28_02/sota/cycle-001/literature-1.json`.
+
+The method that matches the feature is the residual of one `select_detection` call. Stage 2 stays a single `estimate_pose_chamfer_v3_2` on that pallet. Every other candidate is marked deferred in the same pose `DiagnosticArray`, with its `source_index` and that pair's RGB and depth capture stamps. Neighborhood suppression is a different method, because a second non-overlapping pallet would still go through stage 2.

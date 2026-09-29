@@ -1,0 +1,31 @@
+{
+  "query": "integration constraints for For each synchronized detection and depth pair, send stage 2 only the pallet select_detection already chooses, and write both sides of that split onto the result the handling process reads. PalletPoseStamped gains the chosen candidate's source index as the pallet sent through stage 2, and the source indices of the other class-matched candidates in that same Detection2DArray as deferred. Those indices are the slots extract_detection_candidates already stored. The message already carries this pair's RGB and depth stamps, so the roster is this capture while the scene can still change. When the estimate fails, the same two lists go on the failure diagnostic, which is the only result that path publishes. The two early returns that publish nothing stay as they are. Stage 2 still runs once. The user named which detections are sent versus deferred; the part they did not name is that both lists sit on PalletPoseStamped, the pose result for the AGV controller, rather than only on a diagnostic the success path does not use. in src",
+  "findings": [
+    "The success result the controller reads is PalletPoseStamped. geometry_msgs/PoseStamped is only a header and a pose, so /pps/pallet_pose cannot carry the roster. Append an int32 for the sent slot and an int32[] for the deferred slots after input_depth_stamp. int32 is int32_t and int32[] is an unbounded sequence. Write the sent index on every rich publish: 0 is a real detections slot, and an empty deferred sequence means no other class-matched candidate. Leave quality_reasons and failure_reason as they are.",
+    "The indices are slots in Detection2DArray.detections, which is the source_index extract_detection_candidates stores. Detection2D.id is a string, may be empty, and is an id reused across messages. Detections with empty results, or whose highest-scoring ObjectHypothesis class_id is not the target, are skipped, so the stored indices can have gaps. Other hypotheses in the same detection are not extra slots.",
+    "std::max_element returns the first greatest element. highest_confidence orders by score then area, largest_area by area then score, and a tie stays with the earlier candidate. That candidate's source_index is the one sent into the single estimate_pose_chamfer_v3_2 call. The deferred list is the other stored source_index values from that same candidate vector. Those candidates are not estimated.",
+    "input_rgb_stamp is the detection-array header, which should match the RGB source, and input_depth_stamp is the paired depth header. PalletPoseStamped.header.stamp is the publish time. ApproximateTime rejects a pair whose stamp span exceeds setMaxIntervalDuration, already set from sync_slop_s (default 0.10 s), so the two capture stamps can differ. The roster is this pair, not a later frame.",
+    "When the estimate fails, PalletPoseStamped is not published. The only result is one DiagnosticStatus. KeyValue is a string key and a string value, so the sent index and the deferred indices are two new keys on that existing WARN status, each one string. StatusItem::getValue returns the first match for a key, so a repeated key hides a list. Keep failure_reason, input_rgb_stamp, and input_depth_stamp. Encode both stamps as seconds, a dot, and nanosec padded to 9. builtin_interfaces/Time nanosec is in [0, 1e9). Leave DiagnosticArray.header.stamp as the publish clock.",
+    "Keep the failure status name pps_pallet_pose_cpp and level WARN (1). The aggregator stores one item per status name and sets the group level to the max child level. It subscribes to /diagnostics, can clear KeyValues when publish_values is false, republishes near 1 Hz, and warns when header.stamp.sec is 0. The handling process reads the raw failure topic for this capture.",
+    "The empty-candidate return and the depth-conversion exception return publish nothing. A roster-only pose or diagnostic does not belong on those paths: the first has no selected slot, and the second has no converted depth pair.",
+    "create_publisher with depth 10 is keep-last, and rmw_qos_profile_default is reliable and volatile. A best-effort publisher does not match a reliable subscription. Keep-last drops whole messages, so one PalletPoseStamped carries both lists and both stamps."
+  ],
+  "citations": [
+    "https://raw.githubusercontent.com/ros2/ros2_documentation/humble/source/Concepts/Basic/About-Interfaces.rst",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/humble/geometry_msgs/msg/PoseStamped.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/humble/vision_msgs/msg/Detection2DArray.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/humble/vision_msgs/msg/Detection2D.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/humble/vision_msgs/msg/ObjectHypothesis.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/humble/diagnostic_msgs/msg/DiagnosticStatus.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/humble/diagnostic_msgs/msg/KeyValue.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/humble/diagnostic_msgs/msg/DiagnosticArray.msg",
+    "https://raw.githubusercontent.com/ros2/rcl_interfaces/humble/builtin_interfaces/msg/Time.msg",
+    "https://raw.githubusercontent.com/ros2/message_filters/humble/include/message_filters/sync_policies/approximate_time.h",
+    "https://raw.githubusercontent.com/ros/diagnostics/ros2-humble/diagnostic_aggregator/include/diagnostic_aggregator/status_item.hpp",
+    "https://raw.githubusercontent.com/ros/diagnostics/ros2-humble/diagnostic_aggregator/include/diagnostic_aggregator/generic_analyzer_base.hpp",
+    "https://raw.githubusercontent.com/ros/diagnostics/ros2-humble/diagnostic_aggregator/src/aggregator.cpp",
+    "https://raw.githubusercontent.com/ros2/rmw/humble/rmw/include/rmw/qos_profiles.h",
+    "https://raw.githubusercontent.com/ros2/rmw_dds_common/humble/rmw_dds_common/src/qos.cpp",
+    "https://en.cppreference.com/w/cpp/algorithm/max_element"
+  ]
+}

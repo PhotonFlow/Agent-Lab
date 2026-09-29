@@ -1,0 +1,6 @@
+{
+  "feature_id": "face-half-width",
+  "hypothesis": "add the feature that closes the measured gap",
+  "level": "feature",
+  "summary": "set the synthetic pallet face half-width the scorer measures"
+}

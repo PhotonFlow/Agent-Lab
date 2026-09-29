@@ -1,0 +1,230 @@
+diff --git a/geometry_core/src/pipeline_v3_2.cpp b/geometry_core/src/pipeline_v3_2.cpp
+index bc0e682..7177919 100644
+--- a/geometry_core/src/pipeline_v3_2.cpp
++++ b/geometry_core/src/pipeline_v3_2.cpp
+@@ -5,14 +5,9 @@
+ #include <limits>
+ 
+ #include "geometry_core/backproject.hpp"
+-#include "geometry_core/chamfer.hpp"
+-#include "geometry_core/chamfer_prior.hpp"
+ #include "geometry_core/face_mask.hpp"
+-#include "geometry_core/pca_init.hpp"
+-#include "geometry_core/plane_coords.hpp"
+ #include "geometry_core/plane_fit.hpp"
+ #include "geometry_core/pose.hpp"
+-#include "geometry_core/prototype.hpp"
+ #include "geometry_core/transforms.hpp"
+ 
+ namespace geometry_core {
+@@ -25,31 +20,6 @@ EstimatePoseOutcome make_failure(std::optional<int> instance_id, std::string rea
+   outcome.failure = FailureResult{instance_id, std::move(reason), n_face_points};
+   return outcome;
+ }
+-
+-// Keyed cache: rebuilds the prototype only when the shape parameters change
+-// (they are fixed per-config in practice), avoiding a rebuild every frame.
+-const Prototype2D& cached_prototype(double width_m, double height_m, double pocket_width_m,
+-                                     double pocket_height_m, double pocket_centre_offset_m,
+-                                     double contour_spacing_m) {
+-  struct Key {
+-    double width_m = 0.0, height_m = 0.0, pocket_width_m = 0.0, pocket_height_m = 0.0,
+-           pocket_centre_offset_m = 0.0, contour_spacing_m = 0.0;
+-  };
+-  static Key key{};
+-  static Prototype2D proto{};
+-  static bool have = false;
+-  if (!have || key.width_m != width_m || key.height_m != height_m ||
+-      key.pocket_width_m != pocket_width_m || key.pocket_height_m != pocket_height_m ||
+-      key.pocket_centre_offset_m != pocket_centre_offset_m ||
+-      key.contour_spacing_m != contour_spacing_m) {
+-    proto = build_default_pallet_prototype(width_m, height_m, pocket_width_m, pocket_height_m,
+-                                            pocket_centre_offset_m, contour_spacing_m);
+-    key = Key{width_m, height_m, pocket_width_m, pocket_height_m, pocket_centre_offset_m,
+-              contour_spacing_m};
+-    have = true;
+-  }
+-  return proto;
+-}
+ }  // namespace
+ 
+ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+@@ -59,8 +29,9 @@ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+                                                 const EstimatePoseParams& params,
+                                                 std::optional<int> instance_id,
+                                                 std::mt19937_64& rng) {
+-  const double* outside_penalty_ptr =
+-      params.has_outside_penalty_m ? &params.outside_penalty_m : nullptr;
++  // Prototype-grid parameters are not inputs to the pose or the inlier-face
++  // extents. The estimate does not run that grid.
++  (void)params;
+ 
+   // 1. RGB bbox mask + cross-camera face point sampling.
+   const int Hr = camera_cfg.rgb.height;
+@@ -106,23 +77,7 @@ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+     }
+   }
+ 
+-  // 4. Deterministic plane-local 2D coordinates.
+-  PlaneBasis basis = build_plane_basis_deterministic(plane_d);
+-  Eigen::MatrixXd obs_points_2d = project_points_to_plane_2d(plane_points_3d, basis);
+-
+-  // 5. Rasterise -> close -> edge -> exact distance transform.
+-  auto [obs_mask, grid_meta] =
+-      rasterize_points_to_mask(obs_points_2d, params.resolution_m, params.padding_m);
+-  cv::Mat obs_filled = close_mask(obs_mask, params.close_radius_px, /*keep_largest=*/true);
+-  cv::Mat obs_edge = extract_boundary_mask(obs_filled);
+-  cv::Mat dist_img_m = compute_distance_transform_v2(obs_edge, grid_meta.resolution_m);
+-
+-  // 6. Prototype (pocket-aware), cached across calls with identical shape params.
+-  const Prototype2D& proto = cached_prototype(
+-      params.pallet_width_m, params.pallet_height_m, params.pocket_width_m,
+-      params.pocket_height_m, params.pocket_centre_offset_m, params.contour_spacing_m);
+-
+-  // 7. Initial pose from bbox centre projected to plane.
++  // Translation is the bbox-centre ray-plane hit. Yaw is the plane normal.
+   const Eigen::Vector2d bbox_centre_uv(0.5 * (bbox_xyxy(0) + bbox_xyxy(2)),
+                                         0.5 * (bbox_xyxy(1) + bbox_xyxy(3)));
+   Eigen::Vector3d centre_d_init;
+@@ -133,79 +88,6 @@ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+         instance_id, std::string("bbox-centre back-projection failed: ") + exc.what(),
+         n_face_points);
+   }
+-  Eigen::MatrixXd centre_d_row(1, 3);
+-  centre_d_row.row(0) = centre_d_init.transpose();
+-  Eigen::Vector2d centre_2d_init = project_points_to_plane_2d(centre_d_row, basis).row(0);
+-  PrototypePose2D init_pose = make_pca_init_pose(centre_2d_init, obs_points_2d);
+-
+-  auto [init_pose_resolved, init_cost] =
+-      choose_pi_ambiguous_pose(proto.contour_points, init_pose, dist_img_m, grid_meta,
+-                                params.trim_fraction, outside_penalty_ptr);
+-  (void)init_cost;
+-  init_pose = init_pose_resolved;
+-
+-  const Eigen::Vector2d anchor_xy(init_pose.tx, init_pose.ty);
+-
+-  // 8a. FREE (unconstrained, no-prior) two-stage bilinear chamfer search.
+-  auto [free_pose, free_cost] = two_stage_chamfer_search_v2(
+-      proto.contour_points, init_pose, dist_img_m, grid_meta, params.coarse_dx_m,
+-      params.coarse_dy_m, params.coarse_dtheta_rad, params.coarse_step_dx_m,
+-      params.coarse_step_dy_m, params.coarse_step_dtheta_rad, params.fine_dx_m,
+-      params.fine_dy_m, params.fine_dtheta_rad, params.fine_step_dx_m,
+-      params.fine_step_dy_m, params.fine_step_dtheta_rad, params.trim_fraction,
+-      outside_penalty_ptr);
+-
+-  // 8b. Confidence gate.
+-  const double lo = params.cost_reliable_lo_m;
+-  const double hi = params.cost_reliable_hi_m;
+-  double confidence = hi > lo ? (hi - free_cost) / (hi - lo) : 1.0;
+-  confidence = std::clamp(confidence, 0.0, 1.0);
+-  const double lambda_eff = params.prior_lambda * (1.0 - confidence);
+-
+-  bool used_prior_fallback = false;
+-  PrototypePose2D anchor_pose_same_theta{free_pose.theta_rad, anchor_xy.x(), anchor_xy.y()};
+-  const double anchor_cost =
+-      chamfer_cost_v2(proto.contour_points, anchor_pose_same_theta, dist_img_m, grid_meta,
+-                       params.trim_fraction, outside_penalty_ptr);
+-
+-  PrototypePose2D best_pose;
+-  double prior_data_cost = 0.0;
+-  if (lambda_eff <= params.lambda_floor) {
+-    best_pose = free_pose;
+-  } else {
+-    auto [prior_pose, prior_search_cost] = two_stage_chamfer_search_v2_with_prior(
+-        proto.contour_points, init_pose, dist_img_m, grid_meta, anchor_xy, lambda_eff,
+-        params.prior_coarse_dx_m, params.prior_coarse_dy_m, params.coarse_dtheta_rad,
+-        params.coarse_step_dx_m, params.coarse_step_dy_m, params.coarse_step_dtheta_rad,
+-        params.fine_dx_m, params.fine_dy_m, params.fine_dtheta_rad, params.fine_step_dx_m,
+-        params.fine_step_dy_m, params.fine_step_dtheta_rad, params.trim_fraction,
+-        outside_penalty_ptr);
+-    (void)prior_search_cost;
+-    prior_data_cost = chamfer_cost_v2(proto.contour_points, prior_pose, dist_img_m, grid_meta,
+-                                       params.trim_fraction, outside_penalty_ptr);
+-
+-    auto combined_cost = [&](const PrototypePose2D& pose, double data_cost) {
+-      const double dx = pose.tx - anchor_xy.x();
+-      const double dy = pose.ty - anchor_xy.y();
+-      return data_cost + lambda_eff * (dx * dx + dy * dy);
+-    };
+-
+-    if (combined_cost(prior_pose, prior_data_cost) <= combined_cost(free_pose, free_cost)) {
+-      best_pose = prior_pose;
+-      used_prior_fallback = true;
+-    } else {
+-      best_pose = free_pose;
+-    }
+-  }
+-
+-  double best_cost = free_cost;
+-  if (used_prior_fallback) {
+-    best_cost = prior_data_cost;
+-  }
+-
+-  // 9. Translation is the bbox-centre ray-plane hit. Chamfer still records
+-  // the in-plane prototype alignment in debug, but that search walks off
+-  // the face centre when the prototype size does not match the face.
+   Eigen::Vector3d centre_r = apply_se3(camera_cfg.R_dr, camera_cfg.t_dr, centre_d_init);
+   Eigen::Vector3d n_r = camera_cfg.R_dr * plane_d.normal;
+   n_r /= (n_r.norm() + 1e-12);
+@@ -227,16 +109,7 @@ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+   outcome.pose.yaw_sign_convention = kYawSignConvention;
+ 
+   outcome.has_debug = true;
+-  outcome.debug.chamfer_theta_rad = best_pose.theta_rad;
+-  outcome.debug.chamfer_cost_m = best_cost;
+   outcome.debug.n_plane_inliers = n_plane_inliers;
+-  outcome.debug.raster_h = grid_meta.height;
+-  outcome.debug.raster_w = grid_meta.width;
+-  outcome.debug.free_cost_m = free_cost;
+-  outcome.debug.anchor_cost_m = anchor_cost;
+-  outcome.debug.confidence = confidence;
+-  outcome.debug.prior_lambda_eff = lambda_eff;
+-  outcome.debug.used_prior_fallback = used_prior_fallback;
+ 
+   if (plane_points_3d.rows() > 0) {
+     double min_x = std::numeric_limits<double>::infinity();
+diff --git a/pps_pallet_pose_cpp/test/test_inlier_face_extents.py b/pps_pallet_pose_cpp/test/test_inlier_face_extents.py
+index cc539fe..5e619c5 100644
+--- a/pps_pallet_pose_cpp/test/test_inlier_face_extents.py
++++ b/pps_pallet_pose_cpp/test/test_inlier_face_extents.py
+@@ -10,6 +10,7 @@ PACKAGE_SRC = Path(__file__).resolve().parents[2]
+ HEADER = PACKAGE_SRC / "pps_pallet_pose_cpp" / "include" / "pps_pallet_pose_cpp" / "rich_face_extents.hpp"
+ MSG = PACKAGE_SRC / "pps_perception_msgs" / "msg" / "PalletPoseStamped.msg"
+ NODE = PACKAGE_SRC / "pps_pallet_pose_cpp" / "src" / "pallet_pose_node.cpp"
++PIPELINE = PACKAGE_SRC / "geometry_core" / "src" / "pipeline_v3_2.cpp"
+ 
+ EXTENT_FIELDS = (
+     "bool has_dimensions",
+@@ -105,6 +106,32 @@ class InlierFaceExtentsTest(unittest.TestCase):
+         self.assertIn("outcome.height_m", body)
+         self.assertIn("outcome.depth_m", body)
+ 
++    def test_estimate_keeps_inlier_extents_without_the_chamfer_grid(self) -> None:
++        text = PIPELINE.read_text(encoding="utf-8")
++        start = text.find("EstimatePoseOutcome estimate_pose_chamfer_v3_2")
++        self.assertGreater(start, -1)
++        body = text[start:]
++        # The published pose is the bbox-centre ray-plane hit and the yaw of
++        # the plane normal. The grid that searches a prototype against a
++        # distance image is not an input to that pose or to the inlier-face
++        # extents, so the estimate must not run it.
++        for banned in (
++            "two_stage_chamfer_search_v2",
++            "two_stage_chamfer_search_v2_with_prior",
++            "compute_distance_transform_v2",
++            "chamfer_cost_v2(",
++        ):
++            self.assertNotIn(banned, body, f"estimate still pays {banned}")
++        for required in (
++            "ray_plane_intersect_cross_camera",
++            "yaw_from_normal_camera",
++            "max_x - min_x",
++            "max_y - min_y",
++            "sum_z / static_cast<double>(n)",
++            "outcome.has_dimensions = true",
++        ):
++            self.assertIn(required, body, f"estimate dropped {required}")
++
+ 
+ if __name__ == "__main__":
+     suite = unittest.defaultTestLoader.loadTestsFromTestCase(InlierFaceExtentsTest)

@@ -1,0 +1,23 @@
+{
+  "verdict": "stands",
+  "method": "The current method stands: for each synchronized detection and depth pair, send stage 2 only the one pallet already selected, and leave every other candidate unposed. Isaac ROS FoundationPose 5.0 still builds the pose mask from only the highest-scoring detection, and Lang2Lift (2025) still runs FoundationPose on one top-1 pallet mask for an outdoor forklift in a cluttered scene that is still changing. Neither publishes the other detections' source indexes with that pair's RGB and depth capture stamps, and no retrieved 2024–2026 source does. Posing every detection has not been superseded: Wu and Demeester (VISIGRAPP 2026) write a 6D pose for each pallet bin, Lourenco, Arsenio, Garrote, and Nunes (ICINCO 2024) crop and pose each pallet detection, and Jeevanandam et al. (IROS 2025) select a grasp only after those poses exist. That full pass is the latency the single selection avoids. Wu and Demeester measure about 21 ms to detect and about 2.8 s for FoundationPose per frame; CosyPose spent 190 ms of a 320 ms scene posing every candidate. Soft-NMS, Frustum PointNets, CenterPoint, DETR, Sparse R-CNN, SORT, ByteTrack, learning-to-defer, and SelectiveNet keep, pose, track, abstain, or hand the decision off. None records a deferred source index together with both capture stamps. Detection2D.id is an optional id that may be empty, not the index in this pair's detection list, and ApproximateTime can match two different acquisition stamps. Those interfaces do not replace the single selected pose.",
+  "citations": [
+    "https://nvidia-isaac-ros.github.io/v/release-5.0/repositories_and_packages/isaac_ros_pose_estimation/isaac_ros_foundationpose/index.html",
+    "https://arxiv.org/html/2508.15427v2",
+    "https://www.scitepress.org/Papers/2026/144556/144556.pdf",
+    "https://www.scitepress.org/Papers/2024/130733/130733.pdf",
+    "https://arxiv.org/abs/2506.13425",
+    "https://arxiv.org/abs/2008.08465",
+    "https://arxiv.org/abs/1704.04503",
+    "https://arxiv.org/abs/1711.08488",
+    "https://arxiv.org/abs/2006.11275",
+    "https://arxiv.org/abs/2005.12872",
+    "https://arxiv.org/abs/2011.12450",
+    "https://arxiv.org/abs/1602.00763",
+    "https://arxiv.org/abs/2110.06864",
+    "https://arxiv.org/abs/1711.06664",
+    "https://arxiv.org/abs/1901.09192",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection2D.msg",
+    "https://raw.githubusercontent.com/ros2/message_filters/rolling/doc/index.rst"
+  ]
+}

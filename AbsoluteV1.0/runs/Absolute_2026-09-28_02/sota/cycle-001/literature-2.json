@@ -1,0 +1,26 @@
+{
+  "query": "other candidate methods for For each synchronized detection and depth pair, send through stage 2 only the pallet select_detection already chooses, and mark every other candidate deferred by publishing its source index on the pose diagnostics together with that pair's RGB and depth capture stamps. The handling process can then tell which pallets in the still-changing scene were detected but not posed. that are not the first list",
+  "findings": [
+    "Soft-NMS keeps the boxes that overlap the winner. Bodla et al. rescale each remaining score by a Gaussian of its overlap with sigma 0.5, or by a linear penalty once overlap passes Nt 0.3, and they state that no object is eliminated. Those neighbors stay detections. They are not marked deferred by source index, and the pair's RGB and depth capture stamps are not published with them.",
+    "Frustum PointNets lifts each 2D region to a viewing frustum and estimates an amodal 3D box from the depth points inside that frustum. Every region proposal is posed. There is no deferred complement of source indexes, and no pose diagnostic carrying that pair's RGB stamp and depth stamp.",
+    "CenterPoint's second stage refines each detected box. It reads a backbone feature at the object center and at the four outward face centers, then predicts a score and a box update. The other centers are refined rather than left unposed. The input is one lidar cloud. Unmatched tracks are kept for T = 3 frames by their last velocity, not written as detection indexes with an RGB stamp and a depth stamp.",
+    "DETR emits a fixed set of predictions and uses the Hungarian algorithm for one-to-one matching. A prediction with no match is the no-object class. Those slots are not the other indexes of a detection array, and they are not published with a separate RGB capture stamp and depth capture stamp.",
+    "SORT returns the indexes of detections the Hungarian step did not match, at an IoU threshold of 0.3. The reference implementation then starts a new Kalman track for each unmatched detection. Those indexes are not marked detected but not posed, and the tracker has no depth-image capture stamp.",
+    "Sparse R-CNN feeds a fixed set of learned proposals, with 100 and 300 as the main settings, through the dynamic instance-interactive head, and it emits the final set without NMS. It does not stop at the one pallet select_detection chose, and it does not publish the rest as deferred source indexes with both capture stamps.",
+    "Learning to defer lets the model say pass and send that decision to an external decision-maker. The deferred case is the one that goes downstream. This feature instead sends only the pallet select_detection already chose through stage 2 and marks the other candidates deferred. The pass decision is not a detection-array index and does not carry an RGB stamp and a depth stamp.",
+    "SelectiveNet trains a reject option so the network abstains outside a chosen coverage. An abstained input is not recorded as a source index on a pose diagnostic, and the method has no pair of RGB and depth capture stamps.",
+    "The Viola-Jones cascade rejects a sub-window as soon as any stage returns negative, and that window is not processed further. Rejected windows are dropped. They are not kept as deferred source indexes with the two capture stamps."
+  ],
+  "citations": [
+    "https://ar5iv.labs.arxiv.org/html/1704.04503",
+    "https://ar5iv.labs.arxiv.org/html/1711.08488",
+    "https://ar5iv.labs.arxiv.org/html/2006.11275",
+    "https://ar5iv.labs.arxiv.org/html/2005.12872",
+    "https://arxiv.org/abs/1602.00763",
+    "https://raw.githubusercontent.com/abewley/sort/master/sort.py",
+    "https://arxiv.org/abs/2011.12450",
+    "https://arxiv.org/abs/1711.06664",
+    "https://ar5iv.labs.arxiv.org/html/1901.09192",
+    "https://www.cs.cmu.edu/~efros/courses/LBMV07/Papers/viola-cvpr-01.pdf"
+  ]
+}

@@ -1,0 +1,1 @@
+{"behavior_test": ["python", "geometry_core/test/test_fused_chamfer_sample.py"]}

@@ -1,0 +1,35 @@
+{
+  "edit_policy": "except_immutable",
+  "eval_command": [
+    "python",
+    "c:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_02\\package\\src\\evaluate.py"
+  ],
+  "eval_timeout_sec": 180.0,
+  "feature_catalog": [
+    {
+      "id": "face-extent-dimensions",
+      "summary": "Publish the camera-frame extent of valid face points as has_dimensions, width_m, height_m, and depth_m on EstimatePoseOutcome."
+    },
+    {
+      "id": "stage2-subset-admission",
+      "summary": "Admit the k largest-area candidates and defer every other candidate through Stage2Admission."
+    }
+  ],
+  "immutable": [],
+  "loop": "until_target",
+  "metrics": {
+    "primary": {
+      "direction": "minimize",
+      "name": "scenario_error",
+      "noise": 0.001,
+      "target": 0.0
+    },
+    "protected": []
+  },
+  "mutable": [],
+  "stops": {
+    "max_cycles": 1,
+    "plateau": 1
+  },
+  "task": "evolve src until scenario_error minimize reaches 0.0"
+}

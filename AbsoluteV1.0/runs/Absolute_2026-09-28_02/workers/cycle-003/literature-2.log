@@ -1,0 +1,11 @@
+Literature-2 is written to `runs/Absolute_2026-09-28_02/sota/cycle-003/literature-2.json`. The query is unchanged.
+
+The findings are methods other than the first-maximum admission already named for this capture:
+
+- **Soft-NMS** rescores overlapping boxes and can change which box is next.
+- **IoU-guided NMS** ranks by predicted IoU and rewrites the kept classification score.
+- **DIoU-NMS** zeros neighbors by center distance as well as overlap.
+- **Weighted Boxes Fusion** replaces a cluster with one averaged rectangle.
+- **DETR** assigns a fixed set of 100 queries with the Hungarian algorithm.
+- **TOOD** marks training anchors by the product of classification score and IoU.
+- **FoundationPose** scores pose hypotheses and keeps the highest score. A 2026 pallet-bin pipeline uses that ranker on RF-DETR boxes.

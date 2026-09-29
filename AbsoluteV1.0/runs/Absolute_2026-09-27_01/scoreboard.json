@@ -1,0 +1,14 @@
+{
+  "baseline": {
+    "latency_ms": 47.2438,
+    "pose_error_m": 0.002
+  },
+  "best": {
+    "latency_ms": 47.9846,
+    "pose_error_m": 0.0
+  },
+  "cycles": 1,
+  "implementation_keep_streak": 1,
+  "keeps": 1,
+  "no_keep_streak": 0
+}

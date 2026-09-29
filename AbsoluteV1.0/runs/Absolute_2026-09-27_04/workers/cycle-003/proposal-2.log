@@ -1,0 +1,3 @@
+Proposal 2 is written to `runs/Absolute_2026-09-27_04/decisions/cycle-003/proposal-2.json`.
+
+It is one implementation change: in `estimate_pose_chamfer_v3_2`, publish `apply_se3(R_dr, t_dr, centre_d_init)` as `tx`, `ty`, and `tz` instead of the chamfer-refined lift of `best_pose`. On the uniform z=2 probe the bbox centre is the RGB principal point, so that ray-plane hit is (0, 0, 2) and `pose_error_m` falls from 0.002 to 0. Face-extent dimensions and `select_stage2_subset` stay as they are.

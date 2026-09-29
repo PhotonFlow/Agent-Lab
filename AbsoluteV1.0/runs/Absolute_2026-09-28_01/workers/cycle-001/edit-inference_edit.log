@@ -1,0 +1,5 @@
+The inference edit is in the package copy, and the behavior test passes.
+
+`estimate_pose_chamfer_v3_2` no longer builds the distance image or runs the prototype chamfer grid. The published pose is still the bbox-centre ray-plane hit, with yaw taken from the plane normal. Width, height, and depth are still one pass over that estimate's plane inliers, and they are still copied onto `/pps/pallet_pose_rich` only when the estimate produced them.
+
+The new test failed first because `two_stage_chamfer_search_v2` was still in the estimate. After the change, `python pps_pallet_pose_cpp/test/test_inlier_face_extents.py` reported 4 tests, OK. That command is in `edit-result-inference_edit.json`.

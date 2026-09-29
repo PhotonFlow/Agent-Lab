@@ -1,0 +1,58 @@
+{
+  "eval_command": [
+    "C:\\Users\\alanpeng\\anaconda3\\python.exe",
+    "evaluate.py"
+  ],
+  "eval_timeout_sec": 180,
+  "feature_catalog": [
+    {
+      "id": "dimension-estimation",
+      "summary": "estimate pallet width, height, and depth in metres from the face geometry used for pose"
+    },
+    {
+      "id": "multi-pallet-stage2",
+      "summary": "when several pallets are detected, send only a bounded subset through stage 2 and mark every other pallet deferred"
+    }
+  ],
+  "immutable": [
+    "evaluate.py",
+    "geometry_core/test/test_pipeline_v3_2.cpp"
+  ],
+  "metrics": {
+    "primary": {
+      "direction": "minimize",
+      "name": "scenario_error",
+      "noise": 0.001
+    },
+    "protected": [
+      {
+        "direction": "minimize",
+        "max_regression": 0.001,
+        "name": "pose_error_m"
+      },
+      {
+        "direction": "minimize",
+        "max_regression": 5,
+        "name": "latency_ms"
+      }
+    ]
+  },
+  "mutable": [
+    "geometry_core/src/pipeline_v3_2.cpp",
+    "geometry_core/include/geometry_core/pipeline_v3_2.hpp",
+    "geometry_core/src/chamfer.cpp",
+    "geometry_core/src/chamfer_prior.cpp",
+    "geometry_core/src/plane_fit.cpp",
+    "geometry_core/src/pca_init.cpp",
+    "geometry_core/src/backproject.cpp",
+    "pps_pallet_pose_cpp/src/detection_utils.cpp",
+    "pps_pallet_pose_cpp/src/pallet_pose_node.cpp",
+    "pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp",
+    "pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp"
+  ],
+  "stops": {
+    "max_cycles": 30,
+    "plateau": 5
+  },
+  "task": "evolve the pps source stack, add pallet dimension estimation, and send only a bounded subset of pallets through stage 2"
+}

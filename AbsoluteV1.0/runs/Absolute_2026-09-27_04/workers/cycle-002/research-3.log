@@ -1,0 +1,3 @@
+Research for cycle 2 is in `runs/Absolute_2026-09-27_04/sota/cycle-002/research-3.json`. The package and the scorer were not edited.
+
+The 0.001 figure is only the keep margin. Best `scenario_error` is 1.752, so a new value of 1.751 reverts and 1.750 keeps. The run still stops only at 0.0. The pose term is about 0.002, so a pose-only change at or under 0.001 does not keep. Selection still moves in steps of 0.25 or 1.0. The scorer stays the external file `runs/Absolute_2026-09-27_02/package/src/evaluate.py`.

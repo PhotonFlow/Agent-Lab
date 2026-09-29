@@ -1,0 +1,19 @@
+{
+  "query": "evidence that methods for For each synchronized detection and depth pair, send through stage 2 only the pallet select_detection already chooses, and mark every other candidate deferred by publishing its source index on the pose diagnostics together with that pair's RGB and depth capture stamps. The handling process can then tell which pallets in the still-changing scene were detected but not posed. are current",
+  "findings": [
+    "Isaac ROS FoundationPose 5.0 still builds the stage-2 mask from only the highest-scoring detection in a Detection2DArray, so the other candidates in that array are not sent into pose.",
+    "Lang2Lift (Nguyen et al., arXiv:2508.15427, August 2025), deployed on an outdoor forklift in cluttered changing scenes, still outputs one top-1 pallet mask per prompt and runs RGB-D FoundationPose only on that mask. It does not publish the other pallets' indexes with the pair's capture stamps.",
+    "ROS 2 rolling message_filters still forms the synchronized pair from header stamps: ExactTime requires the same timestamp on every channel, and ApproximateTime matches those stamps with an adaptive algorithm, so RGB and depth can keep two different capture times.",
+    "Current vision_msgs/Detection2DArray is still an ordered list. Detection2D.id is a cross-message id that may be empty, not that list index, and the message says the source image is recovered by an exact or approximate synchronizer because the detection header should match the source header. diagnostic_msgs/DiagnosticStatus on rolling still carries extra fields in KeyValue values.",
+    "No 2024–2026 source found publishes every non-selected source index on the pose diagnostic together with that pair's RGB stamp and depth stamp. Wu and Demeester, VISIGRAPP 2026, still detect pallet bins with RF-DETR-S and then rank FoundationPose rotation hypotheses of a bin; that selection is inside one bin, not a deferred sibling index."
+  ],
+  "citations": [
+    "https://nvidia-isaac-ros.github.io/v/release-5.0/repositories_and_packages/isaac_ros_pose_estimation/isaac_ros_foundationpose/index.html",
+    "https://arxiv.org/html/2508.15427v2",
+    "https://raw.githubusercontent.com/ros2/message_filters/rolling/doc/index.rst",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection2D.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection2DArray.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/rolling/diagnostic_msgs/msg/DiagnosticStatus.msg",
+    "https://www.scitepress.org/Papers/2026/144556/144556.pdf"
+  ]
+}

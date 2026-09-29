@@ -1,0 +1,5 @@
+A successful pose estimate now publishes the camera-frame extent of the valid face points on `EstimatePoseOutcome`.
+
+`has_dimensions` is set, `width_m` is max x minus min x, `height_m` is max y minus min y, and `depth_m` is the mean z. On the filled 230..410 by 168..312 face at 2.5 m, that extent is 1.0 m by 0.8 m at 2.5 m. Failed estimates leave `has_dimensions` false.
+
+The new test failed first because those fields were missing, then because the values stayed at zero. After the change, `PipelineV3_2.ReportsCameraFrameExtentOfValidFacePoints` and the other two pipeline tests passed (3/3, exit code 0).The first compile failed because `EstimatePoseOutcome` did not yet have `has_dimensions`, `width_m`, `height_m`, or `depth_m`. That was the expected red step. Those fields are now set from the camera-frame face extent, and the pipeline tests passed 3/3.

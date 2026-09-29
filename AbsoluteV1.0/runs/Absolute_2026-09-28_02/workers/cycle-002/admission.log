@@ -1,0 +1,7 @@
+Cycle 2 admission is written to `runs/Absolute_2026-09-28_02/decisions/cycle-002/admission.json`. One feature is accepted.
+
+**Accepted:** `sent_deferred_roster`. Stage 2 still poses the single pallet `select_detection` already chooses, and both sides of that split — the sent source index and the deferred source indices — go on `PalletPoseStamped`, the pose result the handling process reads for this capture. The same two lists go on the failure diagnostic when no pose is published. It is not a restatement of `dimension_error_m` or `latency_ms`, and it is not already kept or rejected.
+
+**Rejected:** `stage2_subset_admission`. The split stays inside the callback, so the handling process still sees one pose and no source indices.
+
+**Rejected:** `largest_face_admission`. The scenario does not send two faces or rank them by largest `area_px`, and a second estimate shifts the node’s random stream while the recorder keeps only the last pose.

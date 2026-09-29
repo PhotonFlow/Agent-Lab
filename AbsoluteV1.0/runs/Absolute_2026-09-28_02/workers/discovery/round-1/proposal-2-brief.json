@@ -1,0 +1,17 @@
+{
+  "brief_path": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_02\\workers\\discovery\\round-1\\proposal-2-brief.json",
+  "cycle": 0,
+  "discovery_round": 1,
+  "framework_root": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0",
+  "model": "grok-4.7-xhigh",
+  "output": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_02\\workers\\discovery\\round-1\\proposal-2.json",
+  "package_copy": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_02\\package\\src",
+  "prompt": "ROLE: metric_discover\nYou are one fresh process. You are not the runner and not the editor.\nModel: grok-4.7-xhigh\nYour query, and no other query: numeric results src must not regress while another result improves\nRead the package copy and the scenario text in this brief.\nPropose the numeric metrics this package already computes that later edits should be judged on.\nDo not invent a metric the package does not already compute.\nSealed metric ids: none\nUncovered scenario behaviors: none\nYou may add a metric. You may not rename, drop, retarget, or relax a sealed metric.\nWrite only this JSON file: C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_02\\workers\\discovery\\round-1\\proposal-2.json\nSchema: {\"query\": \"<the query above, unchanged>\", \"metrics\": [{\"id\": \"...\", \"description\": \"...\", \"direction\": \"minimize|maximize\", \"target\": 0, \"role\": \"objective|protected\", \"path\": \"/id\", \"noise\": 0, \"witnesses\": [\"exact scenario substring\"]}]}\nYou do not receive the eval command. Do not score. Do not edit the package. Do not edit the scorer. Do not mark a keep.\nDo not start python -m absolute evolve.",
+  "query": "numeric results src must not regress while another result improves",
+  "role": "metric_discover",
+  "run": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_02",
+  "scenario_text": "The pps source is the pallet perception stack on an AGV. The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change. The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred.\n\noutput: pose pose_error_m minimize 0.001 0\noutput: dimensions dimension_error_m minimize 0.001 0\noutput: selection selection_error minimize 0.001 0\noutput: scenario scenario_error minimize 0.001 0\nprotected: latency_ms minimize 5\n",
+  "sealed_metric_ids": [],
+  "skill": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\SKILL.md",
+  "uncovered_behaviors": []
+}

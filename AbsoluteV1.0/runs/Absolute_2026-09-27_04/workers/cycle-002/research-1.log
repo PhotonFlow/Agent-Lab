@@ -1,0 +1,7 @@
+Research for cycle 2 is written to `runs/Absolute_2026-09-27_04/sota/cycle-002/research-1.json`. The package was not edited, and the run was not scored.
+
+`scenario_error` is `pose_error_m + dimension_error_m + selection_error`. After the face-extent keep, the best split is **0.002 + 0 + 1.75**.
+
+- **Selection:** `select_stage2_subset` with `largest_area` and k=2 admits the two largest boxes (indices 1 and 2) and defers 0, 3, and 4, which scores 0. The current highest-confidence single pick scores 1.75.
+- **Pose:** publish the bbox-centre ray-plane hit (`centre_d_init` mapped by `R_dr` and `t_dr`). On this probe that hit is (0, 0, 2), so the 2 mm chamfer residual goes to 0.
+- **Dimensions:** keep the camera-frame face extent already in the pipeline (1.0 m by 0.8 m at 2.5 m).

@@ -1,0 +1,3 @@
+Proposal 3 is written to `runs/Absolute_2026-09-28_02/decisions/cycle-003/proposal-3.json`.
+
+**published_admission_split.** For one capture, `select_stage2_subset` ranks the class-matched detections with the strategy `select_detection` already uses, keeping the earlier candidate on a tie. The pose node still sends one pallet through stage 2. The admitted source index and the deferred source indices are written on `PalletPoseStamped`, and on the failure diagnostic when no pose is published.

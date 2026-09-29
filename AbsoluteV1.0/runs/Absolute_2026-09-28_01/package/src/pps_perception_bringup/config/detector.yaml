@@ -1,0 +1,12 @@
+rtdetr_detector_node:
+  ros__parameters:
+    backend: "tensorrt"            # "tensorrt" for the real engine, "mock" for tests
+    engine_path: "/mnt/c/Users/a0110610/pps_handover/detector_ckpt/pallet_rtdetrv2_r18vd_640.engine"               # <-- drop your exported RT-DETRv2 .engine/.plan path here
+    input_size: 640
+    score_threshold: 0.5
+    pallet_class_id: 0             # binary detector: class 0 = pallet
+    class_label: "pallet"
+    max_detections: 10
+    image_topic: "/camera/color/image_rect"
+    detections_topic: "/pps/detections"
+    image_qos: "sensor"            # "sensor" (best-effort) for real cameras

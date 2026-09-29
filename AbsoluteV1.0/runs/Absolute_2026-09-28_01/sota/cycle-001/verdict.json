@@ -1,0 +1,22 @@
+{
+  "verdict": "stands",
+  "method": "The current method stands: one pass over the stage-2 plane inliers from that same estimate. Width is max(x) minus min(x), height is max(y) minus min(y), and depth is the arithmetic mean range of those inliers, in metres. Copy those three values onto the same /pps/pallet_pose_rich PalletPoseStamped as the pose, and only when that estimate produced them. A stored 1.20 m by 0.14 m prototype, a template or CAD face, an object-frame cuboid, a covariance or minimum-volume box, rotating calipers, an interquartile or percentile span, and a second topic each measure a different size or add another hop, so none replaces this reduction.",
+  "citations": [
+    "geometry_core/src/pipeline_v3_2.cpp",
+    "geometry_core/include/geometry_core/pipeline_v3_2.hpp",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg",
+    "pps_pallet_pose_cpp/src/pallet_pose_node.cpp",
+    "Rusu and Cousins, 3D is here: Point Cloud Library (PCL), ICRA 2011; pcl::getMinMax3D and compute3DCentroid, https://pointclouds.org/documentation/group__common.html",
+    "https://www.ros.org/reps/rep-0103.html",
+    "https://www.open3d.org/docs/0.19.0/python_api/open3d.geometry.AxisAlignedBoundingBox.html",
+    "Wu, B.; Wang, S.; Lu, Y.; Yi, Y.; Jiang, D.; Qiao, M. A New Pallet-Positioning Method Based on a Lightweight Component Segmentation Network for AGV Toward Intelligent Warehousing. Sensors 2025, 25(7), 2333. https://doi.org/10.3390/s25072333",
+    "Völk, M.; Kleeberger, K.; Kraus, W.; Bormann, R. Towards Packaging Unit Detection for Automated Palletizing Tasks. arXiv:2308.06306, 2023. https://arxiv.org/abs/2308.06306",
+    "Yu, X.; Talak, R.; Shi, J.; Viereck, U.; Gilitschenski, I.; Carlone, L. Box Pose and Shape Estimation and Domain Adaptation for Large-Scale Warehouse Automation. arXiv:2507.00984, 1 Jul 2025. https://arxiv.org/abs/2507.00984",
+    "https://github.com/ros-perception/vision_msgs/blob/ros2/vision_msgs/msg/BoundingBox3D.msg",
+    "https://github.com/ros-perception/vision_msgs/issues/101",
+    "Dimitrov, D., Holst, M., Knauer, C., and Kriegel, K. Experimental Study of Bounding Box Algorithms. GRAPP 2008, pp. 15–22. https://www.scitepress.org/papers/2008/10966/10966.pdf",
+    "Kronauer, T., Pohlmann, J., Matthé, M., Meissner, P., and Fettweis, G. Latency Analysis of ROS 2 Multi-Node Systems. arXiv:2101.02074, 2021. https://arxiv.org/abs/2101.02074",
+    "Godfried T. Toussaint, Solving geometric problems with the rotating calipers, Proc. IEEE MELECON, Athens, 1983.",
+    "YuXuan Liu, Nikhil Mishra, Maximilian Sieb, Yide Shentu, Pieter Abbeel, and Xi Chen, Autoregressive Uncertainty Modeling for 3D Bounding Box Prediction, arXiv:2210.07424, 2022."
+  ]
+}

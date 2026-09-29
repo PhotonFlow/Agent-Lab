@@ -1,0 +1,21 @@
+{
+  "baseline": {
+    "dimension_error_m": 0.0,
+    "latency_ms": 56.837567,
+    "pose_error_m": 0.0,
+    "scenario_error": 0.0,
+    "selection_error": 0.0
+  },
+  "best": {
+    "dimension_error_m": 0.0,
+    "latency_ms": 15.589532,
+    "pose_error_m": 0.0,
+    "scenario_error": 0.0,
+    "selection_error": 0.0
+  },
+  "cycles": 1,
+  "edit_attempts": 2,
+  "implementation_keep_streak": 0,
+  "keeps": 2,
+  "no_keep_streak": 0
+}

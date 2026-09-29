@@ -1,0 +1,7 @@
+Connection lost, reconnecting to https://agentn.global.api5.cursor.sh (attempt 1)...
+Retry attempt 1...
+The literature report is in `runs/Absolute_2026-09-28_02/sota/cycle-003/literature-5.json`.
+
+Stage-2 admission has to use the same first-maximum ordering as `std::max_element`: a tie stays with the earlier candidate, the admitted pallet is that one candidate, and everyone else stays deferred in candidate-list order. The pose message carries that split after `input_depth_stamp`. A failed estimate publishes no pose and writes the same two lists on the existing failure diagnostic. The two paths that already publish nothing stay that way.The literature report is in `runs/Absolute_2026-09-28_02/sota/cycle-003/literature-5.json`.
+
+Stage-2 admission has to follow the same first-maximum rule as `std::max_element`: a tie stays with the earlier candidate, only that pallet is estimated, and the rest stay deferred in candidate-list order. The pose message carries that split after `input_depth_stamp`. A failed estimate publishes no pose and writes the same two lists on the existing failure diagnostic. The two paths that already publish nothing stay that way.

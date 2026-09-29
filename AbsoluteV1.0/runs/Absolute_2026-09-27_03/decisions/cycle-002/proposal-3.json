@@ -1,0 +1,6 @@
+{
+  "feature_id": "face-half-width",
+  "hypothesis": "add the missing feature the metric can see",
+  "level": "feature",
+  "summary": "set the synthetic pallet face half-width the scorer measures"
+}

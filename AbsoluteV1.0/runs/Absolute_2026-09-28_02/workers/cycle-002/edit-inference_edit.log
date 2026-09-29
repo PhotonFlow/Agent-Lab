@@ -1,0 +1,5 @@
+The inference edit writes this capture's sent-versus-deferred roster onto the result the handling process reads. Stage 2 still runs once, on the class-matched candidate `select_detection` already chose.
+
+`PalletPoseStamped` now carries `stage2_source_index` and `deferred_source_indices` after the depth stamp. The sent index is that candidate's slot in the `Detection2DArray`. The deferred list is the other class-matched slots, in the same order. Slot 0 stays a real detection, and a single class-matched candidate leaves the deferred list empty. On a stage-2 failure, no pose is published. The existing WARN diagnostic gains those same two lists: the sent index as decimal text, and the deferred indices as one comma-separated string. An empty candidate list and a depth-conversion exception still publish nothing.
+
+The behavior test failed first because the roster header and those fields were absent, then passed after the change: `python pps_pallet_pose_cpp/test/test_synchronized_capture_roster.py` reported 10 tests, OK. The command is in `runs\Absolute_2026-09-28_02\workers\cycle-002\edit-result-inference_edit.json`.

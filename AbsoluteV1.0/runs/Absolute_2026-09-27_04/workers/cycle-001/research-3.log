@@ -1,0 +1,6 @@
+Research for this cycle is in `runs/Absolute_2026-09-27_04/sota/cycle-001/research-3.json`.
+
+- **0.001** is the keep margin, not a tolerance on the target. A keep needs `scenario_error` to fall by more than 0.001 from **4.752** (4.751 reverts, 4.75 keeps). The run stops only at **≤ 0.0**.
+- The scorer is deterministic, so that margin is not repeat noise. `latency_ms` is not judged.
+- A pose-only change of about 0.001 m can fall inside the margin and revert. Selection steps and the 3.0 dimension term clear it when they actually move.
+- The scorer is `runs/Absolute_2026-09-27_02/package/src/evaluate.py`, outside this package copy. Writing it is restored and marked a bad edit. The sum, scenes, and weights stay in that file.

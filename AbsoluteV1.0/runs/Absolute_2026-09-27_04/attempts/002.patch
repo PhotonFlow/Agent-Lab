@@ -1,0 +1,106 @@
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
+index 5e2bcfd..92b521d 100644
+--- a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
+@@ -1,5 +1,6 @@
+ #pragma once
+ 
++#include <cstddef>
+ #include <optional>
+ #include <string>
+ #include <vector>
+@@ -30,4 +31,12 @@ std::vector<DetectionCandidate> extract_detection_candidates(
+ std::optional<DetectionCandidate> select_detection(
+     const std::vector<DetectionCandidate>& candidates, const std::string& strategy);
+ 
++struct Stage2Admission {
++  std::vector<DetectionCandidate> admitted;
++  std::vector<DetectionCandidate> deferred;
++};
++
++Stage2Admission select_stage2_subset(
++    const std::vector<DetectionCandidate>& candidates, const std::string& strategy, std::size_t k);
++
+ }  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/src/detection_utils.cpp b/pps_pallet_pose_cpp/src/detection_utils.cpp
+index fc3a226..fe7fa50 100644
+--- a/pps_pallet_pose_cpp/src/detection_utils.cpp
++++ b/pps_pallet_pose_cpp/src/detection_utils.cpp
+@@ -71,4 +71,42 @@ std::optional<DetectionCandidate> select_detection(
+   throw std::invalid_argument("Unknown detection selection strategy: " + strategy);
+ }
+ 
++Stage2Admission select_stage2_subset(
++    const std::vector<DetectionCandidate>& candidates, const std::string& strategy, std::size_t k) {
++  if (strategy != "largest_area") {
++    throw std::invalid_argument("Unknown detection selection strategy: " + strategy);
++  }
++  std::vector<std::size_t> ranked(candidates.size());
++  for (std::size_t i = 0; i < ranked.size(); ++i) {
++    ranked[i] = i;
++  }
++  std::sort(ranked.begin(), ranked.end(), [&](std::size_t ia, std::size_t ib) {
++    const DetectionCandidate& a = candidates[ia];
++    const DetectionCandidate& b = candidates[ib];
++    if (a.area_px != b.area_px) {
++      return a.area_px > b.area_px;
++    }
++    if (a.score != b.score) {
++      return a.score > b.score;
++    }
++    return ia < ib;
++  });
++
++  const std::size_t admit_n = std::min(k, candidates.size());
++  Stage2Admission admission;
++  admission.admitted.reserve(admit_n);
++  std::vector<char> is_admitted(candidates.size(), 0);
++  for (std::size_t i = 0; i < admit_n; ++i) {
++    is_admitted[ranked[i]] = 1;
++    admission.admitted.push_back(candidates[ranked[i]]);
++  }
++  admission.deferred.reserve(candidates.size() - admit_n);
++  for (std::size_t i = 0; i < candidates.size(); ++i) {
++    if (is_admitted[i] == 0) {
++      admission.deferred.push_back(candidates[i]);
++    }
++  }
++  return admission;
++}
++
+ }  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/test/test_detection_utils.cpp b/pps_pallet_pose_cpp/test/test_detection_utils.cpp
+index 738dfb4..79977c8 100644
+--- a/pps_pallet_pose_cpp/test/test_detection_utils.cpp
++++ b/pps_pallet_pose_cpp/test/test_detection_utils.cpp
+@@ -104,3 +104,30 @@ TEST(DetectionUtils, SelectUnknownStrategyThrows) {
+   std::vector<DetectionCandidate> candidates = {{Eigen::Vector4d(0, 0, 1, 1), 0.9, "pallet", 1.0, 0}};
+   EXPECT_THROW(pps_pallet_pose_cpp::select_detection(candidates, "bogus"), std::invalid_argument);
+ }
++
++TEST(DetectionUtils, Stage2LargestAreaAdmitsTopTwoAndDefersTheRest) {
++  const double scores[5] = {0.99, 0.70, 0.60, 0.50, 0.40};
++  const double areas[5] = {2000.0, 50000.0, 40000.0, 30000.0, 1000.0};
++  std::vector<DetectionCandidate> candidates;
++  candidates.reserve(5);
++  for (int i = 0; i < 5; ++i) {
++    DetectionCandidate c;
++    c.bbox_xyxy = Eigen::Vector4d(0.0, 0.0, 10.0, 10.0);
++    c.score = scores[i];
++    c.class_id = "pallet";
++    c.area_px = areas[i];
++    c.source_index = i;
++    candidates.push_back(c);
++  }
++
++  const auto admission = pps_pallet_pose_cpp::select_stage2_subset(
++      candidates, "largest_area", static_cast<std::size_t>(2));
++
++  ASSERT_EQ(admission.admitted.size(), 2u);
++  EXPECT_EQ(admission.admitted[0].source_index, 1);
++  EXPECT_EQ(admission.admitted[1].source_index, 2);
++  ASSERT_EQ(admission.deferred.size(), 3u);
++  EXPECT_EQ(admission.deferred[0].source_index, 0);
++  EXPECT_EQ(admission.deferred[1].source_index, 3);
++  EXPECT_EQ(admission.deferred[2].source_index, 4);
++}

@@ -1,0 +1,5 @@
+{
+  "feature_id": "partial_face_hold",
+  "summary": "Mark a stage-2 pose as not ready to handle when the inlier face is only a fragment of the nominal pallet, so the dynamic handler can wait while that pallet is still entering, leaving, or occluded.",
+  "hypothesis": "Stage 2 already measures the inlier face as a camera-x span, a camera-y span, and a mean range, and it matches that face to a 1.20 m by 0.14 m prototype. PalletPoseStamped is still published with accepted true and an empty quality_reasons list, so the handler treats every successful pose as actionable. A face that does not yet fill the nominal width or height shifts the pose centre while the scene is still changing. Setting accepted false with quality reason partial_face when either span falls below a fixed fraction of the nominal pallet gives the handler an explicit hold. The pose, the metric extents, and which detections are deferred stay available."
+}

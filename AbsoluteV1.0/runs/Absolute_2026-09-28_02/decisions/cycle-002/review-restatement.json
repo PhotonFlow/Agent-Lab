@@ -1,0 +1,16 @@
+{
+  "judgments": [
+    {
+      "feature_id": "stage2_subset_admission",
+      "concern": "Stage-2 subset admission: select_stage2_subset ranks the existing DetectionCandidate list with the strategy select_detection already implements, admits at most the count this capture will pose, and places every remaining candidate on deferred. Stage2Admission holds those two vectors, admitted and deferred, and each candidate keeps its source_index. The pose node calls it with its detection_selection strategy and a count of one, so stage 2 still estimates that single admitted pallet. An empty candidate list returns both vectors empty, and an unknown strategy throws. The count is the size of the subset posed on this capture while the scene can still change. That is the sent-versus-deferred split of this array. It does not restate dimension_error_m (the named penalty on pallet width, height, and depth in metres) or latency_ms (the named penalty on measured inference latency)."
+    },
+    {
+      "feature_id": "sent_deferred_roster",
+      "concern": "Sent and deferred roster on the pose result: for each synchronized detection and depth pair, stage 2 still runs once, on the pallet select_detection already chooses. PalletPoseStamped gains that candidate's source index as the pallet sent through stage 2, and the source indices of the other class-matched candidates in the same Detection2DArray as deferred. Those indices are the slots extract_detection_candidates already stored, and the message already carries this pair's RGB and depth stamps. When the estimate fails, the same two lists go on the failure diagnostic, which is the only result that path publishes. The two early returns that publish nothing stay as they are. The proposal is that both lists sit on the result the handling process reads for this capture. It does not restate dimension_error_m or latency_ms."
+    },
+    {
+      "feature_id": "largest_face_admission",
+      "concern": "Largest-face admission: for each synchronized pair, stage 2 receives the two class-matched pallet faces with the largest area_px, remaining ties broken by higher score and then by lower source index, and every other candidate is marked deferred by its source index together with this pair's RGB and depth stamps. Each admitted face is passed to estimate_pose_chamfer_v3_2, and each success publishes its own PalletPoseStamped from that capture. A pair with fewer than two candidates admits every candidate and defers none. area_px is the detection-box ranking key for which faces are posed and which are left. The proposal does not publish pallet width, height, or depth, and it does not propose a faster inference path. It does not restate dimension_error_m or latency_ms."
+    }
+  ]
+}

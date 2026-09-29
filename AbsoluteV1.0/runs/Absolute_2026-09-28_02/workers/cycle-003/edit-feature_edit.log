@@ -1,0 +1,7 @@
+The cycle-003 edit adds the sent-versus-deferred admission split for one synchronized capture.
+
+`select_stage2_subset` ranks the class-matched candidates with the same strict ordering as `select_detection`. A tie keeps the earlier candidate. It admits at most the caller's count in that rank order and leaves every other candidate deferred in list order. The pose node calls it with `detection_selection` and a count of one, so stage 2 still estimates only that pallet.
+
+On success, `PalletPoseStamped` carries `admitted_source_index` and `deferred_source_indices` after `input_depth_stamp`. When the estimate fails, those same two lists are written on the existing WARN diagnostic and no pose is published. An empty candidate list and a depth-conversion failure still publish nothing.
+
+The behavior test failed first because the comparators were missing, then passed: 13 tests, exit 0. The command is in `edit-result-feature_edit.json`.

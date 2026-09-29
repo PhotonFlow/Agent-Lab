@@ -1,0 +1,19 @@
+diff --git a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+index ed180fe..f808205 100644
+--- a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
++++ b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+@@ -131,6 +131,14 @@ void PalletPoseNode::on_pair(const sensor_msgs::msg::Image::ConstSharedPtr& dept
+   }
+ 
+   for (const auto& candidate : admission.admitted) {
++    const bool marked_deferred = std::any_of(
++        admission.deferred.begin(), admission.deferred.end(),
++        [&](const DetectionCandidate& deferred) {
++          return deferred.source_index == candidate.source_index;
++        });
++    if (marked_deferred) {
++      continue;
++    }
+     auto outcome = geometry_core::estimate_pose_chamfer_v3_2(
+         candidate.bbox_xyxy, depth_m, camera_cfg_, stage2_cfg_, params_, candidate.source_index,
+         rng_);

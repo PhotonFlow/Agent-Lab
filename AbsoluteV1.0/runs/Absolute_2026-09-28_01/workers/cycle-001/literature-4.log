@@ -1,0 +1,8 @@
+Literature-4 is written to `runs\Absolute_2026-09-28_01\sota\cycle-001\literature-4.json`. The query string is unchanged.
+
+Older methods for this pose-coupled face size have been superseded only in part:
+
+- A stored pallet size is the older size. Zhao et al. (2022) still rescale a labeled template from a distance statistic, even while noting that apparent size changes with angle. Wu et al. (Sensors 2025) say that prior-dimension RGB-D slot method fails when the approach angle is arbitrary or the pallet type changes, and they replace it with segmentation of the current view.
+- Known-size pose solving is still in use. Mueller et al. (2025) require 1200×144 mm or 800×144 mm Euro faces before PnP. Miura et al. (VISAPP 2026) still use 1100×150×1100 mm, and they set aside NOCS-style and FoundationPose methods because those run at about 1–4 FPS.
+- Camera-x and camera-y spans are the older axis-aligned size. With a pose, `vision_msgs` and Yu et al. (arXiv:2507.00984) publish full side lengths along the pose axes. A yawed face’s camera-x span is the projected extent, larger than the face width.
+- Mean range of the raw face is the older depth. Völk et al. (arXiv:2308.06306) publish a front-face distance instead, and they keep camera-view width, depth, and height when the rotation may be wrong.

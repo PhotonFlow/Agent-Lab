@@ -1,0 +1,3 @@
+Survey 3 is written to `runs\Absolute_2026-09-28_02\sota\cycle-003\survey-3.json`.
+
+Stage 2 spends its time in one `estimate_pose_chamfer_v3_2` call. Detection ranking is one pass over at most 10 boxes. The chamfer search is about 45,700 evaluations when the prior search runs, and each evaluation sorts all 182 prototype points after copying them. The depth scan, RANSAC, and the distance transform run once per detection and are smaller than that grid. TensorRT is a separate process and only runs when the detector backend is `tensorrt`.

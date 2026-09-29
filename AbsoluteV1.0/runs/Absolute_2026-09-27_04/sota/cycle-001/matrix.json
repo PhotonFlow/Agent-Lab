@@ -1,0 +1,33 @@
+{
+  "agents": [
+    {
+      "findings": [
+        "scenario_error is pose_error_m + dimension_error_m + selection_error. The stop test is scenario_error <= 0, so each term has to be zero; the 0.001 noise margin only decides a keep.",
+        "Baseline 4.752 splits as pose 0.002 + missing dimensions 3.0 + single-pick selection 1.75. The three fixes are independent and all required.",
+        "Pose: publish the bbox-centre ray-plane hit already computed as centre_d_init, lifted by R_dr and t_dr. On the uniform z=2 probe that ray is the principal point, so the hit is (0,0,2). Chamfer alignment of the 1.20 x 0.14 prototype against the eroded face is what leaves the 2 mm residual.",
+        "Dimensions: set has_dimensions and report the camera-frame extent of valid face points, width = max x - min x, height = max y - min y, depth = mean z. On the filled 230..410 by 168..312 rectangle at 2.5 m that extent is 1.0 x 0.8 x 2.5. Emitting the CAD prototype does not match, and omitting the fields leaves the 3.0 penalty.",
+        "Selection: select_stage2_subset ranks by largest_area, admits at most 2, and puts every other candidate in deferred. That admits the 50000 px and 40000 px boxes and defers indices 0, 3, and 4. highest_confidence admits the 0.99-score 2000 px box and records no deferrals, which scores 1.75."
+      ],
+      "query": "methods that minimize scenario_error on a stack like src"
+    },
+    {
+      "findings": [
+        "EstimatePoseOutcome has no has_dimensions, width_m, height_m, or depth_m, and estimate_pose_chamfer_v3_2 never measures the inlier face, so dimension_error stays the 3.0 sentinel. The scored depth rectangle is 1.0 m by 0.8 m at 2.5 m; src only has the fixed 1.20 by 0.14 m prototype.",
+        "detection_utils.hpp only has select_detection, so the scored path admits one highest_confidence box, source_index 0 (score 0.99, area 2000), which must be deferred, and records an empty deferred list. selection_error is 1 + 0.25*3 = 1.75. Top-2 largest_area should admit indices 1 and 2 (areas 50000 and 40000) and defer 0, 3, and 4.",
+        "Published translation is the chamfer-refined centre, not the bbox-centre ray-plane hit, which is (0,0,2) on this face. sample_face_points backprojects integer pixels, and erode_px=2 keeps depth window u 171-468, v 221-258, whose centroid is 2.22 mm off-axis on x and y. The 1.20 by 0.14 m prototype does not match that ~1.32 by 0.164 m face, so chamfer leaves the ray hit. Baseline pose_error_m is 0.002, which alone keeps scenario_error above 0."
+      ],
+      "query": "defects in src that keep scenario_error away from its target"
+    },
+    {
+      "findings": [
+        "Noise 0.001 is only the keep margin. Minimize keeps when best scenario_error minus the new value is greater than 0.001. Best is 4.752, so 4.751 reverts and 4.75 keeps. The run stops only when scenario_error is less than or equal to 0.0; the margin is not a tolerance on the target.",
+        "The margin is not repeat jitter. The external scorer uses a fixed seed and fixed scenes, and an unchanged package repeats 4.752. Charter protected metrics are empty, so latency_ms is not judged.",
+        "The pose term is about 0.002, the same scale as the margin, so a pose-only drop of 0.001 m or less reverts. A selection step of 0.25 or 1.0, or clearing the 3.0 dimension sentinel, clears 0.001 when that term actually moves.",
+        "Do not edit the scorer at runs/Absolute_2026-09-27_02/package/src/evaluate.py. It is outside this package copy, which has no evaluate.py. Any write is restored and recorded as bad_edit, and the tampered score is not kept. Charter immutable is empty; edits belong in the package sources that scorer compiles.",
+        "scenario_error, the scenes, and the weights are computed only in that file as pose_error_m + dimension_error_m + selection_error. Changing the formula or the ground truth is not a valid edit."
+      ],
+      "query": "measurement noise around 0.001 for scenario_error and edits that must not touch the scorer"
+    }
+  ],
+  "cycle": 1
+}

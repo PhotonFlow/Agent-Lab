@@ -1,0 +1,65 @@
+{
+  "query": "scenario sentences for src that no current numeric result witnesses",
+  "metrics": [
+    {
+      "id": "pose_error_m",
+      "description": "Metres of error in the pallet pose estimate_pose_chamfer_v3_2 publishes as tx, ty, tz, and yaw_rad. The handling sentence that needs that pose does not contain this id.",
+      "direction": "minimize",
+      "target": 0.001,
+      "role": "objective",
+      "path": "/pose_error_m",
+      "noise": 0,
+      "witnesses": [
+        "The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change."
+      ]
+    },
+    {
+      "id": "dimension_error_m",
+      "description": "Metres of error in pallet width, height, and depth. Width and height are the prototype sizes the estimator uses, and depth is the estimated tz. That size sentence does not contain this id.",
+      "direction": "minimize",
+      "target": 0.001,
+      "role": "objective",
+      "path": "/dimension_error_m",
+      "noise": 0,
+      "witnesses": [
+        "the pallet width, height, and depth in metres"
+      ]
+    },
+    {
+      "id": "selection_error",
+      "description": "Error in which detection select_detection sends through stage 2 versus the detections left deferred. That selection sentence does not contain this id.",
+      "direction": "minimize",
+      "target": 0.001,
+      "role": "objective",
+      "path": "/selection_error",
+      "noise": 0,
+      "witnesses": [
+        "which detected pallets are sent through stage 2 versus marked deferred"
+      ]
+    },
+    {
+      "id": "scenario_error",
+      "description": "Combined error of the pallet pose, the pallet dimensions in metres, and stage-2 versus deferred selection. That outputs sentence does not contain this id.",
+      "direction": "minimize",
+      "target": 0.001,
+      "role": "objective",
+      "path": "/scenario_error",
+      "noise": 0,
+      "witnesses": [
+        "The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred."
+      ]
+    },
+    {
+      "id": "latency_ms",
+      "description": "Latency in milliseconds until the pallet pose is available. The detector times this as dt_ms and the recorder as runtime_s. The changing-scene sentence does not contain this id. Protected budget is 5 ms.",
+      "direction": "minimize",
+      "target": null,
+      "role": "protected",
+      "path": "/latency_ms",
+      "noise": 5,
+      "witnesses": [
+        "it needs a pallet pose while the scene can still change"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "query": "defects in src that keep scenario_error away from its target",
+  "findings": [
+    "detection_utils.hpp/cpp only implement select_detection, which returns one candidate. There is no select_stage2_subset and no Stage2Admission, so the scored path uses highest_confidence, admits source_index 0 (score 0.99, area 2000 px), and leaves deferred empty.",
+    "Indices 0, 3, and 4 must be deferred. Admitting 0 and missing those three deferred entries is selection_error 1 + 0.25*3 = 1.75, which is the gap from scenario_error 1.752 down to the 0.002 pose residual. Switching the one-winner call to largest_area still returns only index 1 and still leaves deferred empty.",
+    "estimate_pose_chamfer_v3_2 publishes the chamfer-refined centre (fine_step_dx_m and fine_step_dy_m are 0.001 m on a 0.005 m raster) rather than the bbox-centre ray on the flat z=2 plane, so pose_error_m stays 0.002. That residual is added into scenario_error, and the stop rule requires the sum to be 0. dimension_error_m is already 0."
+  ]
+}

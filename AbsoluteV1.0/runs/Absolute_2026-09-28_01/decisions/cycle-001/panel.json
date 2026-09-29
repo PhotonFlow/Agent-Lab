@@ -1,0 +1,19 @@
+{
+  "decisions": [
+    {
+      "feature_id": "inlier_face_extents",
+      "decision": "accept",
+      "reason": "The application lists metric extents of the inlier face as an output the dynamic handler needs: width is the camera-x span, height is the camera-y span, and depth is the mean range. Stage 2 already stores those extents on the estimate, and PalletPoseStamped on /pps/pallet_pose_rich does not carry them. Publishing width, height, and depth with that same pose lets the handler size the pallet from the estimate it is about to use. This is a product output, not a restatement of scenario_error."
+    },
+    {
+      "feature_id": "partial_face_hold",
+      "decision": "reject",
+      "reason": "The application output is those extents on the pose the handler uses, not a hold when the face is a fraction of the nominal 1.20 m by 0.14 m prototype. Setting accepted false with quality reason partial_face withholds the pose instead of publishing width, height, and depth. The proposal is a real gate and does not merely restate scenario_error; it is rejected because this cycle admits the published extents."
+    },
+    {
+      "feature_id": "scene-moved-hold",
+      "decision": "reject",
+      "reason": "The handler needs the size from the depth frame paired with the pose, because the scene can still change. Comparing later frames and republishing accepted false with quality reason scene_moved is a later withdrawal, not that paired output. Pose publication and deferred selection already exist. The proposal does not merely restate scenario_error; it is rejected because this cycle admits the inlier-face extents on the same rich pose."
+    }
+  ]
+}
