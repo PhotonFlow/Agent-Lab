@@ -1,0 +1,10 @@
+{
+  "query": "measurement noise around 0.001 for scenario_error and edits that must not touch the scorer",
+  "findings": [
+    "Noise 0.001 is only the keep margin. Minimize keeps when best scenario_error minus the new value is greater than 0.001. Best is 0.001999999999999993, so 0.001 reverts and the new value must be strictly below 0.000999999999999993 to keep. The run stops only when scenario_error is less than or equal to 0.0; the margin is not a tolerance on the target, so a kept value such as 0.0005 does not stop the run.",
+    "The margin is not repeat jitter. The external scorer uses a fixed seed and fixed scenes. pose_error_m stayed 0.001999999999999993 from baseline through both keeps, and scenario_error now equals that pose term because dimension_error_m and selection_error are 0.0. Latency moved and is not in the sum. Protected metrics are empty. The scene's camera depth_scale of 0.001 is not this margin.",
+    "The whole residual is about 0.002, twice the margin. A pose-only cut of 0.001 m or less reverts, and two smaller cuts cannot stack because each is judged against the current best. One package edit must drop pose_error_m by more than 0.001, and only a drop to 0.0 meets the target.",
+    "Do not edit the scorer at runs/Absolute_2026-09-27_02/package/src/evaluate.py. It is outside this package copy, which has no evaluate.py. Any write is restored and recorded as bad_edit, and the tampered score is not kept. Charter immutable is empty. eval_build/scorer_a/driver.cpp is a cache that evaluate.py regenerates. Edits belong in the package sources that scorer compiles.",
+    "scenario_error, the scenes, and the weights are computed only in that file as pose_error_m + dimension_error_m + selection_error. The package already declares dimension fields and select_stage2_subset with Stage2Admission, so both scenes are active and those terms are 0.0. Removing those declarations re-arms the 3.0 dimension sentinel or the 1.75 legacy selection path and the score reverts. Changing the formula or the ground truth is not a valid edit."
+  ]
+}

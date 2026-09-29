@@ -1,0 +1,28 @@
+{
+  "verdict": "adopt",
+  "method": "Adopt this method. For each synchronized detection and depth pair, run stage 2 once on the one class-matched candidate select_detection already chooses. Write that candidate's source index as the pallet sent through stage 2, and write the source indices of the other class-matched candidates in the same Detection2DArray as deferred, in that same order. Those indices are the slots in detections. A tie keeps the earlier slot as sent and leaves the later tied slot deferred, because std::max_element returns the first maximum. A second class-matched pallet stays in the deferred list. Stage 2 does not run on the deferred slots.\n\nOn a successful estimate, PalletPoseStamped gains an int32 stage2_source_index and an int32[] deferred_source_indices after the depth stamp already on that message. The RGB stamp and the depth stamp already identify this capture, and the pose header stamp stays the publish time. A sent index of 0 is a real detections slot. An empty deferred sequence means this pair had one class-matched candidate.\n\nOn stage-2 failure, publish no PalletPoseStamped. The only result is the existing WARN DiagnosticStatus. Add the same two lists as two KeyValue entries on that status: stage2_source_index as decimal text, and deferred_source_indices as comma-separated decimal text in the same order. One key holds one string, so the deferred list is a single value. Keep the status name, hardware id, WARN level, failure message, and both capture stamps. An empty deferred list is an empty string. An empty candidate list publishes nothing. A depth-conversion exception publishes nothing.\n\nIsaac ROS FoundationPose 5.0 builds the stage-2 mask from only the highest-scoring detection in the Detection2DArray and publishes vision_msgs/Detection3DArray. Detection3D has a header, hypotheses, a box, and an optional id, and it has no deferred-index field. Lang2Lift runs FoundationPose once on the selected mask and couples that pose to the forklift controller. ifm getPallet returns up to 10 pallets, and palletIndex is the template type, an integer from 0 to 9. PalletDetection is a header plus pocket poses and has no deferred index list. Faster R-CNN sends its second stage every proposal that survives non-maximum suppression. RT-DETR initializes the decoder from the top 300 encoder features. DenseFusion estimates a pose for every segmented object. Wu and Demeester write a 6D pose for each pallet bin, with detection at about 21 ms and FoundationPose at about 2.8 s per frame. CosyPose spent 190 ms of a 320 ms scene posing every candidate. ByteTrack gives the low-score boxes a second association and deletes unmatched low-score boxes. Mohamed et al. defer a pallet decision to later scans with a Kalman filter. Detection2D.id is an optional cross-message id and may be empty; the header is matched to the source with a time synchronizer. geometry_msgs/PoseStamped is a header and a pose, so the roster fits on the rich pose the controller reads. REP-107's default diagnostic rate is 1 Hz, the channel is not a keepalive, and aggregation can leave the data stale. The diagnostics stream is hardware state for users and operators. The ros2_control hardware-status draft assigns free-form key/value diagnostics to logs, dashboards, and human inspection, and says control loops ideally do not parse them. The success-path lists therefore sit on PalletPoseStamped. Kronauer et al. measured equal ROS 2 end-to-end latency at 128 B, 1 KB, and 10 KB, which covers this int32 and short int32[].",
+  "citations": [
+    "https://nvidia-isaac-ros.github.io/v/release-5.0/repositories_and_packages/isaac_ros_pose_estimation/isaac_ros_foundationpose/index.html",
+    "https://arxiv.org/html/2508.15427v2",
+    "https://www.scitepress.org/Papers/2026/144556/144556.pdf",
+    "https://arxiv.org/abs/2008.08465",
+    "https://arxiv.org/abs/1506.01497",
+    "https://arxiv.org/abs/2304.08069",
+    "https://arxiv.org/abs/1901.04780",
+    "https://arxiv.org/abs/2110.06864",
+    "https://arxiv.org/abs/1803.11254",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection2D.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection2DArray.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/ros2/vision_msgs/msg/Detection3D.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/rolling/geometry_msgs/msg/PoseStamped.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/rolling/diagnostic_msgs/msg/DiagnosticStatus.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/rolling/diagnostic_msgs/msg/KeyValue.msg",
+    "https://reps.openrobotics.org/rep-0107/",
+    "https://raw.githubusercontent.com/ros-controls/roadmap/master/design_drafts/hardware_status.md",
+    "https://raw.githubusercontent.com/ros/diagnostics/ros2-jazzy/README.md",
+    "https://arxiv.org/abs/2101.02074",
+    "https://ifm3d.com/latest/PDS/GetPallet/getPallet.html",
+    "https://raw.githubusercontent.com/ifm/ifm3d-ros2/master/msg/PalletDetection.msg",
+    "https://en.cppreference.com/w/cpp/algorithm/max_element"
+  ]
+}

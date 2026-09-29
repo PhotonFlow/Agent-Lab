@@ -1,0 +1,5 @@
+{
+  "feature_id": "face_extent_prototype",
+  "summary": "For each stage-2 estimate, build the chamfer prototype from the width and height of the pallet face already recovered as plane inliers in that depth frame, instead of the fixed 1.20 m by 0.14 m factory face, so the template is the pallet the vehicle is about to handle.",
+  "hypothesis": "The scene can still change, and a search locked to a factory 1.20 m by 0.14 m face matches a different pallet than the one in view; sizing that prototype from the inlier extent the pipeline already projects onto the face plane makes the pose and the face size belong to the pallet being approached, while the pallet depth stays the face-centre range that same estimate already lifts."
+}

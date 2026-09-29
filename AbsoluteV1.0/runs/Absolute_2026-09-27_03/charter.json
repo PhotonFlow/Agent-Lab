@@ -1,0 +1,31 @@
+{
+  "edit_policy": "except_immutable",
+  "eval_command": [
+    "C:\\Users\\alanpeng\\anaconda3\\python.exe",
+    "c:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\tests\\fixtures\\pps_dimension_eval.py"
+  ],
+  "eval_timeout_sec": 60,
+  "feature_catalog": [
+    {
+      "id": "face-half-width",
+      "summary": "set the synthetic pallet face half-width the scorer measures"
+    }
+  ],
+  "immutable": [],
+  "loop": "until_target",
+  "metrics": {
+    "primary": {
+      "direction": "minimize",
+      "name": "dimension_error_m",
+      "noise": 0.001,
+      "target": 0.0
+    },
+    "protected": []
+  },
+  "mutable": [],
+  "stops": {
+    "max_cycles": 1,
+    "plateau": 1
+  },
+  "task": "evolve src until dimension_error_m minimize reaches 0.0"
+}

@@ -1,0 +1,7 @@
+Each synchronized detection and depth pair still sends only the pallet `select_detection` chooses through stage 2. Every other candidate is marked deferred on that same pose diagnostic: its `Detection2DArray` source index is appended, in candidate order, as one `deferred_source_indexes` value beside that pair's `input_rgb_stamp` and `input_depth_stamp`. A pair with only the selected pallet adds no extra key. An empty selection and a depth-conversion failure still return without a diagnostic.
+
+The behavior test failed first because `pair_deferred_marks.hpp` and the diagnostic key were absent, then passed after the change:
+
+`python pps_pallet_pose_cpp/test/test_pair_deferred_marks.py` — 2 tests, OK.
+
+That command is in `runs\Absolute_2026-09-28_02\workers\cycle-001\edit-result-feature_edit.json`.

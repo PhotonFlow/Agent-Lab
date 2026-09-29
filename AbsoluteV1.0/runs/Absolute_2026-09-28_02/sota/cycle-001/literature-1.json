@@ -1,0 +1,24 @@
+{
+  "query": "candidate methods for For each synchronized detection and depth pair, send through stage 2 only the pallet select_detection already chooses, and mark every other candidate deferred by publishing its source index on the pose diagnostics together with that pair's RGB and depth capture stamps. The handling process can then tell which pallets in the still-changing scene were detected but not posed. on src",
+  "findings": [
+    "Use the residual of one select_detection call. estimate_pose_chamfer_v3_2 runs once, on that candidate's bbox and source_index, which on_pair already does. Every other DetectionCandidate is deferred. Do not apply a second strategy and do not apply an IoU test: a second pallet that does not overlap the winner is still deferred. Neighborhood NMS keeps other local maxima and would send those boxes through stage 2.",
+    "The deferred id is DetectionCandidate.source_index, the index in Detection2DArray.detections. Detections dropped for an empty result list or for a class other than target_class_id are not candidates and are not marked. std::max_element keeps the first candidate when the strategy key ties (score, then area; or area, then score), so the later tie is deferred.",
+    "Publish the residual in the same DiagnosticArray as that pair's pose diagnostic, one DiagnosticStatus per deferred candidate. name stays pps_pallet_pose_cpp, hardware_id stays dynamic_handling_ros_v1, message is deferred, and level is OK. The existing WARN status stays the stage-2 failure. values are source_index, input_rgb_stamp, and input_depth_stamp. One array delivery keeps every index; a later publish that reuses the same status name would leave only the last one.",
+    "The two capture stamps are the ApproximateTime pair already in the callback: det_msg->header.stamp for the RGB frame and depth_msg->header.stamp for the depth frame, written with stamp_to_string as seconds plus a nine-digit nanosecond field. The DiagnosticArray header stamp is the node clock and is not a capture time. Those same two strings are already on the OK status, the WARN status, and PalletPoseStamped.",
+    "Emit the deferred statuses whenever select_detection returns a candidate, including when stage 2 fails and when depth conversion throws before stage 2. Those other pallets were detected and not posed. An empty candidate list still publishes nothing. A single candidate adds no deferred status.",
+    "A repeated deferred_source_index KeyValue on the existing OK or WARN status is a smaller encoding of the same residual, and it reuses the stamps that status already carries. A sibling status per index is the encoding that still lists each unposed pallet when the reader selects on message and level."
+  ],
+  "citations": [
+    "https://github.com/ros-infrastructure/rep/blob/master/rep-0107.rst",
+    "http://docs.ros.org/en/noetic/api/diagnostic_msgs/html/msg/DiagnosticStatus.html",
+    "https://docs.ros2.org/foxy/api/diagnostic_msgs/msg/KeyValue.html",
+    "https://github.com/ros2/message_filters/blob/jazzy/doc/index.rst",
+    "https://dl.acm.org/doi/10.1109/ICPR.2006.479",
+    "https://en.cppreference.com/w/cpp/algorithm/max_element",
+    "https://github.com/ros-perception/vision_msgs/blob/ros2/vision_msgs/msg/Detection2DArray.msg",
+    "pps_pallet_pose_cpp/src/pallet_pose_node.cpp",
+    "pps_pallet_pose_cpp/src/detection_utils.cpp",
+    "pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp",
+    "pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp"
+  ]
+}

@@ -269,6 +269,34 @@ def edit_prompt(brief: dict) -> str:
     )
 
 
+def optimize_prompt(brief: dict) -> str:
+    return "\n".join([
+        "ROLE: optimize. Perform one evidence-driven experiment, then exit.",
+        f"Package copy: {brief['package_copy']}",
+        "Read the structured fields of this brief, including scenario_text, metrics, measured, and feedback.",
+        f"Focus: {brief['focus']['metric']}. Search strategy: {brief['strategy']}.",
+        "Inspect the owning code and nearby tests; identify a falsifiable hypothesis before editing.",
+        "Use recent measured failures and successful patches as evidence; do not repeat an unchanged failed experiment.",
+        "Implementation, algorithm, dependency, and application-feature changes are all allowed when justified.",
+        "For an algorithm replacement, retrieve relevant primary literature or official implementations when tools permit.",
+        "Do not invent citations or claim SOTA. A paper or a target reached is not a benchmark comparison.",
+        "Address measured quality, tail latency, memory, reliability, and scenario diversity where the sealed metrics cover them.",
+        "Uncovered behaviors are evaluation gaps, not evidence of success. Do not change the contract to hide them.",
+        "Preserve public interfaces and existing tests. For behavior changes, add a discriminating regression test.",
+        "For behavior-preserving performance edits, existing passing tests are valid; do not invent a failing assertion about implementation details.",
+        "Run the relevant build and tests. This supports Python, C++, ROS, and other stacks through their own commands.",
+        f"Write JSON to {brief['result']}: "
+        '{"hypothesis": "short causal explanation", "behavior_test": ["executable", "args"]}.',
+        "The parent independently measures every sealed metric and decides keep or revert.",
+        "Read only relevant source and recent feedback. The brief is capped at 64KB; reserve context for tools and edits.",
+        "The declared 500K context window is a planning ceiling, not a CLI guarantee of model capacity.",
+        "Do not read old raw worker logs or the entire journal. Inspect a referenced patch only when relevant.",
+        "Do not change files outside the package copy and the result file. Do not modify runner state or existing tests to weaken them.",
+        "Do not commit. Do not create worktrees. Do not deploy or control a robot.",
+        *_forbid_scorer(),
+    ])
+
+
 def render_prompt(brief: dict) -> str:
     role = brief["role"]
     prompts = {
@@ -287,6 +315,7 @@ def render_prompt(brief: dict) -> str:
         "survey_review": survey_review_prompt,
         "metric_discover": metric_discover_prompt,
         "edit": edit_prompt,
+        "optimize": optimize_prompt,
     }
     if role not in prompts:
         raise ValueError(f"unknown worker role {role}")

@@ -1,0 +1,6 @@
+{
+  "findings": [
+    "methods that minimize dimension_error_m on a stack like src :: geometry_core/CMakeLists.txt :: cmake_minimum_required(VERSION 3.16)"
+  ],
+  "query": "methods that minimize dimension_error_m on a stack like src"
+}

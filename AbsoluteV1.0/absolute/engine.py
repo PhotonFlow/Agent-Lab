@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -13,7 +14,8 @@ import urllib.request
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from statistics import median
+from typing import Any, Callable
 
 from absolute.package import hash_tree, message_fields, validation_ready
 
@@ -190,6 +192,76 @@ def accuracy_keep_reason(charter: dict[str, Any], before: dict[str, Any], after:
     return "accuracy did not improve"
 
 
+def search_metric_specs(charter: dict[str, Any]) -> list[dict[str, Any]]:
+    specs = [dict(spec) for spec in required_output_specs(charter)]
+    names = {spec["metric"] for spec in specs}
+    specs.extend(
+        {"metric": item["name"], "direction": item["direction"],
+         "noise": item.get("noise", item["max_regression"]),
+         "target": item.get("target"), "budget": item["max_regression"]}
+        for item in protected_metrics(charter) if item["name"] not in names
+    )
+    return specs
+
+
+def search_keep_reason(
+    charter: dict[str, Any], before: dict[str, Any], after: dict[str, Any],
+    baseline: dict[str, Any],
+) -> str | None:
+    improved = False
+    for spec in search_metric_specs(charter):
+        name = spec["metric"]
+        values = [sample.get(name) for sample in (before, after, baseline)]
+        if any(isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) for value in values):
+            return f"eval JSON missing finite metric {name}"
+        previous, candidate, original = map(float, values)
+        noise = float(spec["noise"])
+        budget = float(spec.get("budget", noise))
+        if not _within_budget(spec["direction"], previous, candidate, budget):
+            return f"metric {name} regressed"
+        if not _within_budget(spec["direction"], original, candidate, budget):
+            return f"metric {name} exceeded baseline regression budget"
+        if spec.get("target") is not None and target_hit(spec, previous) and not target_hit(spec, candidate):
+            return f"metric {name} lost its achieved target"
+        improved |= _better(spec["direction"], previous, candidate, noise)
+    return None if improved else "no metric improved beyond noise"
+
+
+def status_text(run_dir: Path) -> str:
+    from absolute.store import read_json
+
+    run = load_run(run_dir)
+    scoreboard = read_json(run_dir / "scoreboard.json") if (run_dir / "scoreboard.json").exists() else {}
+    lines = [
+        f"Absolute | {run['id']} | {run['status']} | {run.get('stage') or '-'}",
+        f"Cycles: {scoreboard.get('cycles', 0)}  Keeps: {scoreboard.get('keeps', 0)}  "
+        f"No-gain streak: {scoreboard.get('no_keep_streak', 0)}  Stop: {run.get('stop_reason') or '-'}",
+        "Metric                        Baseline         Best       Target   Progress",
+    ]
+    if scoreboard and (run_dir / "charter.json").exists():
+        charter = read_json(run_dir / "charter.json")
+        for spec in search_metric_specs(charter):
+            name = spec["metric"]
+            original = scoreboard.get("baseline", {}).get(name)
+            current = scoreboard.get("best", {}).get(name)
+            target = spec.get("target")
+            numbers = [f"{value:.6g}" if isinstance(value, (int, float)) else "-" for value in (original, current, target)]
+            progress = "[----------]"
+            if all(isinstance(value, (int, float)) for value in (original, current, target)):
+                if target_hit(spec, current):
+                    filled = 10
+                elif target != original:
+                    filled = int(10 * max(0, min(1, (current - original) / (target - original))))
+                else:
+                    filled = 0
+                progress = "[" + "#" * filled + "." * (10 - filled) + "]"
+            lines.append(f"{name[:28]:28} {numbers[0]:>12} {numbers[1]:>12} {numbers[2]:>12}   {progress}")
+    gaps = run.get("uncovered_behaviors") or []
+    lines.append(f"Unmeasured scenario behaviors: {len(gaps)} | SOTA: unverified | Robot validation: pending")
+    lines.extend(f"  Gap: {str(gap)[:200]}" for gap in gaps[:5])
+    return "\n".join(lines)
+
+
 def missing_message_fields(package: Path, expected: list[str]) -> list[str]:
     current = set(message_fields(package))
     return [name for name in expected if name not in current]
@@ -317,6 +389,32 @@ def run_eval(command: list[str], cwd: Path, timeout_sec: float) -> dict[str, Any
     return payload
 
 
+def measure_search(run_dir: Path, charter: dict[str, Any], label: str) -> dict[str, float]:
+    from absolute.contract import load_contract, resolve_pointer
+    from absolute.launch import report
+    from absolute.store import atomic_write
+
+    run = load_run(run_dir)
+    repeats = int(run.get("search", {}).get("eval_repeats", 3))
+    document = load_contract(run_dir)
+    paths = {row["id"]: row["path"] for row in document["metrics"]} if document else {}
+    samples = []
+    for index in range(repeats):
+        report(run_dir, "evaluation", label=label, sample=index + 1, total=repeats)
+        payload = run_eval(list(charter["eval_command"]), Path(run["package_copy"]), float(charter.get("eval_timeout_sec", 60)))
+        sample = {}
+        for spec in search_metric_specs(charter):
+            name = spec["metric"]
+            value = resolve_pointer(payload, paths[name]) if name in paths else payload.get(name)
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+                raise EvalFailure(f"eval JSON missing finite metric {name}", "", "")
+            sample[name] = float(value)
+        samples.append(sample)
+    metrics = {name: median(sample[name] for sample in samples) for name in samples[0]}
+    atomic_write(run_dir / "eval" / f"{label}.json", {"metrics": metrics, "samples": samples})
+    return metrics
+
+
 def _git(cwd: Path, args: list[str]) -> None:
     env = os.environ.copy()
     env.setdefault("GIT_AUTHOR_NAME", "Absolute")
@@ -354,7 +452,7 @@ def write_text(path: Path, text: str) -> None:
 
 def write_handoff(run_dir: Path) -> None:
     run = load_run(run_dir)
-    journal = read_journal(run_dir)
+    journal = read_journal(run_dir, limit=20 if run.get("search") else None)
     tail = journal[-5:]
     scoreboard: dict[str, Any] = {}
     scoreboard_path = run_dir / "scoreboard.json"
@@ -362,7 +460,11 @@ def write_handoff(run_dir: Path) -> None:
         from absolute.store import read_json
 
         scoreboard = read_json(scoreboard_path)
-    attempts = sorted(path.name for path in (run_dir / "attempts").glob("*")) if (run_dir / "attempts").exists() else []
+    attempts = (
+        [Path(entry["patch"]).name for entry in journal if entry.get("patch")]
+        if run.get("search") else
+        sorted(path.name for path in (run_dir / "attempts").glob("*")) if (run_dir / "attempts").exists() else []
+    )
     lines = [
         "# Absolute handoff",
         "",
@@ -492,6 +594,13 @@ def record_baseline(run_dir: Path, metrics: dict[str, Any]) -> None:
 
 
 def _handoff_instruction(run_dir: Path) -> str:
+    if load_run(run_dir).get("search"):
+        return (
+            "Continuous search: resume this folder with python -m absolute evolve --run <folder>. "
+            "Recent attempts are summarized here; full history is in journal.jsonl. "
+            "Targets and plateau do not imply SOTA. This is not a state-of-the-art claim. "
+            "Do not mark a keep. robot_validated: false."
+        )
     charter_path = run_dir / "charter.json"
     if charter_path.is_file():
         from absolute.store import read_json
@@ -884,6 +993,7 @@ def score_stage(
     behavior_test: Any,
     pre_metrics: dict[str, Any],
     feature_id: str | None = None,
+    integrity_check: Callable[[], bool] | None = None,
 ) -> dict[str, Any]:
     _runner_only(charter)
     run = load_run(run_dir)
@@ -922,12 +1032,30 @@ def score_stage(
             metrics=None,
             feature_id=feature_id,
         )
-    behavior_error = _behavior_fails_then_passes(
-        package_copy,
-        list(behavior_test),
-        float(charter.get("eval_timeout_sec", 60)),
-        base_sha,
-    )
+    if stage == "search_edit":
+        from absolute.launch import report
+
+        try:
+            check_immutable(run_dir, package_copy)
+            report(run_dir, "behavior_test", cycle=cycle_n)
+            result = subprocess.run(
+                list(behavior_test), cwd=package_copy, capture_output=True, text=True,
+                timeout=float(charter.get("eval_timeout_sec", 60)), check=False,
+            )
+            test_output = result.stdout + "\n" + result.stderr
+            write_text(run_dir / "eval" / f"cycle-{cycle_n:06d}-test.log", test_output)
+            behavior_error = None if result.returncode == 0 else "behavior test failed: " + test_output[-2000:]
+        except (OSError, subprocess.TimeoutExpired, RuntimeError) as exc:
+            behavior_error = str(exc)
+    else:
+        behavior_error = _behavior_fails_then_passes(
+            package_copy,
+            list(behavior_test),
+            float(charter.get("eval_timeout_sec", 60)),
+            base_sha,
+        )
+    if integrity_check is not None and not integrity_check():
+        behavior_error = "behavior test changed runner-owned files or scorer"
     if behavior_error:
         return _record_stage(
             run_dir,
@@ -957,8 +1085,15 @@ def score_stage(
         )
     try:
         check_immutable(run_dir, package_copy)
-        metrics = run_eval(command, package_copy, float(charter.get("eval_timeout_sec", 60)))
+        metrics = (
+            measure_search(run_dir, charter, f"cycle-{cycle_n:06d}-candidate")
+            if stage == "search_edit"
+            else run_eval(command, package_copy, float(charter.get("eval_timeout_sec", 60)))
+        )
+        check_immutable(run_dir, package_copy)
     except Exception as exc:
+        if integrity_check is not None:
+            integrity_check()
         outcome = "eval_failed" if isinstance(exc, EvalFailure) or isinstance(exc, KeyError) else "bad_edit"
         if isinstance(exc, RuntimeError) and "immutable" in str(exc):
             outcome = "bad_edit"
@@ -973,6 +1108,12 @@ def score_stage(
             cycle_n=cycle_n,
             metrics=None,
             feature_id=feature_id,
+        )
+    if integrity_check is not None and not integrity_check():
+        return _record_stage(
+            run_dir, package_copy, outcome="bad_edit", reason="evaluation changed runner-owned files or scorer",
+            base_sha=base_sha, hypothesis=hypothesis, stage=stage, cycle_n=cycle_n,
+            metrics=None, feature_id=feature_id,
         )
     primary = charter["metrics"]["primary"]
     name = primary["name"]
@@ -989,7 +1130,15 @@ def score_stage(
             metrics=None,
             feature_id=feature_id,
         )
-    reason = accuracy_keep_reason(charter, pre_metrics, metrics)
+    if stage == "search_edit":
+        from absolute.store import read_json
+
+        scoreboard = read_json(run_dir / "scoreboard.json")
+        reason = search_keep_reason(charter, pre_metrics, metrics, scoreboard["baseline"])
+        if reason is None:
+            reason = search_keep_reason(charter, scoreboard["best"], metrics, scoreboard["baseline"])
+    else:
+        reason = accuracy_keep_reason(charter, pre_metrics, metrics)
     if reason and reason.startswith("eval JSON missing"):
         return _record_stage(
             run_dir,
@@ -1045,7 +1194,7 @@ def complete_cycle(run_dir: Path, charter: dict[str, Any], *, method_satisfied: 
     run["admitted_feature"] = None
     run["status"] = "running"
     run["stop_reason"] = ""
-    run["stage"] = "application"
+    run["stage"] = "search" if run.get("search") else "application"
     save_run(run_dir, run)
     write_handoff(run_dir)
 

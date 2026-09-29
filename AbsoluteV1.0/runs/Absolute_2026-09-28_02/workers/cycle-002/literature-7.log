@@ -1,0 +1,5 @@
+The measured-cost literature report is in `runs/Absolute_2026-09-28_02/sota/cycle-002/literature-7.json`.
+
+Stage 2 still runs once. Posing every other class-matched box is the cost that list avoids: CosyPose spent 190 ms of a 320 ms scene on all candidates, and a pallet-bin pipeline measured about 21 ms to detect and about 2.8 s for FoundationPose. A per-box chamfer is the same kind of multiplier (0.71 s directional, versus 29.1 s and 65.3 s for the older chamfer matches). A whole-image pose head does not get cheaper by deferring boxes.
+
+Both index lists belong on `PalletPoseStamped`, the pose the AGV controller already reads. A few integers stay in the flat ROS 2 size band (equal latency from 128 B through 10 KB; a `Pose` serializes in 14.9 ns). The stock diagnostics path is 1 Hz and a second subscription. On failure, those same two lists are the only publish; the two early returns still publish nothing.

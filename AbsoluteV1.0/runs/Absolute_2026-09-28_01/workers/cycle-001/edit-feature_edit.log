@@ -1,0 +1,5 @@
+`/pps/pallet_pose_rich` now carries the stage-2 inlier-face extents from the same estimate that produced the pose.
+
+`PalletPoseStamped` has `has_dimensions`, `width_m`, `height_m`, and `depth_m`. Width is the camera-x span, height is the camera-y span, and depth is the mean range, in metres. `publish_pose` copies those values from that estimate only when the estimate produced an inlier face. Otherwise `has_dimensions` is false and the three extents are zero.
+
+The behavior test is `python pps_pallet_pose_cpp/test/test_inlier_face_extents.py`. It reported 3 tests, OK. The command is in `runs/Absolute_2026-09-28_01/workers/cycle-001/edit-result-feature_edit.json`.The Anaconda search finished without finding `gcc`, `cl`, or `clang`. The extents edit is unchanged: `/pps/pallet_pose_rich` still carries the inlier-face width, height, and depth from that same estimate, and the behavior test passed.

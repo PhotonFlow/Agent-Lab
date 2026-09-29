@@ -1,0 +1,15 @@
+Connection lost, reconnecting to https://agentn.global.api5.cursor.sh (attempt 1)...
+Retry attempt 1...
+Connection lost, reconnecting to https://agentn.global.api5.cursor.sh (attempt 2)...
+Retry attempt 2...
+Metric discovery for this query is in `runs/Absolute_2026-09-28_02/workers/discovery/round-1/proposal-3.json`.
+
+The prose sentences do not contain the result ids. The proposal attaches those sentences to numeric results `src` already computes:
+
+- `pose_error_m` witnesses the handler sentence that needs a pallet pose while the scene can still change. The pose is `tx`, `ty`, `tz`, and `yaw_rad` from `estimate_pose_chamfer_v3_2`.
+- `dimension_error_m` witnesses pallet width, height, and depth in metres.
+- `selection_error` witnesses which detections `select_detection` sends through stage 2 versus those left deferred.
+- `scenario_error` witnesses the sentence that names those outputs together.
+- `latency_ms` is protected at a 5 ms budget. The detector records it as `dt_ms` and the recorder as `runtime_s`. It witnesses the same changing-scene sentence.
+
+Each error metric is minimize, target `0.001`, noise `0`.

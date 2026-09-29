@@ -1,0 +1,5 @@
+Wrote the cycle-2 proposal to `runs/Absolute_2026-09-27_04/decisions/cycle-002/proposal-1.json`.
+
+It is one feature, `stage2-subset-admission`. After the face-extent keep, `scenario_error` is 1.752, and 1.75 of that is `selection_error`. The package still only has single-winner `select_detection`, so the scored path admits index 0 and defers nobody. The proposal adds `select_stage2_subset` and `Stage2Admission` so `largest_area` with k=2 admits source indices 1 and 2 and defers 0, 3, and 4.
+
+The package and the scorer were not edited. No evolve command was started, and the run was not scored.

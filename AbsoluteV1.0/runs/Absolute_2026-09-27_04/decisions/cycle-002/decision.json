@@ -1,0 +1,6 @@
+{
+  "feature_id": "stage2-subset-admission",
+  "hypothesis": "Add select_stage2_subset(candidates, strategy, k) and Stage2Admission with admitted and deferred vectors so largest_area and k=2 ranks the five pallet boxes by area then score, admits source indices 1 and 2, and defers 0, 3, and 4, clearing the 1.75 selection_error that still leaves scenario_error at 1.752.",
+  "level": "feature",
+  "summary": "Admit the k largest-area candidates and defer every other candidate through Stage2Admission."
+}

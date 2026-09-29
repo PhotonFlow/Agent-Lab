@@ -1,0 +1,19 @@
+{
+  "decisions": [
+    {
+      "feature_id": "deferred_detection_marks",
+      "decision": "accept",
+      "reason": "The scenario review says the handling process needs which detected pallets are sent through stage 2 versus marked deferred, and that publishing every candidate select_detection does not choose, by source index, with this pair's RGB and depth stamps, is that distinction for this synchronized capture. A source index is that detection's identity in this message. The feasibility review says DiagnosticStatus.values is an open list and the other indices can be added on the OK and failure diagnostic paths, which already carry this pair's RGB and depth stamps, once those publishers receive the candidate list. The scenario states no rule that a deferred pallet must be left unapproached, the recorder drops deferred keys on a successful pose, and two early returns publish nothing; those limits narrow the mark and leave the named per-message distinction in place. The proposal does not restate dimension_error_m or latency_ms, and it is not already kept or rejected."
+    },
+    {
+      "feature_id": "inlier_face_extents",
+      "decision": "reject",
+      "reason": "The scenario review says width and height as the spans of this frame's plane inliers are the visible face extent, and the scenario does not equate a partial plane fit with the pallet's width and height. Depth as the mean z of those inliers after the depth-to-RGB transform is the range of the face centre, which the pose already carries, and the factory face has no pallet-depth size. The feasibility review says that span follows the camera-up plane axes rather than the pallet's own face, because the in-plane rotation stays in unpublished debug, and the inliers' mean z is a different quantity from the published pose depth. PalletPoseStamped has no width, height, or depth fields, and the node cannot rebuild those extents from the pose it already publishes. The proposal does not restate dimension_error_m or latency_ms, and it is not already kept or rejected."
+    },
+    {
+      "feature_id": "face_extent_prototype",
+      "decision": "reject",
+      "reason": "The scenario review says the changing-scene sentence is temporal: a later frame can already have moved. It does not say the pallet face differs from the factory 1.20 m by 0.14 m, and it does not say a search locked to that face matches a different pallet. Building the template from this frame's inlier width and height copies the visible blob into the search, so the pose can follow a partial face, and the proposal does not publish width, height, and depth or mark which detections were deferred. The feasibility review says the rotation that would separate face width from face height is an output of matching the prototype, so it cannot size the prototype it depends on, and the factory pockets are not scaled with the outer rectangle and fall outside a smaller face. The proposal does not restate dimension_error_m or latency_ms, and it is not already kept or rejected."
+    }
+  ]
+}

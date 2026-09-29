@@ -1,0 +1,19 @@
+diff --git a/geometry_core/src/pipeline_v3_2.cpp b/geometry_core/src/pipeline_v3_2.cpp
+index bd0e0c9..bc0e682 100644
+--- a/geometry_core/src/pipeline_v3_2.cpp
++++ b/geometry_core/src/pipeline_v3_2.cpp
+@@ -203,10 +203,10 @@ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+     best_cost = prior_data_cost;
+   }
+ 
+-  // 9. Lift refined 2D centre back to depth, then RGB frame.
+-  Eigen::Vector2d centre_2d(best_pose.tx, best_pose.ty);
+-  Eigen::Vector3d centre_d = lift_point_from_plane_2d(centre_2d, basis);
+-  Eigen::Vector3d centre_r = apply_se3(camera_cfg.R_dr, camera_cfg.t_dr, centre_d);
++  // 9. Translation is the bbox-centre ray-plane hit. Chamfer still records
++  // the in-plane prototype alignment in debug, but that search walks off
++  // the face centre when the prototype size does not match the face.
++  Eigen::Vector3d centre_r = apply_se3(camera_cfg.R_dr, camera_cfg.t_dr, centre_d_init);
+   Eigen::Vector3d n_r = camera_cfg.R_dr * plane_d.normal;
+   n_r /= (n_r.norm() + 1e-12);
+   const double yaw = yaw_from_normal_camera(n_r);

@@ -1,0 +1,5 @@
+Literature-only evidence is in `runs/Absolute_2026-09-28_02/sota/cycle-002/literature-3.json`.
+
+Current systems still send stage 2 one chosen detection and publish a pose. Isaac ROS 5.0 builds the mask from the highest-scoring detection in a `Detection2DArray` and publishes `vision_msgs/Detection3DArray`. Lang2Lift (2025) runs FoundationPose on the selected mask and gives that 6D pose to the forklift controller. ifm `getPallet` returns every localized pallet on the vehicle result; `palletIndex` is a template type, and `PalletDetection` has no deferred index list. `Detection3D` and `PoseStamped` still have one header and no deferred-index field. Diagnostics remain a separate `KeyValue` channel.
+
+No 2024–2026 source found puts the chosen source index and the other class-matched source indices on the pose message the AGV controller reads, and repeats those two lists on the failure diagnostic.The citation check was stopped before it finished, so it did not change the literature file. The evidence is already in `runs/Absolute_2026-09-28_02/sota/cycle-002/literature-3.json`.

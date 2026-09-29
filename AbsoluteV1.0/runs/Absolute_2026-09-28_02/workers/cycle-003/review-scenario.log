@@ -1,0 +1,9 @@
+Connection lost, reconnecting to https://agentn.global.api5.cursor.sh (attempt 1)...
+Retry attempt 1...
+The scenario review is written to `runs/Absolute_2026-09-28_02/decisions/cycle-003/review-scenario.json`. No feature was admitted, nothing was scored, and the run was not stopped.
+
+The scenario asks for a pallet pose, the pallet’s width, height, and depth in metres, and which detections are sent through stage 2 versus marked deferred, for a scene that can still change.
+
+- **pocket_opening_depth** (first proposal) puts the factory face, 1.20 m by 0.14 m, on the pose result and takes depth as the median far-side length through the two fork openings. That depth is separate from the face-centre range. An empty opening sets `has_body_depth` false, so a successful pose can still omit body depth, and pocket samples can be the body, a load, the floor, or another object. The sent-versus-deferred split stays off the message.
+- **pocket_opening_depth** (second proposal) uses the same id and the same pocket depth, but publishes width and height as the greater of the inlier silhouette and the factory face. A short silhouette stays 1.20 m by 0.14 m. A longer silhouette becomes the published size while the match still uses the factory face. The scenario does not treat an inlier span past that face as a larger pallet. The selection split stays off the message.
+- **published_admission_split** writes the one admitted source index and the deferred source indices on `PalletPoseStamped`, and on the failure diagnostic when no pose is published. That is the named split for this capture. The depth-image early return still publishes nothing, so that capture’s split never reaches the handling process. Width, height, and depth stay unpublished.

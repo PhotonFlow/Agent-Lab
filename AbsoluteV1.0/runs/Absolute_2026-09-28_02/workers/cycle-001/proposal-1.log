@@ -1,0 +1,3 @@
+Wrote the feature proposal to `runs/Absolute_2026-09-28_02/decisions/cycle-001/proposal-1.json`.
+
+**deferred_detection_marks.** For each synchronized detection and depth pair, stage 2 still runs on the pallet `select_detection` already chooses. Every other candidate is marked deferred by publishing its source index on the pose diagnostics, with that pair's RGB and depth capture stamps. The handling process can then see which pallets in the still-changing scene were detected but not posed.

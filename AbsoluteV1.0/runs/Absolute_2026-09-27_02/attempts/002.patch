@@ -1,0 +1,234 @@
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
+index 5e2bcfd..7026697 100644
+--- a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/detection_utils.hpp
+@@ -30,4 +30,15 @@ std::vector<DetectionCandidate> extract_detection_candidates(
+ std::optional<DetectionCandidate> select_detection(
+     const std::vector<DetectionCandidate>& candidates, const std::string& strategy);
+ 
++// Pallets sent to stage 2, and every other pallet marked deferred.
++// admitted size is at most max_stage2. The same strategy names as
++// select_detection are accepted; an unknown strategy throws std::invalid_argument.
++struct Stage2Admission {
++  std::vector<DetectionCandidate> admitted;
++  std::vector<DetectionCandidate> deferred;
++};
++
++Stage2Admission select_stage2_subset(const std::vector<DetectionCandidate>& candidates,
++                                      const std::string& strategy, std::size_t max_stage2);
++
+ }  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+index e37fb64..72ce2f4 100644
+--- a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+@@ -1,10 +1,12 @@
+ // pps_v3.3_ros/src/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+ #pragma once
+ 
++#include <cstddef>
+ #include <memory>
+ #include <optional>
+ #include <random>
+ #include <string>
++#include <vector>
+ 
+ #include <diagnostic_msgs/msg/diagnostic_array.hpp>
+ #include <geometry_msgs/msg/pose_stamped.hpp>
+@@ -18,6 +20,7 @@
+ 
+ #include <geometry_core/camera_config.hpp>
+ #include <geometry_core/pipeline_v3_2.hpp>
++#include <pps_pallet_pose_cpp/detection_utils.hpp>
+ #include <pps_perception_msgs/msg/pallet_pose_stamped.hpp>
+ 
+ namespace pps_pallet_pose_cpp {
+@@ -43,6 +46,9 @@ class PalletPoseNode : public rclcpp::Node {
+                                const geometry_core::EstimatePoseOutcome& outcome,
+                                const builtin_interfaces::msg::Time& input_rgb_stamp,
+                                const builtin_interfaces::msg::Time& input_depth_stamp);
++  void publish_deferred(const std::vector<DetectionCandidate>& deferred,
++                         const builtin_interfaces::msg::Time& input_rgb_stamp,
++                         const builtin_interfaces::msg::Time& input_depth_stamp);
+ 
+   geometry_core::RgbDepthCameraConfig camera_cfg_;
+   geometry_core::Stage2Config stage2_cfg_;
+@@ -60,6 +66,7 @@ class PalletPoseNode : public rclcpp::Node {
+   std::string target_class_id_;
+   std::string detection_selection_;
+   std::string camera_frame_id_;
++  std::size_t max_stage2_ = 2;
+ };
+ 
+ }  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/src/detection_utils.cpp b/pps_pallet_pose_cpp/src/detection_utils.cpp
+index fc3a226..317d3d3 100644
+--- a/pps_pallet_pose_cpp/src/detection_utils.cpp
++++ b/pps_pallet_pose_cpp/src/detection_utils.cpp
+@@ -71,4 +71,35 @@ std::optional<DetectionCandidate> select_detection(
+   throw std::invalid_argument("Unknown detection selection strategy: " + strategy);
+ }
+ 
++Stage2Admission select_stage2_subset(const std::vector<DetectionCandidate>& candidates,
++                                      const std::string& strategy, std::size_t max_stage2) {
++  Stage2Admission admission;
++  if (candidates.empty() || max_stage2 == 0) {
++    admission.deferred = candidates;
++    return admission;
++  }
++
++  std::vector<DetectionCandidate> ranked = candidates;
++  if (strategy == "highest_confidence") {
++    std::sort(ranked.begin(), ranked.end(), [](const DetectionCandidate& a, const DetectionCandidate& b) {
++      if (a.score != b.score) return a.score > b.score;
++      if (a.area_px != b.area_px) return a.area_px > b.area_px;
++      return a.source_index < b.source_index;
++    });
++  } else if (strategy == "largest_area") {
++    std::sort(ranked.begin(), ranked.end(), [](const DetectionCandidate& a, const DetectionCandidate& b) {
++      if (a.area_px != b.area_px) return a.area_px > b.area_px;
++      if (a.score != b.score) return a.score > b.score;
++      return a.source_index < b.source_index;
++    });
++  } else {
++    throw std::invalid_argument("Unknown detection selection strategy: " + strategy);
++  }
++
++  const std::size_t n_admit = std::min(max_stage2, ranked.size());
++  admission.admitted.assign(ranked.begin(), ranked.begin() + static_cast<std::ptrdiff_t>(n_admit));
++  admission.deferred.assign(ranked.begin() + static_cast<std::ptrdiff_t>(n_admit), ranked.end());
++  return admission;
++}
++
+ }  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+index 5594916..ed180fe 100644
+--- a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
++++ b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+@@ -1,9 +1,11 @@
+ // pps_v3.3_ros/src/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+ #include "pps_pallet_pose_cpp/pallet_pose_node.hpp"
+ 
++#include <algorithm>
+ #include <cmath>
+ #include <iomanip>
+ #include <sstream>
++#include <stdexcept>
+ 
+ #ifdef _OPENMP
+ #include <omp.h>
+@@ -52,6 +54,7 @@ PalletPoseNode::PalletPoseNode() : rclcpp::Node("pallet_pose_cpp_node") {
+   this->declare_parameter<std::string>("pallet_pose_topic", "/pps/pallet_pose_rich");
+   this->declare_parameter<std::string>("diagnostics_topic", "/pps/pallet_pose_diagnostics");
+   this->declare_parameter<std::string>("camera_frame_id", "camera_rgb_optical_frame");
++  this->declare_parameter<int>("max_stage2", 2);
+ 
+   const std::string camera_yaml_path = this->get_parameter("camera_yaml_path").as_string();
+   if (camera_yaml_path.empty()) {
+@@ -65,6 +68,8 @@ PalletPoseNode::PalletPoseNode() : rclcpp::Node("pallet_pose_cpp_node") {
+   target_class_id_ = this->get_parameter("target_class_id").as_string();
+   detection_selection_ = this->get_parameter("detection_selection").as_string();
+   camera_frame_id_ = this->get_parameter("camera_frame_id").as_string();
++  const int max_stage2_param = static_cast<int>(this->get_parameter("max_stage2").as_int());
++  max_stage2_ = static_cast<std::size_t>(std::max(0, max_stage2_param));
+ 
+   pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>(
+       this->get_parameter("pose_topic").as_string(), 10);
+@@ -98,8 +103,22 @@ PalletPoseNode::PalletPoseNode() : rclcpp::Node("pallet_pose_cpp_node") {
+ void PalletPoseNode::on_pair(const sensor_msgs::msg::Image::ConstSharedPtr& depth_msg,
+                               const vision_msgs::msg::Detection2DArray::ConstSharedPtr& det_msg) {
+   auto candidates = extract_detection_candidates(*det_msg, target_class_id_);
+-  auto candidate = select_detection(candidates, detection_selection_);
+-  if (!candidate.has_value()) {
++  Stage2Admission admission;
++  try {
++    admission = select_stage2_subset(candidates, detection_selection_, max_stage2_);
++  } catch (const std::invalid_argument& exc) {
++    RCLCPP_WARN(this->get_logger(), "%s", exc.what());
++    return;
++  }
++
++  const std::string frame_id = det_msg->header.frame_id.empty() ? camera_frame_id_
++                                                                  : det_msg->header.frame_id;
++  const auto& input_rgb_stamp = det_msg->header.stamp;
++  const auto& input_depth_stamp = depth_msg->header.stamp;
++  if (!admission.deferred.empty()) {
++    publish_deferred(admission.deferred, input_rgb_stamp, input_depth_stamp);
++  }
++  if (admission.admitted.empty()) {
+     return;
+   }
+ 
+@@ -111,24 +130,17 @@ void PalletPoseNode::on_pair(const sensor_msgs::msg::Image::ConstSharedPtr& dept
+     return;
+   }
+ 
+-  auto outcome = geometry_core::estimate_pose_chamfer_v3_2(
+-      candidate->bbox_xyxy, depth_m, camera_cfg_, stage2_cfg_, params_, candidate->source_index,
+-      rng_);
+-
+-  const std::string frame_id = det_msg->header.frame_id.empty() ? camera_frame_id_
+-                                                                  : det_msg->header.frame_id;
+-  // The exact synchronized inputs this pose (or failure) was derived from --
+-  // det_msg->header.stamp is the RGB capture time (forwarded verbatim by the
+-  // detector node from the image it ran inference on), and depth_msg is the
+-  // very message depth_image_to_meters() converted into depth_m above.
+-  const auto& input_rgb_stamp = det_msg->header.stamp;
+-  const auto& input_depth_stamp = depth_msg->header.stamp;
+-  if (!outcome.ok) {
+-    publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp);
+-    return;
++  for (const auto& candidate : admission.admitted) {
++    auto outcome = geometry_core::estimate_pose_chamfer_v3_2(
++        candidate.bbox_xyxy, depth_m, camera_cfg_, stage2_cfg_, params_, candidate.source_index,
++        rng_);
++    if (!outcome.ok) {
++      publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp);
++      continue;
++    }
++    publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp);
++    publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp);
+   }
+-  publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp);
+-  publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp);
+ }
+ 
+ void PalletPoseNode::publish_pose(const geometry_core::PoseResult& pose,
+@@ -224,4 +236,37 @@ void PalletPoseNode::publish_ok_diagnostics(const geometry_core::PoseResult& pos
+   diag_pub_->publish(diag);
+ }
+ 
++void PalletPoseNode::publish_deferred(const std::vector<DetectionCandidate>& deferred,
++                                       const builtin_interfaces::msg::Time& input_rgb_stamp,
++                                       const builtin_interfaces::msg::Time& input_depth_stamp) {
++  diagnostic_msgs::msg::DiagnosticArray diag;
++  diag.header.stamp = this->get_clock()->now();
++  diagnostic_msgs::msg::DiagnosticStatus status;
++  status.name = "pps_pallet_pose_cpp";
++  status.hardware_id = "dynamic_handling_ros_v1";
++  status.level = diagnostic_msgs::msg::DiagnosticStatus::OK;
++  status.message = "pallet_deferred";
++  std::ostringstream indices;
++  for (std::size_t i = 0; i < deferred.size(); ++i) {
++    if (i != 0) {
++      indices << ',';
++    }
++    indices << deferred[i].source_index;
++  }
++  diagnostic_msgs::msg::KeyValue kv;
++  kv.key = "deferred_source_index";
++  kv.value = indices.str();
++  status.values.push_back(kv);
++  diagnostic_msgs::msg::KeyValue rgb_kv;
++  rgb_kv.key = "input_rgb_stamp";
++  rgb_kv.value = stamp_to_string(input_rgb_stamp);
++  status.values.push_back(rgb_kv);
++  diagnostic_msgs::msg::KeyValue depth_kv;
++  depth_kv.key = "input_depth_stamp";
++  depth_kv.value = stamp_to_string(input_depth_stamp);
++  status.values.push_back(depth_kv);
++  diag.status.push_back(status);
++  diag_pub_->publish(diag);
++}
++
+ }  // namespace pps_pallet_pose_cpp

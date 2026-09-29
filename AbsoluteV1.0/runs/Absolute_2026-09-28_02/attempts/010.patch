@@ -1,0 +1,574 @@
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+index e37fb64..8ee19a0 100644
+--- a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+@@ -20,6 +20,8 @@
+ #include <geometry_core/pipeline_v3_2.hpp>
+ #include <pps_perception_msgs/msg/pallet_pose_stamped.hpp>
+ 
++#include "pps_pallet_pose_cpp/stage2_capture_split.hpp"
++
+ namespace pps_pallet_pose_cpp {
+ 
+ class PalletPoseNode : public rclcpp::Node {
+@@ -35,10 +37,12 @@ class PalletPoseNode : public rclcpp::Node {
+   void publish_pose(const geometry_core::PoseResult& pose,
+                      const geometry_core::EstimatePoseOutcome& outcome, const std::string& frame_id,
+                      const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                     const builtin_interfaces::msg::Time& input_depth_stamp);
++                     const builtin_interfaces::msg::Time& input_depth_stamp,
++                     const Stage2CaptureSplit& split);
+   void publish_failure_diagnostics(const geometry_core::FailureResult& failure,
+                                      const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                     const builtin_interfaces::msg::Time& input_depth_stamp);
++                                     const builtin_interfaces::msg::Time& input_depth_stamp,
++                                     const Stage2CaptureSplit& split);
+   void publish_ok_diagnostics(const geometry_core::PoseResult& pose,
+                                const geometry_core::EstimatePoseOutcome& outcome,
+                                const builtin_interfaces::msg::Time& input_rgb_stamp,
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/stage2_capture_split.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/stage2_capture_split.hpp
+new file mode 100644
+index 0000000..a517220
+--- /dev/null
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/stage2_capture_split.hpp
+@@ -0,0 +1,43 @@
++#pragma once
++
++#include <cstddef>
++#include <string>
++#include <vector>
++
++namespace pps_pallet_pose_cpp {
++
++// This synchronized capture. stage2_source_index is the Detection2DArray slot
++// select_detection sent through stage 2. The other class-matched slots stay
++// in candidate order and are not posed.
++struct Stage2CaptureSplit {
++  int stage2_source_index = 0;
++  std::vector<int> deferred_source_indices;
++};
++
++template <typename Candidate>
++inline Stage2CaptureSplit split_class_matched_slots(const std::vector<Candidate>& candidates,
++                                                    int sent_slot) {
++  Stage2CaptureSplit split;
++  split.stage2_source_index = sent_slot;
++  for (const Candidate& candidate : candidates) {
++    if (candidate.source_index == sent_slot) {
++      continue;
++    }
++    split.deferred_source_indices.push_back(candidate.source_index);
++  }
++  return split;
++}
++
++// One diagnostic value. Empty when this pair had one class-matched candidate.
++inline std::string decimal_deferred_slots(const std::vector<int>& deferred_source_indices) {
++  std::string text;
++  for (size_t index = 0; index < deferred_source_indices.size(); ++index) {
++    if (index > 0) {
++      text.push_back(',');
++    }
++    text += std::to_string(deferred_source_indices[index]);
++  }
++  return text;
++}
++
++}  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+index 5594916..e073139 100644
+--- a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
++++ b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+@@ -123,19 +123,22 @@ void PalletPoseNode::on_pair(const sensor_msgs::msg::Image::ConstSharedPtr& dept
+   // very message depth_image_to_meters() converted into depth_m above.
+   const auto& input_rgb_stamp = det_msg->header.stamp;
+   const auto& input_depth_stamp = depth_msg->header.stamp;
++  const Stage2CaptureSplit split =
++      split_class_matched_slots(candidates, candidate->source_index);
+   if (!outcome.ok) {
+-    publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp);
++    publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp, split);
+     return;
+   }
+   publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp);
+-  publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp);
++  publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp, split);
+ }
+ 
+ void PalletPoseNode::publish_pose(const geometry_core::PoseResult& pose,
+                                    const geometry_core::EstimatePoseOutcome& outcome,
+                                    const std::string& frame_id,
+                                    const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                   const builtin_interfaces::msg::Time& input_depth_stamp) {
++                                   const builtin_interfaces::msg::Time& input_depth_stamp,
++                                   const Stage2CaptureSplit& split) {
+   double qx, qy, qz, qw;
+   yaw_to_quaternion_optical(pose.yaw_rad, qx, qy, qz, qw);
+   const auto stamp = this->get_clock()->now();
+@@ -169,12 +172,15 @@ void PalletPoseNode::publish_pose(const geometry_core::PoseResult& pose,
+   rich.preset_id = "geometry_core_default";
+   rich.input_rgb_stamp = input_rgb_stamp;
+   rich.input_depth_stamp = input_depth_stamp;
++  rich.stage2_source_index = split.stage2_source_index;
++  rich.deferred_source_indices = split.deferred_source_indices;
+   rich_pub_->publish(rich);
+ }
+ 
+ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureResult& failure,
+                                                    const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                                   const builtin_interfaces::msg::Time& input_depth_stamp) {
++                                                   const builtin_interfaces::msg::Time& input_depth_stamp,
++                                                   const Stage2CaptureSplit& split) {
+   diagnostic_msgs::msg::DiagnosticArray diag;
+   diag.header.stamp = this->get_clock()->now();
+   diagnostic_msgs::msg::DiagnosticStatus status;
+@@ -194,6 +200,14 @@ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureRes
+   depth_kv.key = "input_depth_stamp";
+   depth_kv.value = stamp_to_string(input_depth_stamp);
+   status.values.push_back(depth_kv);
++  diagnostic_msgs::msg::KeyValue sent_kv;
++  sent_kv.key = "stage2_source_index";
++  sent_kv.value = std::to_string(split.stage2_source_index);
++  status.values.push_back(sent_kv);
++  diagnostic_msgs::msg::KeyValue deferred_kv;
++  deferred_kv.key = "deferred_source_indices";
++  deferred_kv.value = decimal_deferred_slots(split.deferred_source_indices);
++  status.values.push_back(deferred_kv);
+   diag.status.push_back(status);
+   diag_pub_->publish(diag);
+ }
+diff --git a/pps_pallet_pose_cpp/test/test_stage2_capture_split.py b/pps_pallet_pose_cpp/test/test_stage2_capture_split.py
+new file mode 100644
+index 0000000..8c8f526
+--- /dev/null
++++ b/pps_pallet_pose_cpp/test/test_stage2_capture_split.py
+@@ -0,0 +1,413 @@
++"""Sent and deferred slots for one synchronized detection and depth pair.
++
++Stage 2 runs once, on the class-matched candidate select_detection already
++chose. That candidate's Detection2DArray slot is the pallet sent through
++stage 2. The other class-matched slots stay deferred, in that same order.
++A tie keeps the earlier slot sent. Slot 0 is a real detection.
++
++A successful estimate writes both lists onto PalletPoseStamped after this
++pair's depth stamp. A failed estimate publishes no PalletPoseStamped; the
++same two lists are two KeyValue entries on the existing WARN diagnostic.
++An empty deferred list is an empty int32[] on the pose and an empty string
++on that diagnostic. An empty candidate list and a depth-conversion
++exception still publish nothing.
++"""
++
++from __future__ import annotations
++
++import unittest
++from pathlib import Path
++
++PACKAGE_SRC = Path(__file__).resolve().parents[2]
++NODE_CPP = PACKAGE_SRC / "pps_pallet_pose_cpp" / "src" / "pallet_pose_node.cpp"
++NODE_HPP = (
++    PACKAGE_SRC / "pps_pallet_pose_cpp" / "include" / "pps_pallet_pose_cpp" / "pallet_pose_node.hpp"
++)
++UTILS_CPP = PACKAGE_SRC / "pps_pallet_pose_cpp" / "src" / "detection_utils.cpp"
++SPLIT_HPP = (
++    PACKAGE_SRC
++    / "pps_pallet_pose_cpp"
++    / "include"
++    / "pps_pallet_pose_cpp"
++    / "stage2_capture_split.hpp"
++)
++POSE_MSG = PACKAGE_SRC / "pps_perception_msgs" / "msg" / "PalletPoseStamped.msg"
++
++
++def _read(path: Path) -> str:
++    if not path.is_file():
++        raise AssertionError(f"{path.name} is missing")
++    return path.read_text(encoding="utf-8")
++
++
++def function_body(text: str, name: str) -> str:
++    start = text.find(name)
++    if start < 0:
++        raise AssertionError(f"{name} is missing")
++    brace = text.find("{", start)
++    if brace < 0:
++        raise AssertionError(f"{name} has no body")
++    depth = 0
++    for index in range(brace, len(text)):
++        char = text[index]
++        if char == "{":
++            depth += 1
++        elif char == "}":
++            depth -= 1
++            if depth == 0:
++                return text[brace + 1 : index]
++    raise AssertionError(f"{name} body does not close")
++
++
++def message_fields(text: str) -> list[tuple[str, str]]:
++    fields = []
++    for raw in text.splitlines():
++        line = raw.split("#", 1)[0].strip()
++        if not line:
++            continue
++        parts = line.split()
++        if len(parts) < 2:
++            continue
++        fields.append((parts[0], parts[1].split("=", 1)[0]))
++    return fields
++
++
++def _between(text: str, start_mark: str, end_mark: str) -> str:
++    start = text.find(start_mark)
++    if start < 0:
++        raise AssertionError(f"{start_mark} is missing")
++    end = text.find(end_mark, start + len(start_mark))
++    if end < 0:
++        raise AssertionError(f"{end_mark} is missing after {start_mark}")
++    return text[start:end]
++
++
++class _Continue(Exception):
++    pass
++
++
++def _statements(body: str) -> list:
++    lines = []
++    for raw in body.splitlines():
++        line = raw.strip()
++        if not line or line.startswith("//"):
++            continue
++        lines.append(line)
++    return _parse_block(lines, 0)[0]
++
++
++def _parse_block(lines: list[str], index: int) -> tuple[list, int]:
++    statements: list = []
++    while index < len(lines):
++        line = lines[index]
++        if line == "}":
++            return statements, index + 1
++        if line.endswith("{"):
++            nested, index = _parse_block(lines, index + 1)
++            statements.append((line[:-1].strip(), nested))
++            continue
++        statements.append(line)
++        index += 1
++    return statements, index
++
++
++def _lookup(expr: str, env: dict):
++    expr = expr.strip().rstrip(";")
++    if expr in env:
++        return env[expr]
++    if expr.endswith(".size()"):
++        return len(_lookup(expr[: -len(".size()")], env))
++    if expr.endswith("]") and "[" in expr:
++        base, index = expr[:-1].split("[", 1)
++        return _lookup(base, env)[_lookup(index, env)]
++    if "." in expr:
++        obj, member = expr.split(".", 1)
++        return env[obj][member]
++    if expr.isdigit():
++        return int(expr)
++    raise AssertionError(f"unknown name {expr}")
++
++
++def _execute(statements: list, env: dict):
++    for statement in statements:
++        if isinstance(statement, tuple):
++            header, nested = statement
++            if header.startswith("for ("):
++                inner = header[len("for (") :].strip()
++                if inner.endswith(")"):
++                    inner = inner[:-1].strip()
++                if ":" in inner and "=" not in inner.split(":", 1)[0]:
++                    declared, collection = [part.strip() for part in inner.split(":")]
++                    loop_name = declared.split()[-1].lstrip("&")
++                    for item in list(_lookup(collection, env)):
++                        env[loop_name] = item
++                        try:
++                            _execute(nested, env)
++                        except _Continue:
++                            continue
++                    continue
++                init, cond, step = [part.strip() for part in inner.split(";")]
++                name = init.split("=")[0].split()[-1]
++                env[name] = int(init.split("=")[1].strip())
++                while True:
++                    left, right = [part.strip() for part in cond.split("<")]
++                    if not (_lookup(left, env) < _lookup(right, env)):
++                        break
++                    try:
++                        _execute(nested, env)
++                    except _Continue:
++                        pass
++                    if step not in {"++" + name, name + "++"}:
++                        raise AssertionError(f"unsupported step: {step}")
++                    env[name] += 1
++                continue
++            if header.startswith("if ("):
++                cond = header[len("if (") :].strip()
++                if cond.endswith(")"):
++                    cond = cond[:-1].strip()
++                if "==" in cond:
++                    left, right = [part.strip() for part in cond.split("==")]
++                    matched = _lookup(left, env) == _lookup(right, env)
++                elif ">" in cond:
++                    left, right = [part.strip() for part in cond.split(">")]
++                    matched = _lookup(left, env) > _lookup(right, env)
++                else:
++                    raise AssertionError(f"unsupported condition: {cond}")
++                if matched:
++                    _execute(nested, env)
++                continue
++            raise AssertionError(f"unsupported block: {header}")
++        if statement == "continue;":
++            raise _Continue()
++        if statement.startswith("Stage2CaptureSplit "):
++            env[statement.split()[1].rstrip(";")] = {
++                "stage2_source_index": 0,
++                "deferred_source_indices": [],
++            }
++            continue
++        if statement.startswith("std::string "):
++            env[statement.split()[1].rstrip(";")] = ""
++            continue
++        if statement.startswith("return "):
++            return _lookup(statement[len("return ") :], env)
++        if ".push_back(" in statement and statement.endswith(");"):
++            target, arg = statement[:-2].split(".push_back(", 1)
++            target = target.strip()
++            arg = arg.strip()
++            if arg == "','":
++                env[target] += ","
++            else:
++                _lookup(target, env).append(_lookup(arg, env))
++            continue
++        if "+=" in statement and statement.endswith(";"):
++            target, expr = [part.strip() for part in statement[:-1].split("+=", 1)]
++            prefix = "std::to_string("
++            if not (expr.startswith(prefix) and expr.endswith(")")):
++                raise AssertionError(f"unsupported append: {statement}")
++            env[target] += str(_lookup(expr[len(prefix) : -1], env))
++            continue
++        if " = " in statement and statement.endswith(";"):
++            target, expr = [part.strip() for part in statement[:-1].split(" = ", 1)]
++            value = _lookup(expr, env)
++            if "." in target:
++                obj, member = target.split(".", 1)
++                env[obj][member] = value
++            else:
++                env[target] = value
++            continue
++        raise AssertionError(f"unsupported statement: {statement}")
++    return None
++
++
++def _run(signature: str, env: dict):
++    if not SPLIT_HPP.is_file():
++        raise AssertionError("stage2_capture_split.hpp is missing")
++    body = function_body(_read(SPLIT_HPP), signature)
++    return _execute(_statements(body), env)
++
++
++def split_class_matched_slots(slots: list[dict], sent_slot: int) -> dict:
++    result = _run(
++        "split_class_matched_slots(",
++        {"candidates": list(slots), "sent_slot": sent_slot},
++    )
++    if not isinstance(result, dict):
++        raise AssertionError("split_class_matched_slots did not return the sent and deferred slots")
++    return result
++
++
++def decimal_deferred_slots(deferred: list[int]) -> str:
++    result = _run("decimal_deferred_slots(", {"deferred_source_indices": list(deferred)})
++    if not isinstance(result, str):
++        raise AssertionError("decimal_deferred_slots did not return one string")
++    return result
++
++
++def run_split_program() -> str:
++    cases = [
++        ([0, 1, 2], 1),
++        ([2, 0, 5], 0),
++        ([0, 3], 0),
++        ([4], 4),
++        ([1, 4], 1),
++        ([1, 10], 1),
++    ]
++    lines = []
++    for slots, sent in cases:
++        split = split_class_matched_slots([{"source_index": slot} for slot in slots], sent)
++        lines.append(
++            f"{split['stage2_source_index']} [{decimal_deferred_slots(split['deferred_source_indices'])}]"
++        )
++    lines.append(f"[{decimal_deferred_slots([])}]")
++    return "\n".join(lines) + "\n"
++
++
++class Stage2CaptureSplitTest(unittest.TestCase):
++    def test_pose_message_appends_sent_and_deferred_after_the_depth_stamp(self) -> None:
++        fields = message_fields(_read(POSE_MSG))
++        names = [name for _, name in fields]
++        self.assertEqual(
++            fields[-4:],
++            [
++                ("builtin_interfaces/Time", "input_rgb_stamp"),
++                ("builtin_interfaces/Time", "input_depth_stamp"),
++                ("int32", "stage2_source_index"),
++                ("int32[]", "deferred_source_indices"),
++            ],
++        )
++        self.assertEqual(names.count("stage2_source_index"), 1)
++        self.assertEqual(names.count("deferred_source_indices"), 1)
++        for kept in (
++            "header",
++            "pose",
++            "yaw_rad",
++            "face_normal_rgb",
++            "plane_inlier_ratio",
++            "n_face_points",
++            "chamfer_cost_m",
++            "accepted",
++            "quality_reasons",
++            "failure_reason",
++            "geometry_source",
++            "preset_id",
++        ):
++            self.assertIn(kept, names)
++
++    def test_other_class_matched_slots_stay_deferred_in_candidate_order(self) -> None:
++        lines = [line for line in run_split_program().splitlines() if line]
++        self.assertEqual(
++            lines,
++            [
++                "1 [0,2]",
++                "0 [2,5]",
++                "0 [3]",
++                "4 []",
++                "1 [4]",
++                "1 [10]",
++                "[]",
++            ],
++        )
++        comparator = function_body(_read(UTILS_CPP), "select_detection(")
++        self.assertIn("std::max_element", comparator)
++        self.assertIn("if (a.score != b.score) return a.score < b.score;", comparator)
++        self.assertIn("return a.area_px < b.area_px;", comparator)
++        self.assertNotIn("<=", comparator)
++
++    def test_success_writes_the_pose_and_failure_writes_the_diagnostic(self) -> None:
++        cpp = _read(NODE_CPP)
++        hpp = _read(NODE_HPP)
++        on_pair = function_body(cpp, "PalletPoseNode::on_pair")
++        pose = function_body(cpp, "PalletPoseNode::publish_pose")
++        failure = function_body(cpp, "PalletPoseNode::publish_failure_diagnostics")
++        ok = function_body(cpp, "PalletPoseNode::publish_ok_diagnostics")
++
++        self.assertIn('#include "pps_pallet_pose_cpp/stage2_capture_split.hpp"', hpp)
++        self.assertEqual(hpp.count("const Stage2CaptureSplit& split"), 2)
++        ok_decl = hpp[
++            hpp.find("void publish_ok_diagnostics(") : hpp.find(
++                ";", hpp.find("void publish_ok_diagnostics(")
++            )
++        ]
++        self.assertNotIn("split", ok_decl)
++        self.assertNotIn("stage2_source_index", ok_decl)
++
++        self.assertEqual(cpp.count("estimate_pose_chamfer_v3_2("), 1)
++        estimate_at = on_pair.find("estimate_pose_chamfer_v3_2(")
++        estimate_call = on_pair[estimate_at : on_pair.find(";", estimate_at)]
++        self.assertIn("candidate->bbox_xyxy", estimate_call)
++        self.assertIn("candidate->source_index", estimate_call)
++        self.assertNotIn("deferred", estimate_call)
++        self.assertNotIn("for (", on_pair)
++
++        empty_return = _between(on_pair, "if (!candidate.has_value())", "return;")
++        depth_return = _between(on_pair, "catch (", "return;")
++        for early in (empty_return, depth_return):
++            self.assertNotIn("publish_", early)
++            self.assertNotIn("split_class_matched_slots", early)
++
++        split_at = on_pair.find(
++            "split_class_matched_slots(candidates, candidate->source_index)"
++        )
++        self.assertGreater(split_at, on_pair.find("return;", on_pair.find("catch (")))
++        self.assertLess(on_pair.find("select_detection("), split_at)
++        self.assertLess(estimate_at, split_at)
++        self.assertIn(
++            "publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp, split)",
++            on_pair,
++        )
++        failure_call = on_pair.find("publish_failure_diagnostics(")
++        self.assertLess(on_pair.find("return;", failure_call), on_pair.find("publish_pose("))
++        self.assertIn(
++            "publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp, split)",
++            on_pair,
++        )
++        ok_call = _between(on_pair, "publish_ok_diagnostics(", ";")
++        self.assertNotIn("split", ok_call)
++        self.assertNotIn("stage2_source_index", ok_call)
++
++        self.assertIn("this->get_clock()->now()", pose)
++        self.assertIn("rich.header = ps.header;", pose)
++        self.assertIn("rich.input_rgb_stamp = input_rgb_stamp;", pose)
++        self.assertNotIn("rich.header.stamp = input_rgb_stamp", pose)
++        self.assertNotIn("rich.header.stamp = input_depth_stamp", pose)
++        depth_at = pose.find("rich.input_depth_stamp = input_depth_stamp;")
++        sent_at = pose.find("rich.stage2_source_index = split.stage2_source_index;")
++        deferred_at = pose.find("rich.deferred_source_indices = split.deferred_source_indices;")
++        publish_at = pose.find("rich_pub_->publish(rich);")
++        self.assertTrue(0 <= depth_at < sent_at < deferred_at < publish_at)
++        self.assertNotIn("decimal_deferred_slots", pose)
++        self.assertNotIn("if (split.stage2_source_index", pose)
++
++        self.assertIn('status.name = "pps_pallet_pose_cpp"', failure)
++        self.assertIn('status.hardware_id = "dynamic_handling_ros_v1"', failure)
++        self.assertEqual(failure.count("DiagnosticStatus::WARN"), 1)
++        self.assertIn("status.message = failure.failure_reason", failure)
++        self.assertIn('kv.key = "failure_reason"', failure)
++        self.assertIn('rgb_kv.key = "input_rgb_stamp"', failure)
++        self.assertIn('depth_kv.key = "input_depth_stamp"', failure)
++        self.assertNotIn("if (!split.deferred", failure)
++        self.assertNotIn("if (split.stage2_source_index", failure)
++        self.assertIn('sent_kv.key = "stage2_source_index"', failure)
++        self.assertIn("sent_kv.value = std::to_string(split.stage2_source_index)", failure)
++        self.assertIn('deferred_kv.key = "deferred_source_indices"', failure)
++        self.assertIn(
++            "deferred_kv.value = decimal_deferred_slots(split.deferred_source_indices)",
++            failure,
++        )
++        self.assertEqual(failure.count('key = "deferred_source_indices"'), 1)
++        self.assertEqual(failure.count('key = "stage2_source_index"'), 1)
++        self.assertLess(
++            failure.find("status.values.push_back(deferred_kv)"),
++            failure.find("diag.status.push_back(status)"),
++        )
++        self.assertNotIn("rich_pub_", failure)
++        self.assertNotIn("PalletPoseStamped", failure)
++
++        self.assertNotIn("stage2_source_index", ok)
++        self.assertNotIn("deferred_source_indices", ok)
++        self.assertIn("DiagnosticStatus::OK", ok)
++        self.assertNotIn("estimate_pose", _read(SPLIT_HPP))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pps_perception_msgs/msg/PalletPoseStamped.msg b/pps_perception_msgs/msg/PalletPoseStamped.msg
+index 73a44bb..ce44ed5 100644
+--- a/pps_perception_msgs/msg/PalletPoseStamped.msg
++++ b/pps_perception_msgs/msg/PalletPoseStamped.msg
+@@ -37,3 +37,11 @@ string preset_id
+ # above is the publish time).
+ builtin_interfaces/Time input_rgb_stamp
+ builtin_interfaces/Time input_depth_stamp
++
++# Detection2DArray slot of the class-matched candidate sent through stage 2.
++# Zero is a real slot in this capture.
++int32 stage2_source_index
++
++# Other class-matched Detection2DArray slots in this pair, in that same order.
++# Empty when this pair had one class-matched candidate.
++int32[] deferred_source_indices

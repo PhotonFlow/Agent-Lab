@@ -1,0 +1,13 @@
+The literature report is in `runs/Absolute_2026-09-28_02/sota/cycle-003/literature-6.json`. The query text is unchanged.
+
+Interfaces this change has to keep working:
+
+- `select_stage2_subset` uses the same `highest_confidence` and `largest_area` ordering as `select_detection`, and the same first-maximum rule as `std::max_element`. A tie keeps the earlier candidate. `std::sort` does not, so it cannot be the rank step. With a count of one, the admitted candidate is the one `select_detection` already returns, which is also the box `eval_recorder_node` records. Deferred candidates stay in candidate-list order and are not estimated. An empty list returns two empty vectors. An unknown strategy still throws `std::invalid_argument`. Stage 2 still calls `estimate_pose_chamfer_v3_2` once.
+
+- The handling result is `PalletPoseStamped` on `/pps/pallet_pose_rich`. Existing fields stay filled. The admitted `int32` source index and the deferred `int32[]` source indices append after `input_depth_stamp`. Index 0 is a real detection slot. `geometry_msgs/PoseStamped` on `/pps/pallet_pose` stays a header plus a pose.
+
+- `source_index` remains the `Detection2DArray` slot. Class filtering still happens first and does not renumber. `Detection2D.id` is not that slot.
+
+- Both capture stamps stay on that same rich message. The recorder still joins on `input_rgb_stamp` in the `<sec>.<nanosec padded to 9>` form.
+
+- On a failed estimate, the only publish is the existing WARN diagnostic, plus the same two lists as string `KeyValue`s. No `PalletPoseStamped`. The empty-candidate return and the depth-conversion return still publish nothing, so those samples stay `no_response`.

@@ -1,0 +1,42 @@
+{
+  "eval_command": [
+    "C:\\Users\\alanpeng\\anaconda3\\python.exe",
+    "evaluate.py"
+  ],
+  "eval_timeout_sec": 120,
+  "feature_catalog": [],
+  "immutable": [
+    "test/test_pipeline_v3_2.cpp",
+    "include/geometry_core/pipeline_v3_2.hpp",
+    "package.xml",
+    "CMakeLists.txt",
+    "evaluate.py"
+  ],
+  "metrics": {
+    "primary": {
+      "direction": "minimize",
+      "name": "pose_error_m",
+      "noise": 0.001
+    },
+    "protected": [
+      {
+        "direction": "minimize",
+        "max_regression": 5,
+        "name": "latency_ms"
+      }
+    ]
+  },
+  "mutable": [
+    "src/pipeline_v3_2.cpp",
+    "src/chamfer.cpp",
+    "src/chamfer_prior.cpp",
+    "src/plane_fit.cpp",
+    "src/pca_init.cpp",
+    "src/backproject.cpp"
+  ],
+  "stops": {
+    "max_cycles": 20,
+    "plateau": 5
+  },
+  "task": "Reduce pallet pose error in geometry_core without slowing the estimator."
+}

@@ -1,0 +1,25 @@
+{
+  "brief_path": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\workers\\cycle-001\\survey-review.json",
+  "cycle": 1,
+  "feature": {
+    "feature_id": "inlier_face_extents",
+    "hypothesis": "If the rich pose carries those extents only when the estimate produced them, handling can size the approach from the paired depth frame instead of a later look at a scene that may already have moved.",
+    "summary": "Publish the stage-2 inlier-face width, height, and depth in metres on /pps/pallet_pose_rich with the pose from that same estimate. Width is the camera-x span of the inlier face, height is the camera-y span, and depth is the mean range. The vehicle's dynamic handling process can then size the pallet from the pose it is about to use while the scene can still change."
+  },
+  "framework_root": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0",
+  "model": "grok-4.7-xhigh",
+  "named_penalties": [
+    "scenario_error"
+  ],
+  "output": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\sota\\cycle-001\\survey-review.json",
+  "package_copy": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\package\\src",
+  "prompt": "ROLE: survey_review\nKeep the points that affect the admitted feature or the measured latency.\nFeature: {'feature_id': 'inlier_face_extents', 'summary': \"Publish the stage-2 inlier-face width, height, and depth in metres on /pps/pallet_pose_rich with the pose from that same estimate. Width is the camera-x span of the inlier face, height is the camera-y span, and depth is the mean range. The vehicle's dynamic handling process can then size the pallet from the pose it is about to use while the scene can still change.\", 'hypothesis': 'If the rich pose carries those extents only when the estimate produced them, handling can size the approach from the paired depth frame instead of a later look at a scene that may already have moved.'}\n- C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\sota\\cycle-001\\survey-1.json\n- C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\sota\\cycle-001\\survey-2.json\n- C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\sota\\cycle-001\\survey-3.json\nWrite only this JSON file: C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\sota\\cycle-001\\survey-review.json\nSchema: {\"points\": [\"kept point\"]}\nDo not read or write the scorer.\nDo not open an immutable file.\nDo not admit. Do not score. Do not mark a keep.\nDo not start python -m absolute evolve.",
+  "reports": [
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\sota\\cycle-001\\survey-1.json",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\sota\\cycle-001\\survey-2.json",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\sota\\cycle-001\\survey-3.json"
+  ],
+  "role": "survey_review",
+  "run": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01",
+  "skill": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\SKILL.md"
+}

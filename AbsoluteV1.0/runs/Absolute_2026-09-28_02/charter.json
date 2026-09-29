@@ -1,0 +1,75 @@
+{
+  "edit_policy": "except_immutable",
+  "eval_command": [
+    "python",
+    "c:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\package\\src\\evaluate.py"
+  ],
+  "eval_timeout_sec": 180.0,
+  "feature_catalog": [
+    {
+      "id": "deferred_detection_marks",
+      "summary": "For each synchronized detection and depth pair, send through stage 2 only the pallet select_detection already chooses, and mark every other candidate deferred by publishing its source index on the pose diagnostics together with that pair's RGB and depth capture stamps. The handling process can then tell which pallets in the still-changing scene were detected but not posed."
+    },
+    {
+      "id": "sent_deferred_roster",
+      "summary": "For each synchronized detection and depth pair, send stage 2 only the pallet select_detection already chooses, and write both sides of that split onto the result the handling process reads. PalletPoseStamped gains the chosen candidate's source index as the pallet sent through stage 2, and the source indices of the other class-matched candidates in that same Detection2DArray as deferred. Those indices are the slots extract_detection_candidates already stored. The message already carries this pair's RGB and depth stamps, so the roster is this capture while the scene can still change. When the estimate fails, the same two lists go on the failure diagnostic, which is the only result that path publishes. The two early returns that publish nothing stay as they are. Stage 2 still runs once. The user named which detections are sent versus deferred; the part they did not name is that both lists sit on PalletPoseStamped, the pose result for the AGV controller, rather than only on a diagnostic the success path does not use."
+    },
+    {
+      "id": "published_admission_split",
+      "summary": "For the class-matched detections in one capture, select_stage2_subset ranks that DetectionCandidate list with the strategy select_detection already implements. It applies that strategy by the first-maximum rule std::max_element already uses, so a tie keeps the earlier candidate and the later tied candidate stays deferred. It admits at most the count the caller passes, in that rank order, and places every candidate it does not admit into deferred, preserving their order in the candidate list. Each candidate keeps its source_index. Stage2Admission holds those two vectors, admitted and deferred. An empty candidate list returns both vectors empty, and an unknown strategy throws. The pose node calls it with its detection_selection strategy and a count of one, so stage 2 still estimates that single admitted pallet. The admitted source index and the deferred source indices are written on PalletPoseStamped after input_depth_stamp. The message already carries this pair's RGB and depth stamps, so the split is this capture while the scene can still change. When the estimate fails, publish no PalletPoseStamped and write the same two lists on the failure diagnostic, which is the only result that path publishes. The two early returns that publish nothing stay as they are. The user named which detections are sent through stage 2 versus marked deferred. The part they did not name is that the split is these two admission vectors, ordered by that first-maximum rule, on the pose result the handling process reads."
+    }
+  ],
+  "immutable": [],
+  "loop": "until_target",
+  "metrics": {
+    "primary": {
+      "direction": "minimize",
+      "name": "dimension_error_m",
+      "noise": 0.0,
+      "target": 0.001
+    },
+    "protected": [
+      {
+        "direction": "minimize",
+        "max_regression": 1.0,
+        "name": "latency_ms"
+      }
+    ]
+  },
+  "mutable": [],
+  "required_outputs": [
+    {
+      "direction": "minimize",
+      "id": "dimension_error_m",
+      "metric": "dimension_error_m",
+      "noise": 0.0,
+      "target": 0.001
+    },
+    {
+      "direction": "minimize",
+      "id": "pose_error_m",
+      "metric": "pose_error_m",
+      "noise": 0.0,
+      "target": 0.001
+    },
+    {
+      "direction": "minimize",
+      "id": "scenario_error",
+      "metric": "scenario_error",
+      "noise": 0.0,
+      "target": 0.001
+    },
+    {
+      "direction": "minimize",
+      "id": "selection_error",
+      "metric": "selection_error",
+      "noise": 0.0,
+      "target": 0.001
+    }
+  ],
+  "stops": {
+    "max_cycles": 1,
+    "plateau": 1
+  },
+  "task": "evolve src against its sealed metrics"
+}

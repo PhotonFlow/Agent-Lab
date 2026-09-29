@@ -1,0 +1,26 @@
+{
+  "query": "integration constraints for Publish the stage-2 inlier-face width, height, and depth in metres on /pps/pallet_pose_rich with the pose from that same estimate. Width is the camera-x span of the inlier face, height is the camera-y span, and depth is the mean range. The vehicle's dynamic handling process can then size the pallet from the pose it is about to use while the scene can still change. in src",
+  "findings": [
+    "Copy EstimatePoseOutcome width_m, height_m, and depth_m into the same PalletPoseStamped that publish_pose already fills from that outcome. PalletPoseStamped.msg has no extent fields, and /pps/pallet_pose is geometry_msgs/PoseStamped, so a second topic or the plain pose topic cannot keep size with the pose the vehicle is about to use.",
+    "Those three values are the depth-camera inlier AABB: max X minus min X, max Y minus min Y, and mean Z of plane_points_3d taken from points_depth_frame. The pose translation is the RGB-frame bbox-centre ray-plane hit after R_dr and t_dr, and header.frame_id is camera_rgb_optical_frame. Vendored depth-to-RGB translation is about -22 mm in X and does not change a span; the numbers are still not pose.position.z and not the 1.20 m by 0.14 m chamfer prototype behind preset_id geometry_core_default.",
+    "Publish extents only on the success path, where n_plane_inliers is at least min_face_points (100) and has_dimensions is set. Failure stays on diagnostics and must not emit 0,0,0 as a pallet size. Do not write the measured extents back into EstimatePoseParams before the estimate; the node leaves those knobs at the built-in prototype.",
+    "max_stage2 defaults to 2, and each admitted success publishes its own rich message with that candidate's extents. Those messages share input_rgb_stamp and input_depth_stamp, and instance_id is not on the message. A consumer that keeps one pose per RGB stamp, as eval_recorder does, will drop the other estimate.",
+    "header.stamp is the publish clock, not the capture. The ApproximateTime pair is input_rgb_stamp and input_depth_stamp, already on this message. Size must travel in that sample. OK diagnostics repeat the rich topic and the recorder ignores them, so extents there would not reach the vehicle with the pose.",
+    "Append three float64 metre fields after input_depth_stamp. Adding fields changes the interface type hash (RIHS01 from Iron) and the CDR layout on older distros. Rebuild pps_perception_msgs, pps_pallet_pose_cpp, and pps_dataset_replay together. The vehicle process is outside this tree and must be rebuilt against the new msg or it will not match the publisher.",
+    "The rich publisher uses the rclcpp default: keep-last 10, reliable, volatile. That matches the recorder's reliable volatile subscription. A transient-local vehicle subscription will not connect; a best-effort one will. Queue depth is not a compatibility rule, but a dropped sample drops pose and size together only if they share the message.",
+    "Metres are already applied: 16UC1 is scaled by depth_scale 0.001 and 32FC1 is left in metres, then stage-2 keeps points in [0.3, 5.0] m. Do not scale the published extents again. REP-103 optical axes are x right, y down, z forward, which is the camera-x span, camera-y span, and mean range of this reduction, in the depth camera that stored the inliers."
+  ],
+  "citations": [
+    "package/src/geometry_core/include/geometry_core/pipeline_v3_2.hpp",
+    "package/src/geometry_core/src/pipeline_v3_2.cpp",
+    "package/src/geometry_core/src/backproject.cpp",
+    "package/src/pps_perception_msgs/msg/PalletPoseStamped.msg",
+    "package/src/pps_pallet_pose_cpp/src/pallet_pose_node.cpp",
+    "package/src/pps_perception_bringup/config/camera.yaml",
+    "package/src/pps_perception_bringup/config/pallet_pose_cpp.yaml",
+    "package/src/pps_dataset_replay/pps_dataset_replay/eval_recorder_node.py",
+    "https://reps.openrobotics.org/rep-0103/",
+    "https://docs.ros.org/en/ros2_documentation/iron/Releases/Release-Iron-Irwini.html",
+    "https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Quality-of-Service-Settings.html"
+  ]
+}

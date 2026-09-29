@@ -1,0 +1,8 @@
+The metric discovery proposal is in `runs/Absolute_2026-09-28_02/workers/discovery/round-1/proposal-2.json`.
+
+These are the numeric results later edits must not worsen while another result improves:
+
+- `pose_error_m`, `dimension_error_m`, `selection_error`, and `scenario_error` are objectives. Each is minimize, target `0.001`, noise `0`.
+- `latency_ms` is protected. It is minimize, with a regression budget of `5` ms and no absolute target.
+
+The pose comes from `estimate_pose_chamfer_v3_2`, the dimensions from the prototype width and height plus estimated depth, the selection from `select_detection`, and the latency from the detector `dt_ms` and the recorder `runtime_s`.

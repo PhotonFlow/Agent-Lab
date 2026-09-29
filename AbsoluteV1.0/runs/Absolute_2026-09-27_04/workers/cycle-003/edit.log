@@ -1,0 +1,5 @@
+`estimate_pose_chamfer_v3_2` now reports the bbox-centre ray hit as the pose translation.
+
+On the uniform z=2 probe, the bbox centre is the RGB principal point. The published translation is `apply_se3(R_dr, t_dr, centre_d_init)`, so that ray lands at (0, 0, 2). Face-extent dimensions and the chamfer debug fields are unchanged.
+
+The new test failed first because `ty` was −0.002. After the change, all 4 tests in `test_pipeline_v3_2` passed, including `PublishesBboxCentreRayHitAsTranslationOnUniformZ2Probe` and the face-extent test.

@@ -1,0 +1,9 @@
+Cycle 4 admits nothing. All three proposals are rejected, and none is accepted.
+
+The decisions are in `runs/Absolute_2026-09-28_02/decisions/cycle-004/admission.json`.
+
+- **face_attached_depth** — reject. Width and height are the factory face, but the depth is the far side of a one-face-height window over mask returns. The scenario states no such rule. A load within one face height is counted, a face-only cluster stays near the 0.005 m inlier slab, and an empty window still publishes a success with no depth and no flag.
+- **fork_opening_depth** — reject. The mean optical z of the two pocket centres is `pose.tz` for every tilt, so the published depth is the face-centre range already on the pose. The two centres are not a result the scenario names.
+- **published_face_sizes** — reject. `depth_m` copies `pose.tz` again, and `has_dimensions` is true on every published pose, so the handling process never reads it as a missing body.
+
+None of the three restates `dimension_error_m` or `latency_ms`, and none is already kept or rejected. The kept feature remains `published_admission_split`.

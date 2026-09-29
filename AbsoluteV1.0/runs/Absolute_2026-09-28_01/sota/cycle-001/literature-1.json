@@ -1,0 +1,22 @@
+{
+  "query": "candidate methods for Publish the stage-2 inlier-face width, height, and depth in metres on /pps/pallet_pose_rich with the pose from that same estimate. Width is the camera-x span of the inlier face, height is the camera-y span, and depth is the mean range. The vehicle's dynamic handling process can then size the pallet from the pose it is about to use while the scene can still change. on src",
+  "findings": [
+    "Axis-aligned span of the stage-2 RANSAC plane inliers in the camera frame: width = max(x) - min(x), height = max(y) - min(y). One pass over the same plane-inlier points that produced the pose (pcl::getMinMax3D on the inlier set). Do not use the detector box or the fixed chamfer prototype (1.20 m by 0.14 m).",
+    "Depth is the arithmetic mean of those inliers' range, the z of the 3D centroid (PCL compute3DCentroid). That is not pose.tz, which is the bbox-centre ray-plane hit, and not the plane offset.",
+    "Inliers are stored in the depth camera frame; the published pose is the RGB optical frame after the same depth-to-RGB SE3. Compute the span after that transform when the size must sit in the pose frame. With an identity extrinsics the two frames match.",
+    "Put width_m, height_m, and depth_m on PalletPoseStamped and fill them in the same publish as that pose, one header. vision_msgs/BoundingBox3D also binds metres of size to a center pose, but its size is the oriented box in the box frame, not the camera-x and camera-y spans.",
+    "Plane-local u/v span after projecting inliers onto the face, or a minimum-area rectangle, measures physical face size under yaw. Camera-x span foreshortens as the face yaws, so that method does not match the stated camera-axis definition.",
+    "A percentile span or a median range is more robust to a leftover inlier, and a pinhole scale of the image box uses one depth times pixel width. Both differ from the full inlier span and the mean range."
+  ],
+  "citations": [
+    "Rusu and Cousins, 3D is here: Point Cloud Library (PCL), ICRA 2011; pcl::getMinMax3D and compute3DCentroid, https://pointclouds.org/documentation/group__common.html",
+    "Fischler and Bolles, Random Sample Consensus, Communications of the ACM 24(6), 1981",
+    "vision_msgs/BoundingBox3D (center pose and size in metres), https://github.com/ros-perception/vision_msgs/blob/ros2/vision_msgs/msg/BoundingBox3D.msg",
+    "Toussaint, Solving geometric problems with the rotating calipers, 1983",
+    "geometry_core/src/pipeline_v3_2.cpp",
+    "geometry_core/include/geometry_core/pipeline_v3_2.hpp",
+    "geometry_core/include/geometry_core/backproject.hpp",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg",
+    "pps_pallet_pose_cpp/src/pallet_pose_node.cpp"
+  ]
+}

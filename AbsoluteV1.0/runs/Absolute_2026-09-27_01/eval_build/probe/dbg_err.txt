@@ -1,0 +1,7 @@
+init2d 0 0 pca 0 0 1.5708
+centre_d 0 0 2
+plane_n -0 -0 -1 off 2
+basis_u  0 -1  0 v -1  0  0 o 0 0 2
+anchor_xy 0 0 init_after_pi 0 0 1.5708
+free_pose -0.01 0.062 1.5708 cost 0.0210955
+best_pose 0.002 -6.93889e-18 1.54985

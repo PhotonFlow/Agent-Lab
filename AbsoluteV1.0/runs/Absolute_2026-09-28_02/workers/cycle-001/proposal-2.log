@@ -1,0 +1,3 @@
+Proposal 2 is written to `runs/Absolute_2026-09-28_02/decisions/cycle-001/proposal-2.json`.
+
+**inlier_face_extents.** The stage-2 estimate already builds plane inliers for the pallet face. Publish that face’s width and height as the spans along those plane axes, and its depth as the mean z of the same inliers after the depth-to-RGB transform that places the face centre. Copy those three metres onto `PalletPoseStamped` with the pose, so the handling process can size the approach from this capture while the scene can still change.

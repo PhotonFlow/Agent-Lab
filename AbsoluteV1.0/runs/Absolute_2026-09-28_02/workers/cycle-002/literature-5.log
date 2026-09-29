@@ -1,0 +1,3 @@
+The literature report is at `runs\Absolute_2026-09-28_02\sota\cycle-002\literature-5.json`.
+
+The success path has to carry both lists on `PalletPoseStamped`: the chosen detection’s source index, and the other class-matched indices from that same array. `geometry_msgs/PoseStamped` cannot hold them, and an OK diagnostic is not the result the controller reads. When the estimate fails, those same two lists go on the existing WARN diagnostic as two string key-value pairs, because that path publishes no pose. The two early returns stay silent, and stage 2 still runs once.

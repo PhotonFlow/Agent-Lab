@@ -1,0 +1,10 @@
+{
+  "query": "measurement noise around 0.001 for scenario_error and edits that must not touch the scorer",
+  "findings": [
+    "Noise 0.001 is only the keep margin. Minimize keeps when best scenario_error minus the new value is greater than 0.001. Best is 4.752, so 4.751 reverts and 4.75 keeps. The run stops only when scenario_error is less than or equal to 0.0; the margin is not a tolerance on the target.",
+    "The margin is not repeat jitter. The external scorer uses a fixed seed and fixed scenes, and an unchanged package repeats 4.752. Charter protected metrics are empty, so latency_ms is not judged.",
+    "The pose term is about 0.002, the same scale as the margin, so a pose-only drop of 0.001 m or less reverts. A selection step of 0.25 or 1.0, or clearing the 3.0 dimension sentinel, clears 0.001 when that term actually moves.",
+    "Do not edit the scorer at runs/Absolute_2026-09-27_02/package/src/evaluate.py. It is outside this package copy, which has no evaluate.py. Any write is restored and recorded as bad_edit, and the tampered score is not kept. Charter immutable is empty; edits belong in the package sources that scorer compiles.",
+    "scenario_error, the scenes, and the weights are computed only in that file as pose_error_m + dimension_error_m + selection_error. Changing the formula or the ground truth is not a valid edit."
+  ]
+}

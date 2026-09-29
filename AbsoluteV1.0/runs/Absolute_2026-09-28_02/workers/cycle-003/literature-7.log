@@ -1,0 +1,5 @@
+The measured-cost literature report is in `runs/Absolute_2026-09-28_02/sota/cycle-003/literature-7.json`. The query is unchanged.
+
+The first-maximum rank is a single linear pass. On a million integers that scan measured under 1 ms, and at detection-list sizes it is microseconds. A full sort, `nth_element`, or non-maximum suppression costs more and does not keep the earlier tie or the deferred list in candidate order.
+
+The cost that scales is stage 2 on each admitted box. Classic chamfer measured 17.59 µs per hypothesis, and posing every candidate in CosyPose took 190 ms of a 320 ms scene. This call admits one pallet, so the other source indices are not extra chamfer searches. Writing those two short index lists on the pose stays in the payload range where ROS 2 latency did not change. The failure path publishes only the diagnostic, at the default 1 Hz.The citation check was stopped before it finished, so it did not change the report. The measured-cost literature file is already written at `runs/Absolute_2026-09-28_02/sota/cycle-003/literature-7.json`, with the original query left unchanged.

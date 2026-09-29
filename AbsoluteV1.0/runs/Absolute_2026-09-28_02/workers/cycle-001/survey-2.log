@@ -1,0 +1,7 @@
+Connection lost, reconnecting to https://agentn.global.api5.cursor.sh (attempt 1)...
+Retry attempt 1...
+Survey 2 is written to `runs/Absolute_2026-09-28_02/sota/cycle-001/survey-2.json`.
+
+Stage 2 is the heavy path. `PalletPoseNode::on_pair` runs `estimate_pose_chamfer_v3_2` once, on the single detection `select_detection` keeps. The free chamfer grid is 20,181 coarse evaluations plus 8,125 fine ones. When the free cost is above about 6.2 mm, a second prior search adds another 9,261 plus 8,125. Each evaluation copies the rotated contour, bilinear-samples it, and fully sorts all ~182 distances for a 10% trimmed mean.
+
+The other large costs are the OpenCV precise distance transform on a raster padded by 0.80 m at 5 mm, a full-frame depth scan that copies face points into Eigen, and, when the detector backend is TensorRT, the 640×640 preprocess plus host/device copies.

@@ -1,0 +1,10 @@
+{
+  "query": "methods that minimize scenario_error on a stack like src",
+  "findings": [
+    "scenario_error is pose_error_m + dimension_error_m + selection_error. After the face-extent keep the best split is 0.002 + 0 + 1.75. The sum reaches 0 only if the two leftover terms do too.",
+    "Selection: add select_stage2_subset(candidates, strategy, k) and Stage2Admission with admitted and deferred vectors. For largest_area and k=2, rank by area then score, admit the first two, and defer every other candidate. On the five pallet boxes (areas 2000, 50000, 40000, 30000, 1000) that admits source indices 1 and 2 and defers 0, 3, and 4, so selection_error is 0. The current highest_confidence single pick admits index 0 and defers nobody, which scores 1.75.",
+    "Pose: publish the bbox-centre ray-plane hit already computed as centre_d_init, mapped by R_dr and t_dr, as tx, ty, tz. On the uniform z=2 probe the bbox centre is the principal point, so that hit is (0, 0, 2) and pose_error_m is 0. Yaw is outside the metric. Two-stage chamfer of the 1.20 m by 0.14 m prototype against the eroded face is what leaves the 2 mm residual.",
+    "Dimensions stay at the kept method: set has_dimensions and report camera-frame width as max x minus min x, height as max y minus min y, and depth as mean z of the valid face points. On the filled face at 2.5 m that is 1.0 m by 0.8 m at 2.5 m. Emitting the CAD prototype, or clearing the fields, puts the 3.0 sentinel back.",
+    "The stage-2 subset and the ray-plane translation are independent of each other and of the kept extent. Subset selection removes 1.75; the ray-plane centre removes 0.002."
+  ]
+}

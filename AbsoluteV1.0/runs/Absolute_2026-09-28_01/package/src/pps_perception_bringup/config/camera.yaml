@@ -1,0 +1,46 @@
+# Vendored RGB-D calibration for dynamic_handling_ros_v1 (self-contained copy of
+# camera_intrinsics_new.yaml). The RGB stream is assumed RECTIFIED: distortion
+# is zeroed because the stage-2 geometry (and the reference pipelinev3) use a
+# pure pinhole model. Feed the node a rectified RGB image (e.g. .../image_rect).
+# width/height are required by the loader and define the pixel frame that the
+# detector bboxes must live in.
+
+rgb_camera:
+  fx: 1064.604003906
+  fy: 1064.155151367
+  cx: 967.674560547
+  cy: 534.171875000
+  width: 1920
+  height: 1080
+  distortion:
+    k1: 0.0
+    k2: 0.0
+    p1: 0.0
+    p2: 0.0
+    k3: 0.0
+
+depth_camera:
+  fx: 393.154327393
+  fy: 411.884765625
+  cx: 317.828948975
+  cy: 244.208724976
+  width: 640
+  height: 480
+  distortion:
+    k1: 0.0
+    k2: 0.0
+    p1: 0.0
+    p2: 0.0
+    k3: 0.0
+
+depth_to_rgb_extrinsic:
+  rotation:
+    - [0.999999583, 0.000757446, -0.000565665]
+    - [-0.000758366, 0.999998391, -0.001626925]
+    - [0.000564432, 0.001627354, 0.999998510]
+  translation_mm:
+    x: -21.928760529
+    y: -0.326392442
+    z: -0.799158454
+
+depth_scale: 0.001

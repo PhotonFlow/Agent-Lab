@@ -1,0 +1,3 @@
+Proposed `pocket_opening_depth` and wrote it to `runs\Absolute_2026-09-28_02\decisions\cycle-003\proposal-1.json`.
+
+For each successful stage-2 estimate, the pose message carries the factory face the chamfer match already uses, 1.20 m by 0.14 m, and a body depth taken as the median far-side length through the two pocket openings in that same depth frame. The face-centre position and yaw stay the pose. `has_body_depth` is false when those openings show no body, so a missing body is not reported as a measured depth. Stage 2 still runs once, on the single candidate `select_detection` already chooses.

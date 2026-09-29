@@ -1,0 +1,5 @@
+The survey is in `runs/Absolute_2026-09-28_02/sota/cycle-001/survey-1.json`.
+
+Stage 2 runs once per synced pair. `on_pair` keeps the single pallet from `select_detection` and drops the other candidates after `extract_detection_candidates` has already stored each `source_index`.
+
+The inference cost is the chamfer grid. With the default windows, a typical pose is about 4.6×10⁴ evaluations of 182 contour points when the prior search also runs. Each evaluation copies the rotated cloud, bilinear-samples it, and sorts a trimmed mean. The distance transform, the full-frame depth scan, and the depth `convertTo` sit in front of that search and are smaller. Publishing the unused source indexes on the existing diagnostics is a few strings. Posing each extra detection would repeat that search.

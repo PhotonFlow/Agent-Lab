@@ -1,0 +1,5 @@
+{
+  "feature_id": "inlier_face_extents",
+  "summary": "Publish the stage-2 inlier-face width, height, and depth in metres on /pps/pallet_pose_rich with the pose from that same estimate. Width is the camera-x span of the inlier face, height is the camera-y span, and depth is the mean range. The vehicle's dynamic handling process can then size the pallet from the pose it is about to use while the scene can still change.",
+  "hypothesis": "If the rich pose carries those extents only when the estimate produced them, handling can size the approach from the paired depth frame instead of a later look at a scene that may already have moved."
+}

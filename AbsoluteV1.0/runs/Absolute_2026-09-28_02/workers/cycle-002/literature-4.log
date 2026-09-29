@@ -1,0 +1,9 @@
+Literature findings are in `runs/Absolute_2026-09-28_02/sota/cycle-002/literature-4.json`. The query matches the brief.
+
+Older methods are only partly superseded:
+
+- Whole-scene registration that returns one pallet and names no other (Shao et al., Sensors 2023) has been replaced, as the way to choose the stage-2 pallet, by a single mask: Isaac ROS FoundationPose 5.0 uses the highest-scoring detection, and Lang2Lift uses one top-1 mask. Neither writes the other detections' source indices onto the pose the controller reads.
+- Posing every detection is still current. Wu and Demeester (VISIGRAPP 2026) write a 6D pose for each pallet bin.
+- A roster kept across later scans and then deleted (Mohamed et al., arXiv:1803.11254) is the older bookkeeping. Meng et al. (Sensors 2024) pick one pallet inside the current view and still do not put the other indices on that pose. A later frame is a different capture.
+- Dropping boxes below a score threshold was superseded for tracking by ByteTrack, which still deletes unmatched low-score boxes and does not put indices on a pose.
+- A pose is still a header plus a pose, and ROS diagnostics remain the operator stream. The ros2_control hardware-status draft says key/value diagnostics are not what control loops should parse. No fetched source puts both the sent index and the deferred indices on the pose result the handling process reads, including on the failure path.

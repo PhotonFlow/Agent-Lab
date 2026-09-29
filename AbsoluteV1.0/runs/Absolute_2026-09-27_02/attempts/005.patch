@@ -1,0 +1,15 @@
+diff --git a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+index ed180fe..18a02f5 100644
+--- a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
++++ b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+@@ -257,6 +257,10 @@ void PalletPoseNode::publish_deferred(const std::vector<DetectionCandidate>& def
+   kv.key = "deferred_source_index";
+   kv.value = indices.str();
+   status.values.push_back(kv);
++  diagnostic_msgs::msg::KeyValue count_kv;
++  count_kv.key = "deferred_count";
++  count_kv.value = std::to_string(deferred.size());
++  status.values.push_back(count_kv);
+   diagnostic_msgs::msg::KeyValue rgb_kv;
+   rgb_kv.key = "input_rgb_stamp";
+   rgb_kv.value = stamp_to_string(input_rgb_stamp);

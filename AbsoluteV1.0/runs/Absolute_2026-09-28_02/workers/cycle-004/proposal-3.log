@@ -1,0 +1,3 @@
+The feature proposal is in `runs/Absolute_2026-09-28_02/decisions/cycle-004/proposal-3.json`.
+
+**published_face_sizes** — On a successful stage-2 estimate, write the pallet width, height, and depth onto the outcome and onto `PalletPoseStamped` after the admission lists. Width and height are the prototype face that match already uses, `pallet_width_m` and `pallet_height_m`. Depth is the face-centre z that estimate already stores as `pose.tz` in the camera RGB optical frame. `has_dimensions` is true on that success. A failed estimate still publishes no pose.

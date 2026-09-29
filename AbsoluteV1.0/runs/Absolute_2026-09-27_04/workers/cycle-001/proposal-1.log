@@ -1,0 +1,3 @@
+Proposal 1 is written to `runs/Absolute_2026-09-27_04/decisions/cycle-001/proposal-1.json`.
+
+It is one feature, `inlier-face-extent`: publish camera-frame width, height, and depth of the valid face points on `EstimatePoseOutcome`. That term is the 3.0 dimension sentinel inside the baseline `scenario_error` of 4.752. The package was not edited, and the run was not scored.

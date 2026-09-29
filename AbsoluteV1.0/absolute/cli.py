@@ -1,9 +1,10 @@
-"""Command line for Absolute v1.0. Bookkeeping stays here; the model edits the copy."""
+"""Command line for Absolute. Bookkeeping stays here; the model edits the copy."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from absolute.engine import (
     record_baseline,
     resume,
     run_eval,
+    status_text,
     validate_charter,
 )
 from absolute.loop import continue_package, evolve_package, launcher_from_worker
@@ -198,10 +200,13 @@ def cmd_promote(args: argparse.Namespace) -> None:
 
 
 def cmd_status(args: argparse.Namespace) -> None:
-    print(json.dumps(load_run(_run_dir(args.run)), indent=2))
+    run_dir = _run_dir(args.run)
+    print(status_text(run_dir) if args.dashboard else json.dumps(load_run(run_dir), indent=2))
 
 
 def cmd_evolve(args: argparse.Namespace) -> None:
+    if args.model:
+        os.environ["ABSOLUTE_MODEL"] = args.model
     launcher = launcher_from_worker(args.worker)
     if args.run:
         if any(
@@ -209,7 +214,9 @@ def cmd_evolve(args: argparse.Namespace) -> None:
             for value in (args.package, args.scenario, args.metric, args.direction, args.noise, args.target, args.task)
         ) or args.eval:
             raise SystemExit("evolve --run continues a folder; do not pass a package or a goal")
-        continue_package(Path(args.run), launcher)
+        if args.until_target or args.eval_repeats is not None:
+            raise SystemExit("a resumed run retains its search mode and evaluation repeat count")
+        continue_package(Path(args.run), launcher, args.max_cycles)
         return
     if args.package is None or args.scenario is None:
         raise SystemExit("evolve requires --package and --scenario")
@@ -230,7 +237,17 @@ def cmd_evolve(args: argparse.Namespace) -> None:
         runs_root=Path(args.runs_root) if args.runs_root else None,
         timeout_sec=args.timeout,
         task=args.task,
+        continuous=not args.until_target,
+        completed_cycle_limit=args.max_cycles,
+        eval_repeats=args.eval_repeats if args.eval_repeats is not None else 3,
     )
+
+
+def _nonnegative_int(value: str) -> int:
+    number = int(value)
+    if number < 0:
+        raise argparse.ArgumentTypeError("must be nonnegative")
+    return number
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -296,6 +313,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     status = sub.add_parser("status")
     status.add_argument("--run", required=True)
+    status.add_argument("--dashboard", action="store_true", help="show the metric progress table")
     status.set_defaults(func=cmd_status)
 
     evolve = sub.add_parser("evolve")
@@ -310,6 +328,10 @@ def build_parser() -> argparse.ArgumentParser:
     evolve.add_argument("--runs-root")
     evolve.add_argument("--worker", default=None)
     evolve.add_argument("--task", default=None)
+    evolve.add_argument("--model", help="Cursor model ID; otherwise ABSOLUTE_MODEL or the existing default")
+    evolve.add_argument("--until-target", action="store_true", help="use the legacy bounded feature-board workflow")
+    evolve.add_argument("--max-cycles", type=_nonnegative_int, help="pause at this total cycle count; omitted means continuous")
+    evolve.add_argument("--eval-repeats", type=int, help="evaluator samples per measurement, 1-100 (default 3)")
     evolve.add_argument("--eval", nargs=argparse.REMAINDER)
     evolve.set_defaults(func=cmd_evolve)
     return parser

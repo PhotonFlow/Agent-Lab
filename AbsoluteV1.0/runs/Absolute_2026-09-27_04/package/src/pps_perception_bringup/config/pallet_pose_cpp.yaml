@@ -1,0 +1,13 @@
+pallet_pose_cpp_node:
+  ros__parameters:
+    camera_yaml_path: ""          # <-- set to the installed config/camera.yaml (see launch)
+    target_class_id: "pallet"
+    detection_selection: "highest_confidence"
+    sync_slop_s: 0.10
+    sync_queue_size: 10
+    depth_topic: "/camera/depth/image_rect"
+    detections_topic: "/pps/detections"
+    pose_topic: "/pps/pallet_pose"
+    pallet_pose_topic: "/pps/pallet_pose_rich"
+    diagnostics_topic: "/pps/pallet_pose_diagnostics"
+    camera_frame_id: "camera_rgb_optical_frame"

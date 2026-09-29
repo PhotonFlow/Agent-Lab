@@ -1,0 +1,6 @@
+{
+  "findings": [
+    "defects in src that keep dimension_error_m away from its target :: geometry_core/include/geometry_core/backproject.hpp :: #pragma once"
+  ],
+  "query": "defects in src that keep dimension_error_m away from its target"
+}

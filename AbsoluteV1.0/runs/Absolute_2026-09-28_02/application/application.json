@@ -1,0 +1,5 @@
+{
+  "purpose": "pps is the pallet perception stack on an AGV. It detects pallets in a scene that can still change and estimates a pose the vehicle can use for dynamic handling. Stage 1 is the RT-DETR detector, which publishes 2D pallet detections. Stage 2 is the chamfer geometry pipeline in geometry_core (estimate_pose_chamfer_v3_2), wrapped by pallet_pose_cpp_node: it synchronizes those detections with a depth image and estimates the pallet face pose in the camera RGB optical frame.",
+  "users": "The vehicle's dynamic handling process. It needs a pallet pose while the scene can still change, so it can approach and handle the pallet. The rich PalletPoseStamped message is the pose result intended for that AGV controller.",
+  "outputs": "The pallet pose (position and yaw of the pallet face in the camera RGB optical frame). The pallet width, height, and depth in metres. Which detected pallets are sent through stage 2 versus marked deferred. The handling process uses those results while the scene can still change, so the result must stay within the protected latency budget of 5 ms."
+}

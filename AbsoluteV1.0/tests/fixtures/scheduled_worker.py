@@ -136,6 +136,17 @@ def do_edit(brief: dict) -> None:
     _write(brief["result"], {"behavior_test": [sys.executable, "-m", "unittest", "test_behavior"]})
 
 
+def do_optimize(brief: dict) -> None:
+    package = Path(brief["package_copy"])
+    latency = 8 if brief["cycle"] == 1 else 4
+    _algo(package, 5, latency)
+    _behavior(package, 5, latency)
+    _write(brief["result"], {
+        "hypothesis": "improve score then latency",
+        "behavior_test": [sys.executable, "-B", "-m", "unittest", "test_behavior"],
+    })
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--role", required=True)
@@ -157,6 +168,7 @@ def main() -> None:
         "survey": do_survey,
         "survey_review": do_survey_review,
         "edit": do_edit,
+        "optimize": do_optimize,
     }
     if args.role not in handlers:
         raise SystemExit(f"unknown role {args.role}")

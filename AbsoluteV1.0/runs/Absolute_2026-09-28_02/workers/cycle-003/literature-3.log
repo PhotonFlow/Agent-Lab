@@ -1,0 +1,5 @@
+Literature for cycle 3 is in `runs/Absolute_2026-09-28_02/sota/cycle-003/literature-3.json`.
+
+The first-maximum rule is still current: `std::max_element`, NumPy 2.5 `argmax`, and the Array API 2025.12 all keep the earlier maximum. Isaac ROS `Detection2DArrayFilter` still does the same with a strict greater-than on class-matched scores and publishes that one detection. Lang2Lift and the YOLO26n pallet-pose deployment still estimate one selected pallet. ifm `getPallet` still returns every localized pallet, up to 10, ordered by `palletOrder`.
+
+No current source writes an admitted source index and an order-preserving deferred index list on the pose the handling process reads, then repeats those two lists on the failure diagnostic.

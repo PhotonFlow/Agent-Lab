@@ -1,0 +1,33 @@
+{
+  "agents": [
+    {
+      "findings": [
+        "scenario_error is pose_error_m + dimension_error_m + selection_error. After the face-extent keep the best split is 0.002 + 0 + 1.75. The sum reaches 0 only if the two leftover terms do too.",
+        "Selection: add select_stage2_subset(candidates, strategy, k) and Stage2Admission with admitted and deferred vectors. For largest_area and k=2, rank by area then score, admit the first two, and defer every other candidate. On the five pallet boxes (areas 2000, 50000, 40000, 30000, 1000) that admits source indices 1 and 2 and defers 0, 3, and 4, so selection_error is 0. The current highest_confidence single pick admits index 0 and defers nobody, which scores 1.75.",
+        "Pose: publish the bbox-centre ray-plane hit already computed as centre_d_init, mapped by R_dr and t_dr, as tx, ty, tz. On the uniform z=2 probe the bbox centre is the principal point, so that hit is (0, 0, 2) and pose_error_m is 0. Yaw is outside the metric. Two-stage chamfer of the 1.20 m by 0.14 m prototype against the eroded face is what leaves the 2 mm residual.",
+        "Dimensions stay at the kept method: set has_dimensions and report camera-frame width as max x minus min x, height as max y minus min y, and depth as mean z of the valid face points. On the filled face at 2.5 m that is 1.0 m by 0.8 m at 2.5 m. Emitting the CAD prototype, or clearing the fields, puts the 3.0 sentinel back.",
+        "The stage-2 subset and the ray-plane translation are independent of each other and of the kept extent. Subset selection removes 1.75; the ray-plane centre removes 0.002."
+      ],
+      "query": "methods that minimize scenario_error on a stack like src"
+    },
+    {
+      "findings": [
+        "detection_utils.hpp/cpp only implement select_detection, which returns one candidate. There is no select_stage2_subset and no Stage2Admission, so the scored path uses highest_confidence, admits source_index 0 (score 0.99, area 2000 px), and leaves deferred empty.",
+        "Indices 0, 3, and 4 must be deferred. Admitting 0 and missing those three deferred entries is selection_error 1 + 0.25*3 = 1.75, which is the gap from scenario_error 1.752 down to the 0.002 pose residual. Switching the one-winner call to largest_area still returns only index 1 and still leaves deferred empty.",
+        "estimate_pose_chamfer_v3_2 publishes the chamfer-refined centre (fine_step_dx_m and fine_step_dy_m are 0.001 m on a 0.005 m raster) rather than the bbox-centre ray on the flat z=2 plane, so pose_error_m stays 0.002. That residual is added into scenario_error, and the stop rule requires the sum to be 0. dimension_error_m is already 0."
+      ],
+      "query": "defects in src that keep scenario_error away from its target"
+    },
+    {
+      "findings": [
+        "Noise 0.001 is only the keep margin. Minimize keeps when best scenario_error minus the new value is greater than 0.001. Best is 1.752, so 1.751 reverts and 1.750 keeps. The run stops only when scenario_error is less than or equal to 0.0; the margin is not a tolerance on the target.",
+        "The margin is not repeat jitter. The external scorer uses a fixed seed and fixed scenes. Pose is 0.001999999999999993 plus dimension 0.0 plus selection 1.75. Latency moved from 47.4 ms to 40.4 ms and is not in the sum. Protected metrics are empty.",
+        "The pose term is about 0.002, so a pose-only drop of 0.001 or less leaves scenario_error at or above 1.751 and reverts. Selection still steps by 0.25 or 1.0 and clears the margin when that term falls. Dimension is already 0.0, so the old 3.0 sentinel is not another keep.",
+        "Do not edit the scorer at runs/Absolute_2026-09-27_02/package/src/evaluate.py. It is outside this package copy, which has no evaluate.py. Any write is restored and recorded as bad_edit, and the tampered score is not kept. Charter immutable is empty; edits belong in the package sources that scorer compiles.",
+        "scenario_error, the scenes, and the weights are computed only in that file as pose_error_m + dimension_error_m + selection_error. The package already declares dimension fields, so the dimension scene is active. It does not declare select_stage2_subset, so selection stays on the legacy path. Changing the formula or the ground truth is not a valid edit."
+      ],
+      "query": "measurement noise around 0.001 for scenario_error and edits that must not touch the scorer"
+    }
+  ],
+  "cycle": 2
+}

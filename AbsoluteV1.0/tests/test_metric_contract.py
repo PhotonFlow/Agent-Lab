@@ -90,6 +90,7 @@ class MetricContractTests(unittest.TestCase):
             runs_root=self.runs,
             timeout_sec=30,
             completed_cycle_limit=0,
+            continuous=False,
         )
 
     def test_queries_are_disjoint(self):

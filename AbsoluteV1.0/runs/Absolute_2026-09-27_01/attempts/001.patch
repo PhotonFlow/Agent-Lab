@@ -1,0 +1,31 @@
+diff --git a/src/pipeline_v3_2.cpp b/src/pipeline_v3_2.cpp
+index 3be8856..94170d3 100644
+--- a/src/pipeline_v3_2.cpp
++++ b/src/pipeline_v3_2.cpp
+@@ -202,6 +202,26 @@ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+     best_cost = prior_data_cost;
+   }
+ 
++  // The distance field is quantized at resolution_m. A translation smaller
++  // than one cell whose chamfer gain is only a fraction of that shift is
++  // raster noise, so keep the bbox-centre anchor.
++  {
++    const double dx = best_pose.tx - anchor_xy.x();
++    const double dy = best_pose.ty - anchor_xy.y();
++    const double move_m = std::hypot(dx, dy);
++    if (move_m > 0.0 && move_m < params.resolution_m) {
++      const PrototypePose2D anchored{best_pose.theta_rad, anchor_xy.x(), anchor_xy.y()};
++      const double anchored_cost =
++          chamfer_cost_v2(proto.contour_points, anchored, dist_img_m, grid_meta,
++                          params.trim_fraction, outside_penalty_ptr);
++      if (anchored_cost - best_cost < 0.25 * move_m) {
++        best_pose.tx = anchor_xy.x();
++        best_pose.ty = anchor_xy.y();
++        best_cost = anchored_cost;
++      }
++    }
++  }
++
+   // 9. Lift refined 2D centre back to depth, then RGB frame.
+   Eigen::Vector2d centre_2d(best_pose.tx, best_pose.ty);
+   Eigen::Vector3d centre_d = lift_point_from_plane_2d(centre_2d, basis);

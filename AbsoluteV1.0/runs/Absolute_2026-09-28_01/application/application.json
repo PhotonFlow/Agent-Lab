@@ -1,0 +1,5 @@
+{
+  "purpose": "The pps source is the pallet perception stack on an AGV. Stage 1 (pps_rtdetr_detector) detects pallets in the camera image. Stage 2 (geometry_core chamfer pipeline v3.2, wrapped by pps_pallet_pose_cpp) estimates a pallet pose from a detection and the depth image while the scene can still change.",
+  "users": "The vehicle's dynamic handling process. It needs a pallet pose for handling while the scene can still change.",
+  "outputs": "The pallet pose (geometry_msgs/PoseStamped on /pps/pallet_pose and pps_perception_msgs/PalletPoseStamped on /pps/pallet_pose_rich). The pallet width, height, and depth in metres: metric extents of the inlier face, with width the camera-x span, height the camera-y span, and depth the mean range. Which detected pallets are sent through stage 2 versus marked deferred (select_stage2_subset, reported as diagnostics message pallet_deferred with deferred_source_index)."
+}

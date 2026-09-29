@@ -1,0 +1,3 @@
+Survey role for cycle 1 is done. The points are in `runs/Absolute_2026-09-28_01/sota/cycle-001/survey-1.json`.
+
+The inference cost sits in `estimate_pose_chamfer_v3_2`. With the default grid, one detection runs about 28,306 free chamfer evaluations, and usually another 17,386 prior-search evaluations. Each evaluation copies and sorts the 182-point prototype. The published pose does not use that argmin: translation is the bbox-centre ray-plane hit, and yaw comes from the plane normal. Full-frame depth sampling, a second inlier copy, and a padding-heavy precise distance transform sit on the same path.

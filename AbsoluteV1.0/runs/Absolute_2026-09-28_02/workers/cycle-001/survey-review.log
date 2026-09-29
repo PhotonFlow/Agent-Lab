@@ -1,0 +1,9 @@
+Survey review for `deferred_detection_marks` is in `runs/Absolute_2026-09-28_02/sota/cycle-001/survey-review.json`. Five points were kept.
+
+- Stage 2 already poses only the candidate `select_detection` returns. The other candidates already have `source_index`, and the pose diagnostics already carry this pair's RGB and depth stamps, but not those unused indexes. Publishing the indexes is a few diagnostic strings; posing each extra detection would repeat the chamfer search.
+- Measured pose latency is that one `estimate_pose_chamfer_v3_2`: about 45692 chamfer evaluations on the common path, because the prior search runs unless the free cost is already about 0.00623 m.
+- Each evaluation still copies and sorts the 182-point prototype.
+- The depth conversion, full-frame face sample, padded distance transform, and RANSAC copies run once per posed detection and stay smaller than the grid.
+- Stage 1 is a separate process. TensorRT host copies matter only when that backend is on; deferred diagnostic strings do not change them.
+
+Constructor-only YAML loading and the sync queue were dropped. They do not change this feature or the chamfer latency.

@@ -1,0 +1,3 @@
+Survey for cycle 001 is in `runs/Absolute_2026-09-28_01/sota/cycle-001/survey-2.json`.
+
+The inference cost sits in `estimate_pose_chamfer_v3_2`. On the common path that is about 45,692 bilinear chamfer evaluations per admitted detection: a 31×31×21 coarse grid, a 25×25×13 fine grid, and the same pair again for the position prior. Each evaluation copies the 182-point prototype and fully sorts it to keep the shortest 90%. The pose that is actually published does not use that search result: translation is the bbox-centre ray-plane hit, and yaw comes from the plane normal.

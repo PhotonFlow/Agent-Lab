@@ -1,19 +1,35 @@
 ---
 name: absolute
 description: >-
-  Run Absolute v1.0. One command, python -m absolute evolve, keeps evolving
-  a package copy. Each finished cycle starts the next feature-proposal group.
-  The run stops when every required output is at its target, when the
-  baseline oracle is saturated, when a sealed metric is at its target
-  while the scenario still names an unmeasured behavior, or when an
-  output stays uncovered.
-  Use when the user asks to
-  start Absolute, evolve a stack, or optimize an algorithm until a goal.
+  Run Absolute continuous optimization with fresh bounded-context workers,
+  measured multi-metric keep/revert decisions, durable feedback, and progress logs.
+  Use when the user asks to start Absolute, evolve a software stack,
+  continuously optimize an algorithm, inspect progress, or resume a run.
 ---
 
-# Absolute v1.0
+# Absolute v1.1
 
 The framework root is the directory that contains this file. Run every command from that directory.
+
+## Default Continuous Workflow
+
+```bash
+python -m absolute evolve --package <path> --scenario <file> --model <available-model-id> --eval <command> <args>
+python -m absolute evolve --run <run-folder>
+python -m absolute status --run <run-folder> --dashboard
+```
+
+New runs launch one `optimize` worker per experiment after sealing the metric contract. Rotate measured objectives and search strategies, use recent measured feedback, then independently test and score the candidate. Keep any beyond-noise improvement that preserves all metric budgets and achieved targets; include resource-only improvements. Do not force a new feature or a committee round before optimization. Existing tests may establish behavior preservation. Use test-driven development for changed behavior, with the stack's native build/test tools; no external agent-skill package is required.
+
+Targets and plateaus are not stop conditions. Ctrl+C pauses safely; a `STOP` file pauses at an experiment boundary. `--max-cycles N` is an optional total lifetime budget. Resume the same folder. Five consecutive worker-process failures pause for inspection. Do not restart a paused error in a tight loop without reading its event and worker logs. Closing the launching terminal can terminate the coordinator; use an OS supervisor for unattended operation.
+
+The Python coordinator stores state on disk. Each worker starts fresh with at most a 64KB brief and bounded recent feedback, using a declared 500K-token planning ceiling. Do not feed all old logs back into the launching agent. Cursor/model capacity is configured outside Absolute; do not invent a context-window CLI flag. Select an available model with `--model` or `ABSOLUTE_MODEL`. Worker deadlines and heartbeats use `ABSOLUTE_WORKER_TIMEOUT_SEC` and `ABSOLUTE_HEARTBEAT_SEC`.
+
+Do not commit, deploy, change immutable files, weaken existing tests, or modify runner state from a worker. Do not mark a keep. Worker prompts are not a security boundary: run untrusted code in a container/VM without robot access. Report evaluation gaps. Neither a paper citation nor a reached target establishes SOTA. `sota_verified` and `robot_validated` remain false; independent benchmarks and hardware validation are separate requirements.
+
+For a worker brief with role `optimize`, follow this section and the brief, not the legacy stages below. The rest of the legacy workflow applies only to existing v1.0 folders or new runs explicitly started with `--until-target`.
+
+## Legacy Workflow (`--until-target`)
 
 One command starts the loop. The process keeps cycling. After a cycle finishes, the next feature-proposal group starts. The success stop is `outputs_covered`: every required output is at its target and that group admits nothing new, because every proposal is a feature already kept or a feature the panel already rejected. A baseline where every required accuracy metric is already at its target stops as `oracle_saturated`. That stop is not a state-of-the-art claim. If those metrics are already at their targets and the scenario still names a behavior the package does not measure, the run stops as `scenario_uncovered`. That stop is not success and not a state-of-the-art claim. A chair that accepts nothing while an output is still off target retries, then stops as `uncovered_outputs`. That stop is not a state-of-the-art claim either. Closing the chat does not stop it. Do not ask the person to approve a gate, a feature, or an edit.
 

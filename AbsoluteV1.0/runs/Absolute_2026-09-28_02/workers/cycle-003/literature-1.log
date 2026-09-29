@@ -1,0 +1,3 @@
+Literature findings for cycle 3 are in `runs/Absolute_2026-09-28_02/sota/cycle-003/literature-1.json`.
+
+The method that matches this admission is successive first-maximum, using the comparators `select_detection` already passes to `std::max_element`. A tie is equivalence on both strategy keys, so the earlier candidate wins and the later one stays deferred. The admitted prefix is that rank order, up to the caller’s count. The deferred vector is everyone else, still in candidate-list order, each with its `source_index`. The pose node’s count of one estimates that single admitted pallet and writes both source-index lists on the pose result, or on the failure diagnostic when the estimate fails.

@@ -1,0 +1,13 @@
+diff --git a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+index ed180fe..4ba5717 100644
+--- a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
++++ b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+@@ -69,7 +69,7 @@ PalletPoseNode::PalletPoseNode() : rclcpp::Node("pallet_pose_cpp_node") {
+   detection_selection_ = this->get_parameter("detection_selection").as_string();
+   camera_frame_id_ = this->get_parameter("camera_frame_id").as_string();
+   const int max_stage2_param = static_cast<int>(this->get_parameter("max_stage2").as_int());
+-  max_stage2_ = static_cast<std::size_t>(std::max(0, max_stage2_param));
++  max_stage2_ = static_cast<std::size_t>(std::clamp(max_stage2_param, 0, 4));
+ 
+   pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>(
+       this->get_parameter("pose_topic").as_string(), 10);

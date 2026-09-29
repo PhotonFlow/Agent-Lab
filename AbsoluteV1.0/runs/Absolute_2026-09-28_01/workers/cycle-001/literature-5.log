@@ -1,0 +1,3 @@
+Literature findings for cycle 1 are in `runs/Absolute_2026-09-28_01/sota/cycle-001/literature-5.json`.
+
+The stage-2 estimate already stores inlier-face width, height, and depth in metres on the pose outcome. `/pps/pallet_pose_rich` does not carry them. The constraints are to append those three fields to `PalletPoseStamped` and copy them from that same outcome, keep them in the depth-camera frame rather than the 1.20 m by 0.14 m prototype, publish them only on success, and rebuild every node that uses the message so the vehicle reads the size from the pose it is about to use.

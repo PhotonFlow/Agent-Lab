@@ -1,0 +1,5 @@
+{
+  "feature_id": "deferred_detection_marks",
+  "summary": "For each synchronized detection and depth pair, send through stage 2 only the pallet select_detection already chooses, and mark every other candidate deferred by publishing its source index on the pose diagnostics together with that pair's RGB and depth capture stamps. The handling process can then tell which pallets in the still-changing scene were detected but not posed.",
+  "hypothesis": "Those other candidates are already extracted in on_pair and are not passed to estimate_pose_chamfer_v3_2; if their source indices are published as deferred on this same pair, handling can leave them unapproached instead of waiting for a later frame of a scene that may already have moved."
+}

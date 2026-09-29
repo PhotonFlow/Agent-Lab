@@ -1,0 +1,5 @@
+The feasibility review is in `runs/Absolute_2026-09-28_02/decisions/cycle-002/review-feasibility.json`. It judges the three cycle-2 proposals and does not admit, score, or keep anything.
+
+- **stage2_subset_admission** can split the existing candidate list, and a count of one matches today's winner only if it keeps `select_detection`'s comparator and first-maximum tie. `Stage2Admission` is a local return. Nothing publishes it, so the deferred vector disappears when `on_pair` returns.
+- **sent_deferred_roster** can put the sent index and the deferred slots on `PalletPoseStamped` by extending that message. The failure path has only string diagnostic keys, which the recorder drops, and the two existing early returns still publish no roster.
+- **largest_face_admission** needs a new top-two ranking and two stage-2 estimates on the node's single random stream. The recorder keeps one pose and one bbox per capture, and this package has no message for a deferred source index. An admitted face that fails the estimate is neither a pose nor a deferred mark.

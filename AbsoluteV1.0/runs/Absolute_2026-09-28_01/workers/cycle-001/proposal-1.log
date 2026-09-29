@@ -1,0 +1,3 @@
+Wrote the feature proposal to `runs/Absolute_2026-09-28_01/decisions/cycle-001/proposal-1.json`.
+
+**inlier_face_extents** — publish the stage-2 inlier-face width, height, and depth in metres on `/pps/pallet_pose_rich` with the pose from that same estimate. Width is the camera-x span, height is the camera-y span, and depth is the mean range, so dynamic handling can size the pallet from the pose it is about to use while the scene can still change.

@@ -1,0 +1,5 @@
+Research for cycle 003 is in `runs/Absolute_2026-09-27_04/sota/cycle-003/research-2.json`. The package was not edited, and the run was not scored.
+
+`scenario_error` is the remaining `pose_error_m` of 0.002. Dimension and selection error are already 0, and the minimize target requires `scenario_error` ≤ 0.
+
+`estimate_pose_chamfer_v3_2` publishes the chamfer center and drops the bbox-center ray, which already hits (0, 0, 2), when the prior weight falls to the lambda floor. The eroded bbox accepts depth pixels whose midpoint is half a pixel (2.222 mm) off the principal point. The 1 mm fine grid snaps the short axis of that offset to 0.002 m, which is the whole remaining error.

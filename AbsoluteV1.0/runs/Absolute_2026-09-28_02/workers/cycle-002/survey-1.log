@@ -1,0 +1,7 @@
+The survey is written to `runs\Absolute_2026-09-28_02\sota\cycle-002\survey-1.json`.
+
+Stage 2 runs once per synced pair, on the detection `select_detection` already chose. The other class-matched `source_index` values are dropped, and neither `PalletPoseStamped` nor the diagnostics publish them. The two early returns still publish nothing.
+
+That one call is dominated by the chamfer grids. With the prior search, which is the common case unless the free cost is about 0.006233 m or lower, the frame does 45700 trimmed-mean evaluations of the 182-point prototype. Each evaluation copies the rotated contour, sorts all 182 distances, and keeps 164. OpenMP does not reduce that count.
+
+The depth conversion, the full 640×480 face scan, the RANSAC copies, and the 561×350 distance transform all run once per detection and are smaller than that grid. A TensorRT stage 1 is a separate process; writing the already-stored indexes onto the pose or the failure diagnostic does not repeat the search.

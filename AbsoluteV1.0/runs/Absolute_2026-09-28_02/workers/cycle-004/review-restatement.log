@@ -1,0 +1,7 @@
+The restatement review is in `runs/Absolute_2026-09-28_02/decisions/cycle-004/review-restatement.json`.
+
+None of the three proposals only restates `dimension_error_m` or `latency_ms`. Each one names a pose-result rule:
+
+- **face_attached_depth** publishes the factory face and the far side of the returns inside that face that stay within one face-height step of the face plane.
+- **fork_opening_depth** publishes the factory face, the mean optical depth of the two fork-opening centres this match already places, and those two centres.
+- **published_face_sizes** copies the prototype width and height and the existing face-centre optical z onto the size fields, with `has_dimensions` true on success.

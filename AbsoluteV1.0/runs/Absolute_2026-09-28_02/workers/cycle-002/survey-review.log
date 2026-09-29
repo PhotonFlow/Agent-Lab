@@ -1,0 +1,7 @@
+Survey review for cycle 2 is in `runs/Absolute_2026-09-28_02/sota/cycle-002/survey-review.json`. Five points kept.
+
+- The sent and deferred source indexes already exist on the `on_pair` candidate vector, and neither `PalletPoseStamped` nor the failure diagnostic publishes them. The two early returns still publish nothing. Repeating stage 2 for every extra detection would rerun the chamfer search.
+- Measured stage-2 time is that one search: 45692 grid evaluations, 45700 chamfer evaluations when the prior runs.
+- Each evaluation still copies and fully sorts all 182 contour points.
+- The depth conversion, face scan, plane fit, and distance image run once for the chosen detection and stay smaller than the grid.
+- Stage 1 is a separate process. The roster integers do not change its copies.

@@ -1,0 +1,7 @@
+Literature for cycle 3 is in `runs/Absolute_2026-09-28_02/sota/cycle-003/literature-8.json`. The query is unchanged.
+
+The measured cost is one stage-2 pose per admitted detection. With the caller's count of one, that search runs once. Deferred candidates do not enter it.
+
+- Scaling the published classic-chamfer time to this node's 182-point prototype and its free grid is a serial envelope of about 56 ms, or about 91 ms if the prior grids also run. The loop is OpenMP, so that envelope is not a wall-clock of this node.
+- Detector timings show the same pattern when the second stage is per box: Faster R-CNN drops by about 3× from 300 proposals to 50, and Cascade R-CNN goes from 66 ms at 1000 proposals to 42 ms at 64. A learned pose of every detection is the same multiplier (CosyPose 190 ms for all candidates; FoundationPose 1.3 s per object).
+- The first-maximum rank is one linear pass, and the admitted index plus the deferred index list sit on the pose message inside the payload range where ROS 2 latency stayed flat (128 B through 10 KB).The URL check was stopped because it hung before it returned any results. The literature file was already written and checked: `runs/Absolute_2026-09-28_02/sota/cycle-003/literature-8.json` matches the assigned query, with four findings and nine citations.

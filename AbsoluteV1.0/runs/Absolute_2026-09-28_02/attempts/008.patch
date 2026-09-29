@@ -1,0 +1,543 @@
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/capture_roster.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/capture_roster.hpp
+new file mode 100644
+index 0000000..4a9f474
+--- /dev/null
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/capture_roster.hpp
+@@ -0,0 +1,40 @@
++#pragma once
++
++#include <string>
++#include <vector>
++
++namespace pps_pallet_pose_cpp {
++
++// Slots in this synchronized Detection2DArray. stage2_source_index is the
++// class-matched candidate select_detection sent through stage 2. The other
++// class-matched slots stay in candidate order and are not posed.
++struct CaptureRoster {
++  int stage2_source_index = 0;
++  std::vector<int> deferred_source_indices;
++};
++
++inline CaptureRoster capture_roster(const std::vector<int>& class_matched_slots, int sent_slot) {
++  CaptureRoster roster;
++  roster.stage2_source_index = sent_slot;
++  for (int slot : class_matched_slots) {
++    if (slot == sent_slot) {
++      continue;
++    }
++    roster.deferred_source_indices.push_back(slot);
++  }
++  return roster;
++}
++
++// One diagnostic value. Empty when this pair had one class-matched candidate.
++inline std::string deferred_indices_decimal(const std::vector<int>& deferred_source_indices) {
++  std::string text;
++  for (int slot : deferred_source_indices) {
++    if (!text.empty()) {
++      text.push_back(',');
++    }
++    text += std::to_string(slot);
++  }
++  return text;
++}
++
++}  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+index e37fb64..57c0b3b 100644
+--- a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/pallet_pose_node.hpp
+@@ -20,6 +20,8 @@
+ #include <geometry_core/pipeline_v3_2.hpp>
+ #include <pps_perception_msgs/msg/pallet_pose_stamped.hpp>
+ 
++#include "pps_pallet_pose_cpp/capture_roster.hpp"
++
+ namespace pps_pallet_pose_cpp {
+ 
+ class PalletPoseNode : public rclcpp::Node {
+@@ -35,10 +37,12 @@ class PalletPoseNode : public rclcpp::Node {
+   void publish_pose(const geometry_core::PoseResult& pose,
+                      const geometry_core::EstimatePoseOutcome& outcome, const std::string& frame_id,
+                      const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                     const builtin_interfaces::msg::Time& input_depth_stamp);
++                     const builtin_interfaces::msg::Time& input_depth_stamp,
++                     const CaptureRoster& roster);
+   void publish_failure_diagnostics(const geometry_core::FailureResult& failure,
+                                      const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                     const builtin_interfaces::msg::Time& input_depth_stamp);
++                                     const builtin_interfaces::msg::Time& input_depth_stamp,
++                                     const CaptureRoster& roster);
+   void publish_ok_diagnostics(const geometry_core::PoseResult& pose,
+                                const geometry_core::EstimatePoseOutcome& outcome,
+                                const builtin_interfaces::msg::Time& input_rgb_stamp,
+diff --git a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+index 5594916..22b4728 100644
+--- a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
++++ b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+@@ -123,19 +123,26 @@ void PalletPoseNode::on_pair(const sensor_msgs::msg::Image::ConstSharedPtr& dept
+   // very message depth_image_to_meters() converted into depth_m above.
+   const auto& input_rgb_stamp = det_msg->header.stamp;
+   const auto& input_depth_stamp = depth_msg->header.stamp;
++  std::vector<int> class_matched_slots;
++  class_matched_slots.reserve(candidates.size());
++  for (const auto& item : candidates) {
++    class_matched_slots.push_back(item.source_index);
++  }
++  const CaptureRoster roster = capture_roster(class_matched_slots, candidate->source_index);
+   if (!outcome.ok) {
+-    publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp);
++    publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp, roster);
+     return;
+   }
+   publish_ok_diagnostics(outcome.pose, outcome, input_rgb_stamp, input_depth_stamp);
+-  publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp);
++  publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp, roster);
+ }
+ 
+ void PalletPoseNode::publish_pose(const geometry_core::PoseResult& pose,
+                                    const geometry_core::EstimatePoseOutcome& outcome,
+                                    const std::string& frame_id,
+                                    const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                   const builtin_interfaces::msg::Time& input_depth_stamp) {
++                                   const builtin_interfaces::msg::Time& input_depth_stamp,
++                                   const CaptureRoster& roster) {
+   double qx, qy, qz, qw;
+   yaw_to_quaternion_optical(pose.yaw_rad, qx, qy, qz, qw);
+   const auto stamp = this->get_clock()->now();
+@@ -169,12 +176,15 @@ void PalletPoseNode::publish_pose(const geometry_core::PoseResult& pose,
+   rich.preset_id = "geometry_core_default";
+   rich.input_rgb_stamp = input_rgb_stamp;
+   rich.input_depth_stamp = input_depth_stamp;
++  rich.stage2_source_index = roster.stage2_source_index;
++  rich.deferred_source_indices = roster.deferred_source_indices;
+   rich_pub_->publish(rich);
+ }
+ 
+ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureResult& failure,
+                                                    const builtin_interfaces::msg::Time& input_rgb_stamp,
+-                                                   const builtin_interfaces::msg::Time& input_depth_stamp) {
++                                                   const builtin_interfaces::msg::Time& input_depth_stamp,
++                                                   const CaptureRoster& roster) {
+   diagnostic_msgs::msg::DiagnosticArray diag;
+   diag.header.stamp = this->get_clock()->now();
+   diagnostic_msgs::msg::DiagnosticStatus status;
+@@ -194,6 +204,14 @@ void PalletPoseNode::publish_failure_diagnostics(const geometry_core::FailureRes
+   depth_kv.key = "input_depth_stamp";
+   depth_kv.value = stamp_to_string(input_depth_stamp);
+   status.values.push_back(depth_kv);
++  diagnostic_msgs::msg::KeyValue sent_kv;
++  sent_kv.key = "stage2_source_index";
++  sent_kv.value = std::to_string(roster.stage2_source_index);
++  status.values.push_back(sent_kv);
++  diagnostic_msgs::msg::KeyValue deferred_kv;
++  deferred_kv.key = "deferred_source_indices";
++  deferred_kv.value = deferred_indices_decimal(roster.deferred_source_indices);
++  status.values.push_back(deferred_kv);
+   diag.status.push_back(status);
+   diag_pub_->publish(diag);
+ }
+diff --git a/pps_pallet_pose_cpp/test/test_capture_roster.py b/pps_pallet_pose_cpp/test/test_capture_roster.py
+new file mode 100644
+index 0000000..546e6f1
+--- /dev/null
++++ b/pps_pallet_pose_cpp/test/test_capture_roster.py
+@@ -0,0 +1,381 @@
++"""Sent and deferred slots for one synchronized detection and depth pair.
++
++Stage 2 runs once, on the class-matched candidate select_detection already
++chose. That candidate's Detection2DArray slot is the pallet sent through
++stage 2. The other class-matched slots stay deferred, in that same order.
++A tie keeps the earlier slot sent. Slot 0 is a real detection.
++
++A successful estimate writes both lists onto PalletPoseStamped after this
++pair's depth stamp. A failed estimate publishes no PalletPoseStamped; the
++same two lists are two KeyValue entries on the existing WARN diagnostic.
++An empty deferred list is an empty int32[] on the pose and an empty string
++on that diagnostic. An empty candidate list and a depth-conversion
++exception still publish nothing.
++"""
++
++from __future__ import annotations
++
++import unittest
++from pathlib import Path
++
++PACKAGE_SRC = Path(__file__).resolve().parents[2]
++NODE_CPP = PACKAGE_SRC / "pps_pallet_pose_cpp" / "src" / "pallet_pose_node.cpp"
++NODE_HPP = PACKAGE_SRC / "pps_pallet_pose_cpp" / "include" / "pps_pallet_pose_cpp" / "pallet_pose_node.hpp"
++UTILS_CPP = PACKAGE_SRC / "pps_pallet_pose_cpp" / "src" / "detection_utils.cpp"
++ROSTER_HPP = (
++    PACKAGE_SRC / "pps_pallet_pose_cpp" / "include" / "pps_pallet_pose_cpp" / "capture_roster.hpp"
++)
++POSE_MSG = PACKAGE_SRC / "pps_perception_msgs" / "msg" / "PalletPoseStamped.msg"
++
++
++class _Continue(Exception):
++    pass
++
++
++def declaration(text: str, name: str) -> str:
++    start = text.find(name)
++    if start < 0:
++        raise AssertionError(f"{name} is missing")
++    end = text.find(";", start)
++    if end < 0:
++        raise AssertionError(f"{name} declaration does not end")
++    return text[start:end]
++
++
++def function_body(text: str, name: str) -> str:
++    start = text.find(name)
++    if start < 0:
++        raise AssertionError(f"{name} is missing")
++    brace = text.find("{", start)
++    if brace < 0:
++        raise AssertionError(f"{name} has no body")
++    depth = 0
++    for index in range(brace, len(text)):
++        char = text[index]
++        if char == "{":
++            depth += 1
++        elif char == "}":
++            depth -= 1
++            if depth == 0:
++                return text[brace + 1 : index]
++    raise AssertionError(f"{name} body does not close")
++
++
++def message_fields(text: str) -> list[tuple[str, str]]:
++    fields = []
++    for raw in text.splitlines():
++        line = raw.split("#", 1)[0].strip()
++        if not line:
++            continue
++        parts = line.split()
++        if len(parts) < 2:
++            continue
++        fields.append((parts[0], parts[1].split("=", 1)[0]))
++    return fields
++
++
++def _statements(body: str) -> list:
++    lines = []
++    for raw in body.splitlines():
++        line = raw.strip()
++        if not line or line.startswith("//"):
++            continue
++        lines.append(line)
++    return _parse_block(lines, 0)[0]
++
++
++def _parse_block(lines: list[str], index: int) -> tuple[list, int]:
++    statements: list = []
++    while index < len(lines):
++        line = lines[index]
++        if line == "}":
++            return statements, index + 1
++        if line.endswith("{"):
++            nested, index = _parse_block(lines, index + 1)
++            statements.append((line[:-1].strip(), nested))
++            continue
++        statements.append(line)
++        index += 1
++    return statements, index
++
++
++def _lookup(expr: str, env: dict):
++    expr = expr.strip().rstrip(";")
++    if expr in env:
++        return env[expr]
++    if "." in expr:
++        obj, member = expr.split(".", 1)
++        return env[obj][member]
++    raise AssertionError(f"unknown name {expr}")
++
++
++def _execute(statements: list, env: dict):
++    for statement in statements:
++        if isinstance(statement, tuple):
++            header, nested = statement
++            if header.startswith("for ("):
++                inner = header[len("for (") :].strip()
++                if inner.endswith(")"):
++                    inner = inner[:-1].strip()
++                declared, collection = [part.strip() for part in inner.split(":")]
++                loop_name = declared.split()[-1]
++                for item in list(_lookup(collection, env)):
++                    env[loop_name] = item
++                    try:
++                        _execute(nested, env)
++                    except _Continue:
++                        continue
++                continue
++            if header.startswith("if ("):
++                cond = header[len("if (") :].strip()
++                if cond.endswith(")"):
++                    cond = cond[:-1].strip()
++                if cond.startswith("!") and cond.endswith(".empty()"):
++                    matched = _lookup(cond[1 : -len(".empty()")], env) not in ("", [])
++                elif cond.startswith("!"):
++                    matched = _lookup(cond[1:], env) in ("", [])
++                elif "==" in cond:
++                    left, right = [part.strip() for part in cond.split("==")]
++                    matched = _lookup(left, env) == _lookup(right, env)
++                else:
++                    raise AssertionError(f"unsupported condition: {cond}")
++                if matched:
++                    _execute(nested, env)
++                continue
++            raise AssertionError(f"unsupported block: {header}")
++        if statement == "continue;":
++            raise _Continue()
++        if statement.startswith("CaptureRoster "):
++            env[statement[len("CaptureRoster ") :].rstrip(";").strip()] = {
++                "stage2_source_index": 0,
++                "deferred_source_indices": [],
++            }
++            continue
++        if statement.startswith("std::string "):
++            env[statement[len("std::string ") :].rstrip(";").strip()] = ""
++            continue
++        if statement.startswith("return "):
++            return _lookup(statement[len("return ") :], env)
++        if ".push_back(" in statement and statement.endswith(");"):
++            target, arg = statement[:-2].split(".push_back(", 1)
++            arg = arg.strip()
++            if arg == "','":
++                env[target.strip()] += ","
++            else:
++                _lookup(target.strip(), env).append(_lookup(arg, env))
++            continue
++        if "+=" in statement and statement.endswith(";"):
++            target, expr = statement[:-1].split("+=", 1)
++            expr = expr.strip()
++            prefix = "std::to_string("
++            if not (expr.startswith(prefix) and expr.endswith(")")):
++                raise AssertionError(f"unsupported append: {statement}")
++            env[target.strip()] += str(_lookup(expr[len(prefix) : -1], env))
++            continue
++        if " = " in statement and statement.endswith(";"):
++            target, expr = statement[:-1].split(" = ", 1)
++            value = _lookup(expr, env)
++            if "." in target:
++                obj, member = target.split(".", 1)
++                env[obj][member] = value
++            else:
++                env[target] = value
++            continue
++        raise AssertionError(f"unsupported statement: {statement}")
++    return None
++
++
++def roster_header() -> str:
++    if not ROSTER_HPP.is_file():
++        raise AssertionError("capture_roster.hpp is missing")
++    return ROSTER_HPP.read_text(encoding="utf-8")
++
++
++def capture_roster(class_matched_slots: list[int], sent_slot: int) -> dict:
++    text = roster_header()
++    body = function_body(text, "inline CaptureRoster capture_roster(")
++    result = _execute(
++        _statements(body),
++        {"class_matched_slots": list(class_matched_slots), "sent_slot": sent_slot},
++    )
++    if not isinstance(result, dict):
++        raise AssertionError("capture_roster did not return the sent and deferred slots")
++    return result
++
++
++def deferred_indices_decimal(deferred: list[int]) -> str:
++    text = roster_header()
++    body = function_body(text, "inline std::string deferred_indices_decimal(")
++    result = _execute(_statements(body), {"deferred_source_indices": list(deferred)})
++    if not isinstance(result, str):
++        raise AssertionError("deferred_indices_decimal did not return one string")
++    return result
++
++
++def _between(text: str, start_mark: str, end_mark: str) -> str:
++    start = text.find(start_mark)
++    if start < 0:
++        raise AssertionError(f"{start_mark} is missing")
++    end = text.find(end_mark, start)
++    if end < 0:
++        raise AssertionError(f"{end_mark} is missing after {start_mark}")
++    return text[start:end]
++
++
++class CaptureRosterTest(unittest.TestCase):
++    def test_pose_message_lists_sent_and_deferred_after_the_depth_stamp(self) -> None:
++        fields = message_fields(POSE_MSG.read_text(encoding="utf-8"))
++        names = [name for _, name in fields]
++        self.assertEqual(
++            fields[-4:],
++            [
++                ("builtin_interfaces/Time", "input_rgb_stamp"),
++                ("builtin_interfaces/Time", "input_depth_stamp"),
++                ("int32", "stage2_source_index"),
++                ("int32[]", "deferred_source_indices"),
++            ],
++        )
++        self.assertEqual(names.count("stage2_source_index"), 1)
++        self.assertEqual(names.count("deferred_source_indices"), 1)
++        for kept in (
++            "header",
++            "pose",
++            "yaw_rad",
++            "face_normal_rgb",
++            "plane_inlier_ratio",
++            "n_face_points",
++            "chamfer_cost_m",
++            "accepted",
++            "failure_reason",
++            "geometry_source",
++            "preset_id",
++        ):
++            self.assertIn(kept, names)
++
++    def test_other_class_matched_slots_stay_deferred_in_candidate_order(self) -> None:
++        chosen = capture_roster([0, 1, 2], 1)
++        self.assertEqual(chosen["stage2_source_index"], 1)
++        self.assertEqual(chosen["deferred_source_indices"], [0, 2])
++        self.assertEqual(capture_roster([2, 0, 5], 0)["deferred_source_indices"], [2, 5])
++        # Slot 0 is a real sent detection, not an empty marker.
++        self.assertEqual(capture_roster([0, 3], 0)["stage2_source_index"], 0)
++        self.assertEqual(capture_roster([0, 3], 0)["deferred_source_indices"], [3])
++        self.assertEqual(capture_roster([4], 4)["deferred_source_indices"], [])
++        self.assertEqual(capture_roster([1, 4], 1)["deferred_source_indices"], [4])
++
++    def test_tie_keeps_the_earlier_slot_sent(self) -> None:
++        body = function_body(UTILS_CPP.read_text(encoding="utf-8"), "select_detection")
++        self.assertIn("std::max_element", body)
++        self.assertIn("if (a.score != b.score) return a.score < b.score;", body)
++        self.assertIn("return a.area_px < b.area_px;", body)
++        # Equal score and area make the comparator false both ways, so
++        # max_element keeps the earlier slot and the later slot is deferred.
++        self.assertNotIn("<=", body)
++        tied = capture_roster([1, 4], 1)
++        self.assertEqual(tied["stage2_source_index"], 1)
++        self.assertEqual(tied["deferred_source_indices"], [4])
++
++    def test_failure_diagnostic_uses_one_comma_separated_string(self) -> None:
++        self.assertEqual(deferred_indices_decimal([0, 2]), "0,2")
++        self.assertEqual(deferred_indices_decimal([2, 5]), "2,5")
++        self.assertEqual(deferred_indices_decimal([0]), "0")
++        self.assertEqual(deferred_indices_decimal([1, 10]), "1,10")
++        self.assertEqual(deferred_indices_decimal([]), "")
++
++    def test_success_writes_the_roster_on_the_pose_and_failure_writes_the_diagnostic(self) -> None:
++        cpp = NODE_CPP.read_text(encoding="utf-8")
++        hpp = NODE_HPP.read_text(encoding="utf-8")
++        on_pair = function_body(cpp, "PalletPoseNode::on_pair")
++        pose = function_body(cpp, "PalletPoseNode::publish_pose")
++        failure = function_body(cpp, "PalletPoseNode::publish_failure_diagnostics")
++        ok = function_body(cpp, "PalletPoseNode::publish_ok_diagnostics")
++
++        self.assertEqual(cpp.count("estimate_pose_chamfer_v3_2("), 1)
++        estimate_at = on_pair.find("estimate_pose_chamfer_v3_2(")
++        estimate_call = on_pair[estimate_at : on_pair.find(";", estimate_at)]
++        self.assertIn("candidate->bbox_xyxy", estimate_call)
++        self.assertIn("candidate->source_index", estimate_call)
++        self.assertNotIn("deferred", estimate_call)
++
++        empty_return = _between(on_pair, "if (!candidate.has_value())", "return;")
++        depth_return = _between(on_pair, "catch (", "return;")
++        for early in (empty_return, depth_return):
++            self.assertNotIn("publish_", early)
++            self.assertNotIn("capture_roster", early)
++        roster_at = on_pair.find("capture_roster(")
++        self.assertGreater(roster_at, on_pair.find("return;", on_pair.find("catch (")))
++        self.assertLess(on_pair.find("select_detection("), roster_at)
++        self.assertIn("class_matched_slots.push_back(item.source_index)", on_pair)
++        self.assertNotIn("std::sort", on_pair)
++        self.assertLess(estimate_at, roster_at)
++        self.assertIn(
++            "publish_failure_diagnostics(outcome.failure, input_rgb_stamp, input_depth_stamp, roster)",
++            on_pair,
++        )
++        failure_call = on_pair.find("publish_failure_diagnostics(")
++        self.assertLess(on_pair.find("return;", failure_call), on_pair.find("publish_pose("))
++        self.assertIn(
++            "publish_pose(outcome.pose, outcome, frame_id, input_rgb_stamp, input_depth_stamp, roster)",
++            on_pair,
++        )
++        ok_call = _between(on_pair, "publish_ok_diagnostics(", ";")
++        self.assertNotIn("roster", ok_call)
++        self.assertNotIn("stage2_source_index", ok_call)
++
++        self.assertIn("const CaptureRoster& roster", hpp)
++        self.assertEqual(hpp.count("const CaptureRoster& roster"), 2)
++        ok_decl = declaration(hpp, "void publish_ok_diagnostics(")
++        self.assertNotIn("roster", ok_decl)
++        self.assertNotIn("stage2_source_index", ok_decl)
++
++        self.assertIn("this->get_clock()->now()", pose)
++        self.assertIn("rich.header = ps.header;", pose)
++        self.assertNotIn("rich.header.stamp = input_rgb_stamp", pose)
++        self.assertNotIn("rich.header.stamp = input_depth_stamp", pose)
++        self.assertLess(
++            pose.find("rich.input_depth_stamp = input_depth_stamp;"),
++            pose.find("rich.stage2_source_index = roster.stage2_source_index;"),
++        )
++        self.assertLess(
++            pose.find("rich.stage2_source_index = roster.stage2_source_index;"),
++            pose.find("rich.deferred_source_indices = roster.deferred_source_indices;"),
++        )
++        self.assertLess(
++            pose.find("rich.deferred_source_indices = roster.deferred_source_indices;"),
++            pose.find("rich_pub_->publish(rich);"),
++        )
++        self.assertNotIn("if (roster.stage2_source_index", pose)
++        self.assertNotIn("deferred_indices_decimal", pose)
++
++        self.assertIn('status.name = "pps_pallet_pose_cpp"', failure)
++        self.assertIn('status.hardware_id = "dynamic_handling_ros_v1"', failure)
++        self.assertEqual(failure.count("DiagnosticStatus::WARN"), 1)
++        self.assertIn("status.message = failure.failure_reason", failure)
++        self.assertIn('kv.key = "failure_reason"', failure)
++        self.assertIn('rgb_kv.key = "input_rgb_stamp"', failure)
++        self.assertIn('depth_kv.key = "input_depth_stamp"', failure)
++        self.assertNotIn("if (!roster.deferred", failure)
++        self.assertNotIn("if (roster.stage2_source_index", failure)
++        self.assertIn('sent_kv.key = "stage2_source_index"', failure)
++        self.assertIn("sent_kv.value = std::to_string(roster.stage2_source_index)", failure)
++        self.assertIn('deferred_kv.key = "deferred_source_indices"', failure)
++        self.assertIn(
++            "deferred_kv.value = deferred_indices_decimal(roster.deferred_source_indices)",
++            failure,
++        )
++        self.assertEqual(failure.count('key = "deferred_source_indices"'), 1)
++        self.assertEqual(failure.count('key = "stage2_source_index"'), 1)
++        self.assertLess(
++            failure.find("status.values.push_back(deferred_kv)"),
++            failure.find("diag.status.push_back(status)"),
++        )
++        self.assertNotIn("rich_pub_", failure)
++        self.assertNotIn("PalletPoseStamped", failure)
++
++        self.assertNotIn("stage2_source_index", ok)
++        self.assertNotIn("deferred_source_indices", ok)
++        self.assertIn("DiagnosticStatus::OK", ok)
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)
+diff --git a/pps_perception_msgs/msg/PalletPoseStamped.msg b/pps_perception_msgs/msg/PalletPoseStamped.msg
+index 73a44bb..8f1f587 100644
+--- a/pps_perception_msgs/msg/PalletPoseStamped.msg
++++ b/pps_perception_msgs/msg/PalletPoseStamped.msg
+@@ -37,3 +37,11 @@ string preset_id
+ # above is the publish time).
+ builtin_interfaces/Time input_rgb_stamp
+ builtin_interfaces/Time input_depth_stamp
++
++# Detection2DArray slot of the class-matched candidate select_detection sent
++# through stage 2. Zero is a real slot.
++int32 stage2_source_index
++
++# Detection2DArray slots of the other class-matched candidates in this pair,
++# in that same order. Empty when this pair had one class-matched candidate.
++int32[] deferred_source_indices

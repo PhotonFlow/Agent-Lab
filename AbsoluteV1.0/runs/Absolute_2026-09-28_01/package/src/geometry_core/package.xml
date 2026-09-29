@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>geometry_core</name>
+  <version>0.1.0</version>
+  <description>ROS-free C++ port of the pipelinev3_2 chamfer pallet-pose geometry stack.</description>
+  <maintainer email="todo@example.com">PPS</maintainer>
+  <license>Proprietary</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>eigen</depend>
+  <depend>libopencv-dev</depend>
+  <depend>yaml-cpp</depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

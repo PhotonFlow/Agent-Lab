@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>pps_pallet_pose_cpp</name>
+  <version>0.1.0</version>
+  <description>Thin rclcpp Stage-2 node wrapping geometry_core::estimate_pose_chamfer_v3_2; drop-in C++ replacement for pps_pallet_pose's topic/message contract.</description>
+  <maintainer email="todo@example.com">PPS</maintainer>
+  <license>Proprietary</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>vision_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>builtin_interfaces</depend>
+  <depend>message_filters</depend>
+  <depend>ament_index_cpp</depend>
+  <depend>geometry_core</depend>
+  <depend>pps_perception_msgs</depend>
+  <depend>eigen</depend>
+  <depend>libopencv-dev</depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

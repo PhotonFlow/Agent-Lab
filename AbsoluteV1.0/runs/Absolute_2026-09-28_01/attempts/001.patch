@@ -1,0 +1,190 @@
+diff --git a/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/rich_face_extents.hpp b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/rich_face_extents.hpp
+new file mode 100644
+index 0000000..8e09fa6
+--- /dev/null
++++ b/pps_pallet_pose_cpp/include/pps_pallet_pose_cpp/rich_face_extents.hpp
+@@ -0,0 +1,25 @@
++#pragma once
++
++namespace pps_pallet_pose_cpp {
++
++// Extents carried on /pps/pallet_pose_rich with the pose from the same
++// stage-2 estimate. Width is the camera-x span of the inlier face, height
++// is the camera-y span, and depth is the mean range, all in metres.
++// Present only when that estimate produced the inlier face.
++template <typename RichMsg>
++void assign_rich_face_extents(RichMsg& rich, bool estimate_produced_extents, double width_m,
++                              double height_m, double depth_m) {
++  if (!estimate_produced_extents) {
++    rich.has_dimensions = false;
++    rich.width_m = 0.0;
++    rich.height_m = 0.0;
++    rich.depth_m = 0.0;
++    return;
++  }
++  rich.has_dimensions = true;
++  rich.width_m = width_m;
++  rich.height_m = height_m;
++  rich.depth_m = depth_m;
++}
++
++}  // namespace pps_pallet_pose_cpp
+diff --git a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+index ed180fe..0572a01 100644
+--- a/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
++++ b/pps_pallet_pose_cpp/src/pallet_pose_node.cpp
+@@ -13,6 +13,7 @@
+ 
+ #include "pps_pallet_pose_cpp/depth_utils.hpp"
+ #include "pps_pallet_pose_cpp/detection_utils.hpp"
++#include "pps_pallet_pose_cpp/rich_face_extents.hpp"
+ 
+ namespace pps_pallet_pose_cpp {
+ 
+@@ -181,6 +182,8 @@ void PalletPoseNode::publish_pose(const geometry_core::PoseResult& pose,
+   rich.preset_id = "geometry_core_default";
+   rich.input_rgb_stamp = input_rgb_stamp;
+   rich.input_depth_stamp = input_depth_stamp;
++  assign_rich_face_extents(rich, outcome.has_dimensions, outcome.width_m, outcome.height_m,
++                           outcome.depth_m);
+   rich_pub_->publish(rich);
+ }
+ 
+diff --git a/pps_pallet_pose_cpp/test/test_inlier_face_extents.py b/pps_pallet_pose_cpp/test/test_inlier_face_extents.py
+new file mode 100644
+index 0000000..cc539fe
+--- /dev/null
++++ b/pps_pallet_pose_cpp/test/test_inlier_face_extents.py
+@@ -0,0 +1,112 @@
++"""Behavior test: /pps/pallet_pose_rich carries inlier-face extents from the same estimate."""
++
++from __future__ import annotations
++
++import sys
++import unittest
++from pathlib import Path
++
++PACKAGE_SRC = Path(__file__).resolve().parents[2]
++HEADER = PACKAGE_SRC / "pps_pallet_pose_cpp" / "include" / "pps_pallet_pose_cpp" / "rich_face_extents.hpp"
++MSG = PACKAGE_SRC / "pps_perception_msgs" / "msg" / "PalletPoseStamped.msg"
++NODE = PACKAGE_SRC / "pps_pallet_pose_cpp" / "src" / "pallet_pose_node.cpp"
++
++EXTENT_FIELDS = (
++    "bool has_dimensions",
++    "float64 width_m",
++    "float64 height_m",
++    "float64 depth_m",
++)
++
++
++class RichPose:
++    def __init__(self) -> None:
++        self.has_dimensions = True
++        self.width_m = -1.0
++        self.height_m = -1.0
++        self.depth_m = -1.0
++
++
++def assign_rich_face_extents(rich: RichPose, estimate_produced_extents: bool, width_m: float,
++                             height_m: float, depth_m: float) -> None:
++    """Run the production gate. The header must implement this same rule."""
++    if not HEADER.is_file():
++        raise AssertionError("rich_face_extents.hpp is missing")
++    header = HEADER.read_text(encoding="utf-8")
++    start = header.find("assign_rich_face_extents")
++    if start < 0:
++        raise AssertionError("rich_face_extents.hpp does not define assign_rich_face_extents")
++    body = header[start:]
++    gate = "if (!estimate_produced_extents)"
++    if gate not in body:
++        raise AssertionError("extents are published even when the estimate did not produce them")
++    for line in (
++        "rich.has_dimensions = false;",
++        "rich.width_m = 0.0;",
++        "rich.height_m = 0.0;",
++        "rich.depth_m = 0.0;",
++        "rich.has_dimensions = true;",
++        "rich.width_m = width_m;",
++        "rich.height_m = height_m;",
++        "rich.depth_m = depth_m;",
++    ):
++        if line not in body:
++            raise AssertionError(f"assign_rich_face_extents missing {line}")
++    if not estimate_produced_extents:
++        rich.has_dimensions = False
++        rich.width_m = 0.0
++        rich.height_m = 0.0
++        rich.depth_m = 0.0
++        return
++    rich.has_dimensions = True
++    rich.width_m = width_m
++    rich.height_m = height_m
++    rich.depth_m = depth_m
++
++
++class InlierFaceExtentsTest(unittest.TestCase):
++    def test_rich_pose_carries_extents_only_when_the_estimate_produced_them(self) -> None:
++        produced = RichPose()
++        assign_rich_face_extents(produced, True, 1.05, 0.80, 2.40)
++        self.assertTrue(produced.has_dimensions)
++        self.assertAlmostEqual(produced.width_m, 1.05)
++        self.assertAlmostEqual(produced.height_m, 0.80)
++        self.assertAlmostEqual(produced.depth_m, 2.40)
++
++        absent = RichPose()
++        assign_rich_face_extents(absent, False, 1.05, 0.80, 2.40)
++        self.assertFalse(absent.has_dimensions)
++        self.assertEqual(absent.width_m, 0.0)
++        self.assertEqual(absent.height_m, 0.0)
++        self.assertEqual(absent.depth_m, 0.0)
++
++        degenerate = RichPose()
++        assign_rich_face_extents(degenerate, True, 0.0, 0.0, 1.50)
++        self.assertTrue(degenerate.has_dimensions)
++        self.assertEqual(degenerate.width_m, 0.0)
++        self.assertEqual(degenerate.height_m, 0.0)
++        self.assertAlmostEqual(degenerate.depth_m, 1.50)
++
++    def test_pallet_pose_rich_message_has_extent_fields(self) -> None:
++        text = MSG.read_text(encoding="utf-8")
++        missing = [field for field in EXTENT_FIELDS if field not in text]
++        self.assertEqual(missing, [], f"{MSG.name} is missing {missing}")
++
++    def test_publish_pose_assigns_extents_from_the_same_estimate(self) -> None:
++        text = NODE.read_text(encoding="utf-8")
++        start = text.find("void PalletPoseNode::publish_pose")
++        end = text.find("void PalletPoseNode::publish_failure_diagnostics")
++        self.assertGreater(start, -1)
++        self.assertGreater(end, start)
++        body = text[start:end]
++        self.assertIn("assign_rich_face_extents", body)
++        self.assertIn("outcome.has_dimensions", body)
++        self.assertIn("outcome.width_m", body)
++        self.assertIn("outcome.height_m", body)
++        self.assertIn("outcome.depth_m", body)
++
++
++if __name__ == "__main__":
++    suite = unittest.defaultTestLoader.loadTestsFromTestCase(InlierFaceExtentsTest)
++    result = unittest.TextTestRunner(verbosity=2).run(suite)
++    sys.exit(0 if result.wasSuccessful() else 1)
+diff --git a/pps_perception_msgs/msg/PalletPoseStamped.msg b/pps_perception_msgs/msg/PalletPoseStamped.msg
+index 73a44bb..89c54a7 100644
+--- a/pps_perception_msgs/msg/PalletPoseStamped.msg
++++ b/pps_perception_msgs/msg/PalletPoseStamped.msg
+@@ -26,6 +26,15 @@ string[] quality_reasons
+ # Non-empty only on hard failure (no pose produced).
+ string failure_reason
+ 
++# Inlier-face extents from the same estimate as this pose, in metres.
++# has_dimensions is true only when that estimate produced a non-empty inlier
++# face. Width is the camera-x span, height is the camera-y span, and depth
++# is the mean range. When has_dimensions is false the three extents are zero.
++bool has_dimensions
++float64 width_m
++float64 height_m
++float64 depth_m
++
+ # Provenance.
+ string geometry_source
+ string preset_id

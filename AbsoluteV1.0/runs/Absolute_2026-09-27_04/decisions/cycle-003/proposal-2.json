@@ -1,0 +1,4 @@
+{
+  "hypothesis": "In estimate_pose_chamfer_v3_2, set pose.tx, pose.ty, and pose.tz from apply_se3(R_dr, t_dr, centre_d_init) and stop emitting the chamfer-refined lift of best_pose, so the uniform z=2 probe whose bbox centre is the RGB principal point (640, 480) reports (0, 0, 2), pose_error_m falls from 0.002 to 0, and scenario_error reaches the target while the existing face-extent dimensions and select_stage2_subset admission stay unchanged.",
+  "level": "implementation"
+}

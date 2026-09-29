@@ -1,0 +1,5 @@
+The scenario review is in `runs/Absolute_2026-09-28_02/decisions/cycle-001/review-scenario.json`. It judges the three current proposals and does not admit, score, or mark a keep.
+
+- **deferred_detection_marks** matches the named stage-2 versus deferred distinction for this capture, including the stamps the changing scene implies. The scenario states no rule to abandon a deferred pallet, and the proposal leaves pose and pallet width, height, and depth unchanged.
+- **inlier_face_extents** treats depth as the face-centre range the pose already carries. Width and height are this frame's visible inlier spans, and deferral is unaddressed.
+- **face_extent_prototype** reads a moving scene as a reason to replace the 1.20 m by 0.14 m factory face with the same frame's inlier blob. It keeps depth as face-centre range and does not publish dimensions or deferred detections.

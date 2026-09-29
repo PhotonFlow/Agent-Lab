@@ -1,0 +1,5 @@
+The literature report is in `runs/Absolute_2026-09-28_02/sota/cycle-001/literature-7.json`.
+
+Posing only the pallet `select_detection` already chose is the large saving when stage 2 is per detection. CosyPose spent 190 ms of a 320 ms scene on every candidate. A pallet-bin pipeline measured detection at about 21 ms and FoundationPose at about 2.8 s per frame. A whole-image pose head does not offer that saving: one pallet network was 5.49 ms inside a 27.5 ms pipeline.
+
+Publishing each deferred source index with that pair's RGB and depth stamps stays in the small-message region. Measured ROS 2 latency was flat from 128 B through 10 KB, and a 4 KB Fast-DDS hop was about 0.07 ms. The stock diagnostics topic is the slow path: it defaults to 1 Hz, which is late for a scene that is still changing.

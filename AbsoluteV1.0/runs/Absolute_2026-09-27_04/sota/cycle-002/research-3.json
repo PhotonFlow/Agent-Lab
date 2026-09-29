@@ -1,0 +1,10 @@
+{
+  "query": "measurement noise around 0.001 for scenario_error and edits that must not touch the scorer",
+  "findings": [
+    "Noise 0.001 is only the keep margin. Minimize keeps when best scenario_error minus the new value is greater than 0.001. Best is 1.752, so 1.751 reverts and 1.750 keeps. The run stops only when scenario_error is less than or equal to 0.0; the margin is not a tolerance on the target.",
+    "The margin is not repeat jitter. The external scorer uses a fixed seed and fixed scenes. Pose is 0.001999999999999993 plus dimension 0.0 plus selection 1.75. Latency moved from 47.4 ms to 40.4 ms and is not in the sum. Protected metrics are empty.",
+    "The pose term is about 0.002, so a pose-only drop of 0.001 or less leaves scenario_error at or above 1.751 and reverts. Selection still steps by 0.25 or 1.0 and clears the margin when that term falls. Dimension is already 0.0, so the old 3.0 sentinel is not another keep.",
+    "Do not edit the scorer at runs/Absolute_2026-09-27_02/package/src/evaluate.py. It is outside this package copy, which has no evaluate.py. Any write is restored and recorded as bad_edit, and the tampered score is not kept. Charter immutable is empty; edits belong in the package sources that scorer compiles.",
+    "scenario_error, the scenes, and the weights are computed only in that file as pose_error_m + dimension_error_m + selection_error. The package already declares dimension fields, so the dimension scene is active. It does not declare select_stage2_subset, so selection stays on the legacy path. Changing the formula or the ground truth is not a valid edit."
+  ]
+}

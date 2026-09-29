@@ -1,0 +1,3 @@
+Proposal 3 is written to `runs/Absolute_2026-09-28_02/decisions/cycle-001/proposal-3.json`.
+
+**face_extent_prototype.** Each stage-2 estimate should build its chamfer prototype from the width and height of the pallet face already recovered as plane inliers in that depth frame, instead of the fixed 1.20 m by 0.14 m factory face. The pallet depth stays the face-centre range that estimate already lifts.

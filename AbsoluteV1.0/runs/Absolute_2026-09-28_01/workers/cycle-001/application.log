@@ -1,0 +1,5 @@
+The application role for cycle 1 is written to `runs\Absolute_2026-09-28_01\application\application.json`.
+
+- **Purpose:** The pallet perception stack on an AGV. Stage 1 detects pallets; stage 2 estimates a pallet pose from a detection and the depth image while the scene can still change.
+- **Users:** The vehicle's dynamic handling process, which needs that pose for handling while the scene can still change.
+- **Outputs:** The pallet pose, the pallet width, height, and depth in metres, and which detected pallets go through stage 2 versus which are marked deferred.

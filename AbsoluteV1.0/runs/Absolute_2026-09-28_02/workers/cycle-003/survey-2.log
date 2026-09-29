@@ -1,0 +1,3 @@
+Survey for cycle 3 is in `runs/Absolute_2026-09-28_02/sota/cycle-003/survey-2.json`. It has eight implementation points and nothing else.
+
+The pose process admits one detection, then spends almost all of its time in `estimate_pose_chamfer_v3_2`. With the default grids that is 45,692 chamfer cells, 45,700 evaluations when the prior search runs. Each evaluation copies and sorts all 182 prototype points. The leftover detections stay in the `on_pair` vector through publish and are not written onto `PalletPoseStamped`. Ranking or publishing those source indexes is a few integers. Estimating a pose for each extra detection would repeat the grid.

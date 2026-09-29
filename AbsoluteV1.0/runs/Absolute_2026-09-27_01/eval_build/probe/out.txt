@@ -1,0 +1,4 @@
+default tx 6.93889e-18 ty -0.002 tz 2 yaw -0 theta 1.54985 cost 0.0226415 prior 1
+fine0.2mm tx 5.69206e-18 ty -0.002 tz 2 yaw -0 theta 1.54985 cost 0.0226415 prior 1
+res1mm tx 0.112 ty 0.017 tz 2 yaw -0 theta 1.4556 cost 0.50071 prior 1
+noclose tx 6.93889e-18 ty -0.002 tz 2 yaw -0 theta 1.54985 cost 0.0226415 prior 1

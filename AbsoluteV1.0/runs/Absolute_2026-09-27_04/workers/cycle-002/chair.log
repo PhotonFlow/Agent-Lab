@@ -1,0 +1,3 @@
+Cycle 2 decision is written to `runs/Absolute_2026-09-27_04/decisions/cycle-002/decision.json`.
+
+**stage2-subset-admission** (feature). After the face-extent keep, `scenario_error` is 1.752: pose 0.002, dimension 0, selection 1.75. All three proposals and the matrix name the same next change: add `select_stage2_subset` and `Stage2Admission` so `largest_area` with `k=2` admits source indices 1 and 2 and defers 0, 3, and 4, which clears the 1.75 selection term. The 0.002 pose residual is independent and smaller than that gap.

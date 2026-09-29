@@ -1,0 +1,9 @@
+The literature report is in `runs\Absolute_2026-09-28_01\sota\cycle-001\literature-1.json`.
+
+Candidate methods for the stage-2 inlier face on `/pps/pallet_pose_rich`:
+
+- **Camera-axis span of the RANSAC plane inliers** from that same estimate: width is max(x) − min(x), height is max(y) − min(y).
+- **Depth is the mean range** of those inliers, not the pose translation and not the plane offset.
+- **Apply the depth-to-RGB transform first** when the size must use the same frame as the published pose.
+- **Write the three metres on `PalletPoseStamped` in the same publish as the pose.** An oriented box size is a different definition.
+- Plane-local or percentile extents, and scaling the image box by one depth, do not match the stated camera-x, camera-y, and mean-range definition.

@@ -1,0 +1,3 @@
+Proposal 3 is written to `runs/Absolute_2026-09-27_04/decisions/cycle-001/proposal-3.json`.
+
+It is one feature change: publish the camera-frame extent of the valid face points on `EstimatePoseOutcome` (`has_dimensions`, `width_m`, `height_m`, `depth_m`). That is the 3.0 term in the 4.752 baseline. The scored face is 1.0 m by 0.8 m at 2.5 m. The package was not edited, and the run was not scored.

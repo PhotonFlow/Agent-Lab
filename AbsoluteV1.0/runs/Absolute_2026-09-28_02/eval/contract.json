@@ -1,0 +1,77 @@
+{
+  "edits": "reject",
+  "metrics": [
+    {
+      "description": "Metres of error in pallet width, height, and depth. Width and height are the prototype sizes used by the estimator, and depth is the estimated tz. Later edits must not increase it while another numeric result improves.",
+      "direction": "minimize",
+      "id": "dimension_error_m",
+      "noise": 0.0,
+      "path": "/dimension_error_m",
+      "role": "objective",
+      "target": 0.001,
+      "witnesses": [
+        "the pallet width, height, and depth in metres",
+        "output: dimensions dimension_error_m minimize 0.001 0"
+      ]
+    },
+    {
+      "description": "Measured latency.",
+      "direction": "minimize",
+      "id": "latency_ms",
+      "noise": 1.0,
+      "path": "/latency_ms",
+      "role": "protected",
+      "target": null,
+      "witnesses": []
+    },
+    {
+      "description": "Metres of error in the pallet pose estimate_pose_chamfer_v3_2 publishes as tx, ty, tz, and yaw_rad. Later edits must not increase it while another numeric result improves.",
+      "direction": "minimize",
+      "id": "pose_error_m",
+      "noise": 0.0,
+      "path": "/pose_error_m",
+      "role": "objective",
+      "target": 0.001,
+      "witnesses": [
+        "The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change.",
+        "output: pose pose_error_m minimize 0.001 0"
+      ]
+    },
+    {
+      "description": "Combined error of the pallet pose, the pallet dimensions in metres, and stage-2 versus deferred selection. Later edits must not increase it while another numeric result improves.",
+      "direction": "minimize",
+      "id": "scenario_error",
+      "noise": 0.0,
+      "path": "/scenario_error",
+      "role": "objective",
+      "target": 0.001,
+      "witnesses": [
+        "The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred.",
+        "output: scenario scenario_error minimize 0.001 0"
+      ]
+    },
+    {
+      "description": "Error in which detection select_detection sends through stage 2 versus the detections left deferred. Later edits must not increase it while another numeric result improves.",
+      "direction": "minimize",
+      "id": "selection_error",
+      "noise": 0.0,
+      "path": "/selection_error",
+      "role": "objective",
+      "target": 0.001,
+      "witnesses": [
+        "which detected pallets are sent through stage 2 versus marked deferred",
+        "output: selection selection_error minimize 0.001 0"
+      ]
+    }
+  ],
+  "obligations": [
+    "The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change."
+  ],
+  "schema_version": "1",
+  "seal": {
+    "contract_hash": "d9c714d5135b6a20edff2db50c3f6f65757300735903338f868b2a99328d84cb",
+    "created_at": "2026-09-28T07:31:42+00:00",
+    "discovery_inputs_hash": "0ceb24b430ccdf1942c6acd42e2f17f0fc5c4dd22659572c050e7c9be2c4ece2",
+    "schema_version": "1"
+  }
+}

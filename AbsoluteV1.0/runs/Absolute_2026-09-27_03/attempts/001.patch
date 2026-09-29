@@ -1,0 +1,13 @@
+diff --git a/pps_perception_bringup/pps_perception_bringup/synthetic_scene.py b/pps_perception_bringup/pps_perception_bringup/synthetic_scene.py
+index c2d174c..8c524b9 100644
+--- a/pps_perception_bringup/pps_perception_bringup/synthetic_scene.py
++++ b/pps_perception_bringup/pps_perception_bringup/synthetic_scene.py
+@@ -15,7 +15,7 @@ import yaml
+ 
+ # Canonical pallet face geometry (EU pallet face), placed frontally at TZ_M.
+ TZ_M = 2.0
+-HALF_W = 0.60
++HALF_W = 0.90
+ HALF_H = 0.40
+ POCKET_HALF_W = 0.15
+ POCKET_HALF_H = 0.05

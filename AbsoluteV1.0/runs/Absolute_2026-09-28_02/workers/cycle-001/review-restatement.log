@@ -1,0 +1,7 @@
+The restatement review is in `runs/Absolute_2026-09-28_02/decisions/cycle-001/review-restatement.json`.
+
+None of the three proposals only restates `dimension_error_m` or `latency_ms`:
+
+- **deferred_detection_marks** publishes deferred source indices and capture stamps so handling can see which pallets were detected but not posed.
+- **inlier_face_extents** publishes face width, height, and depth from the plane inliers so handling can size the approach from this capture.
+- **face_extent_prototype** builds the chamfer template from this frame's inlier face instead of the fixed 1.20 m by 0.14 m factory face.

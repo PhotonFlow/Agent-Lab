@@ -1,0 +1,29 @@
+{
+  "baseline_eval_command": [
+    "python",
+    "c:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_02\\package\\src\\evaluate.py"
+  ],
+  "created_at": "2026-09-27T14:49:08+00:00",
+  "entry": "evolve",
+  "eval_mode": "measured",
+  "external_scorer": [
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_02\\package\\src\\evaluate.py"
+  ],
+  "framework": "Absolute",
+  "goal": {
+    "direction": "minimize",
+    "metric": "scenario_error",
+    "noise": 0.001,
+    "target": 0.0
+  },
+  "id": "Absolute_2026-09-27_04",
+  "immutable_hashes": {},
+  "open_admit": null,
+  "package_copy": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-27_04\\package\\src",
+  "script_head": "6d8ff6470aac00e95b895db78b1c0a5af155c384",
+  "source_package": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\pps_v3.4_ros\\src",
+  "status": "stopped",
+  "stop_reason": "target",
+  "task": "evolve src until scenario_error minimize reaches 0.0",
+  "version": "1.0"
+}

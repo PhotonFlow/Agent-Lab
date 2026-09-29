@@ -1,0 +1,3 @@
+Proposal 3 is written to `decisions/cycle-002/proposal-3.json`.
+
+**largest_face_admission** sends stage 2 the two largest pallet faces in each synchronized detection and depth pair, and marks every other detection deferred with its source index and that pair's RGB and depth stamps. Each admitted face is estimated and published as its own pose from that capture.

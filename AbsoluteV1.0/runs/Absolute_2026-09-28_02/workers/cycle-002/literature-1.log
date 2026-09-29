@@ -1,0 +1,8 @@
+Literature for cycle 2 is in `runs/Absolute_2026-09-28_02/sota/cycle-002/literature-1.json`.
+
+The candidate method is one `select_detection` split, written as indices:
+
+- **Stage 2** runs once, on the candidate `select_detection` already chose. `deferred_source_indices` is every other class-matched `source_index` from that same `Detection2DArray`, in candidate order.
+- **On success**, `PalletPoseStamped` gains `stage2_source_index` and `deferred_source_indices`. The RGB and depth stamps already on that message bind the roster to this capture.
+- **On estimate failure**, those same two lists go on the existing WARN diagnostic as key-value strings. That path still does not publish a pose.
+- **The empty-candidate return and the depth-conversion return** still publish nothing.The citation checks were stopped after the sources used in the literature file had already returned successfully. The cycle-2 literature result is in `runs/Absolute_2026-09-28_02/sota/cycle-002/literature-1.json`.

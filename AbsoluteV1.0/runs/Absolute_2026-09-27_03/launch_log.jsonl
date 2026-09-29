@@ -1,0 +1,16 @@
+{"cycle": 1, "index": 1, "pid": 31444, "returncode": 0, "role": "research"}
+{"cycle": 1, "index": 3, "pid": 32604, "returncode": 0, "role": "research"}
+{"cycle": 1, "index": 2, "pid": 33644, "returncode": 0, "role": "research"}
+{"cycle": 1, "index": 1, "pid": 10872, "returncode": 0, "role": "propose"}
+{"cycle": 1, "index": 3, "pid": 31360, "returncode": 0, "role": "propose"}
+{"cycle": 1, "index": 2, "pid": 33816, "returncode": 0, "role": "propose"}
+{"cycle": 1, "index": null, "pid": 15480, "returncode": 0, "role": "chair"}
+{"cycle": 1, "index": null, "pid": 39132, "returncode": 0, "role": "edit"}
+{"cycle": 2, "index": 1, "pid": 26508, "returncode": 0, "role": "research"}
+{"cycle": 2, "index": 3, "pid": 33812, "returncode": 0, "role": "research"}
+{"cycle": 2, "index": 2, "pid": 20400, "returncode": 0, "role": "research"}
+{"cycle": 2, "index": 3, "pid": 3392, "returncode": 0, "role": "propose"}
+{"cycle": 2, "index": 1, "pid": 26004, "returncode": 0, "role": "propose"}
+{"cycle": 2, "index": 2, "pid": 13336, "returncode": 0, "role": "propose"}
+{"cycle": 2, "index": null, "pid": 30636, "returncode": 0, "role": "chair"}
+{"cycle": 2, "index": null, "pid": 28304, "returncode": 0, "role": "edit"}

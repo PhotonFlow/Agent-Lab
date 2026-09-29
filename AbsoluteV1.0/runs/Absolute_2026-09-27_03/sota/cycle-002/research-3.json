@@ -1,0 +1,6 @@
+{
+  "findings": [
+    "measurement noise around 0.001 for dimension_error_m and edits that must not touch the scorer :: geometry_core/include/geometry_core/camera_config.hpp :: #pragma once"
+  ],
+  "query": "measurement noise around 0.001 for dimension_error_m and edits that must not touch the scorer"
+}

@@ -1,0 +1,7 @@
+Connection lost, reconnecting to https://agentn.global.api5.cursor.sh (attempt 1)...
+Retry attempt 1...
+The feasibility review is written to `runs/Absolute_2026-09-28_02/decisions/cycle-003/review-feasibility.json`. It judges the three proposals and does not admit a feature.
+
+Both `pocket_opening_depth` proposals can copy sizes onto the outcome only inside `estimate_pose_chamfer_v3_2`, before the sample cloud and the 2D chamfer pose are discarded. The far-side pocket points are the rows `plane_inlier_mask` already removed from `obs_points_2d`. The message and the recorder's pose dict have no width, height, depth, or body-depth flag. The first proposal's width and height are the factory defaults `1.20` m and `0.14` m. The second publishes those same defaults whenever the inlier silhouette is smaller, and a larger silhouette is the span of every plane inlier in the eroded box.
+
+`published_admission_split` matches today's single winner when the count is one and the tie uses the same first-maximum rule as `std::max_element`. The deferred indices exist only in the local candidate vector. `PalletPoseStamped` has no index fields, and the failure path can carry them only as diagnostic strings. The empty-candidate return and the depth-conversion throw still publish nothing.

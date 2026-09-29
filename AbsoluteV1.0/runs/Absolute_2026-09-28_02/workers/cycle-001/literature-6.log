@@ -1,0 +1,8 @@
+The literature report is in `runs/Absolute_2026-09-28_02/sota/cycle-001/literature-6.json`.
+
+The change has to keep these interfaces working:
+
+- Each ApproximateTime depth and detection pair still runs stage 2 once, on the pallet `select_detection` already picks. `source_index` stays that detection's index in the array.
+- An empty selection, or a depth conversion failure, still publishes nothing. The recorder treats that as no response.
+- Pose diagnostics stay on `/pps/pallet_pose_diagnostics`. The chosen pallet's failure remains the only WARN joined by `input_rgb_stamp`. A deferred WARN with that same stamp would replace the real failure reason. An OK status is ignored by the recorder.
+- Capture stamps stay `<sec>.<nanosec padded to 9>` on diagnostics, and `builtin_interfaces/Time` on the rich pose. One success still publishes one `PoseStamped` and one `PalletPoseStamped`.The citation check finished successfully. All seven ROS message and filter pages cited in the literature report returned HTTP 200, and those URLs are already in `runs/Absolute_2026-09-28_02/sota/cycle-001/literature-6.json`.

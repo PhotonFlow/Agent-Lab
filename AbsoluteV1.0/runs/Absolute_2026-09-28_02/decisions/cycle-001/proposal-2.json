@@ -1,0 +1,5 @@
+{
+  "feature_id": "inlier_face_extents",
+  "summary": "Publish the pallet face width, height, and depth in metres on the stage-2 outcome and on PalletPoseStamped. Width and height are the spans of the plane inliers already built inside estimate_pose_chamfer_v3_2, along that estimate's plane axes. Depth is the mean z of those same inliers after the depth-to-RGB transform that already places the face centre. The handling process can then size the approach from this synchronized capture while the scene can still change.",
+  "hypothesis": "If the estimator writes those three extents from the inliers before it returns, the rich pose carries the measured face size of this depth frame together with the position and yaw the controller already uses."
+}

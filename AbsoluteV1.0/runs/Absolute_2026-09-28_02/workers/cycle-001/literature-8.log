@@ -1,0 +1,8 @@
+Literature for cycle 1 is in `runs/Absolute_2026-09-28_02/sota/cycle-001/literature-8.json`. The query is unchanged. No evolve run was started, and nothing was scored.
+
+Measured latency for this method on `src`:
+
+- **Stage 2 is the multiplier.** Classic chamfer is 17.59 µs per hypothesis on a 1,610-point template, and one object's 3D pose was 29.1 s that way. The default pallet contour is 182 points. The free search is 28,306 hypotheses, and the prior search brings that to 45,692 when the free cost is above 0.006233 m. Scaling the published per-hypothesis time by contour length is a serial envelope of about 56 ms, or about 91 ms if the prior grids also run. The loop is OpenMP, so wall time is lower. A deferred index does not enter that search.
+- **A learned pose of every box has the same shape.** CosyPose spent 190 ms posing all candidates in a 4-view, 6-detection case. MegaPose is about 50 ms per refiner iteration and about 2.5 s for 520 coarse hypotheses. FoundationPose is 1.3 s per object.
+- **The distance image is the small part of a posed pallet.** The same OpenCV call, `DIST_L2` and `DIST_MASK_PRECISE` at 640×480, measured 0.718 ms. One ICP iteration on 4,760 and 3,440 points measured 4.58 ms.
+- **The deferred mark is a few strings on the diagnostic this node already publishes.** ROS 2 latency was flat from 128 B through 10 KB, and a string serializes in 10.7 ns. The publish stall shows up at thousands of non-primitive fields, not at one source index per other candidate.

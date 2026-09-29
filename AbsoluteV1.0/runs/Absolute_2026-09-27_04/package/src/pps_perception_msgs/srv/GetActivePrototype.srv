@@ -1,0 +1,9 @@
+---
+bool success
+string message
+string prototype_id
+string source_kind
+string source_path
+uint32 point_count
+float64 face_width_m
+float64 face_height_m

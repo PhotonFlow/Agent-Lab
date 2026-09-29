@@ -1,0 +1,9 @@
+Connection lost, reconnecting to https://agentn.global.api5.cursor.sh (attempt 1)...
+Retry attempt 1...
+The literature chair verdict is **adopt**, written to `runs/Absolute_2026-09-28_02/sota/cycle-002/verdict.json`.
+
+For each synchronized detection and depth pair, stage 2 still runs once, on the pallet `select_detection` already chooses. That candidate’s source index and the other class-matched source indices from the same detection array are both written on `PalletPoseStamped`. On a stage-2 failure, the same two lists go on the existing warning diagnostic as two string values, and the empty-candidate and depth-conversion paths still publish nothing.
+
+Current pose pipelines still send one detection into stage 2 and do not carry the other indices. Posing every remaining box, a second association pass, and a diagnostics-only roster do not replace that split: the diagnostic channel is the operator stream, and the controller reads the pose.The literature chair verdict is **adopt**, in `runs/Absolute_2026-09-28_02/sota/cycle-002/verdict.json`.
+
+Stage 2 still runs once, on the pallet `select_detection` already chooses. That source index and the other class-matched indices from the same detection array are written on `PalletPoseStamped`. When the estimate fails, those same two lists go on the existing warning diagnostic as two strings. The empty-candidate and depth-conversion paths still publish nothing.

@@ -1,0 +1,21 @@
+{
+  "application": {
+    "outputs": "The pallet pose (geometry_msgs/PoseStamped on /pps/pallet_pose and pps_perception_msgs/PalletPoseStamped on /pps/pallet_pose_rich). The pallet width, height, and depth in metres: metric extents of the inlier face, with width the camera-x span, height the camera-y span, and depth the mean range. Which detected pallets are sent through stage 2 versus marked deferred (select_stage2_subset, reported as diagnostics message pallet_deferred with deferred_source_index).",
+    "purpose": "The pps source is the pallet perception stack on an AGV. Stage 1 (pps_rtdetr_detector) detects pallets in the camera image. Stage 2 (geometry_core chamfer pipeline v3.2, wrapped by pps_pallet_pose_cpp) estimates a pallet pose from a detection and the depth image while the scene can still change.",
+    "users": "The vehicle's dynamic handling process. It needs a pallet pose for handling while the scene can still change."
+  },
+  "brief_path": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\workers\\cycle-001\\proposal-3.json",
+  "cycle": 1,
+  "framework_root": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0",
+  "index": 3,
+  "model": "grok-4.7-xhigh",
+  "named_penalties": [
+    "scenario_error"
+  ],
+  "output": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\decisions\\cycle-001\\proposal-3.json",
+  "package_copy": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\package\\src",
+  "prompt": "ROLE: feature_propose\nPropose one feature from the application, including a feature the user did not name.\nApplication: {'purpose': 'The pps source is the pallet perception stack on an AGV. Stage 1 (pps_rtdetr_detector) detects pallets in the camera image. Stage 2 (geometry_core chamfer pipeline v3.2, wrapped by pps_pallet_pose_cpp) estimates a pallet pose from a detection and the depth image while the scene can still change.', 'users': \"The vehicle's dynamic handling process. It needs a pallet pose for handling while the scene can still change.\", 'outputs': 'The pallet pose (geometry_msgs/PoseStamped on /pps/pallet_pose and pps_perception_msgs/PalletPoseStamped on /pps/pallet_pose_rich). The pallet width, height, and depth in metres: metric extents of the inlier face, with width the camera-x span, height the camera-y span, and depth the mean range. Which detected pallets are sent through stage 2 versus marked deferred (select_stage2_subset, reported as diagnostics message pallet_deferred with deferred_source_index).'}\nWrite only this JSON file: C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01\\decisions\\cycle-001\\proposal-3.json\nSchema: {\"feature_id\": \"...\", \"summary\": \"...\", \"hypothesis\": \"...\"}\nDo not restate a named metric penalty as the whole proposal.\nNamed penalties: scenario_error\nDo not read or write the scorer.\nDo not open an immutable file.\nDo not admit. Do not score. Do not mark a keep.\nDo not start python -m absolute evolve.",
+  "role": "feature_propose",
+  "run": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-28_01",
+  "skill": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\SKILL.md"
+}

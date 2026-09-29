@@ -1,0 +1,3 @@
+Survey for cycle 2 is in `runs/Absolute_2026-09-28_02/sota/cycle-002/survey-2.json`. No evolve command was started, and the run was not scored.
+
+The pose process poses one detection per synced pair. The common frame is **45,692** chamfer evaluations (free coarse 21×31×31, free fine 13×25×25, and a second prior search unless the free cost is at or below about **6.23 mm**), each an **O(N log N)** trimmed mean on **182** contour points with an N×2 copy and a full sort. OpenCV’s distance image for a nominal face is **561×350**. Publishing the already stored source indexes is outside that loop.

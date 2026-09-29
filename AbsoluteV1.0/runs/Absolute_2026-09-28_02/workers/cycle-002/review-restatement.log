@@ -1,0 +1,7 @@
+Restatement review for cycle 2 is in `runs/Absolute_2026-09-28_02/decisions/cycle-002/review-restatement.json`.
+
+None of the three proposals is only a restatement of `dimension_error_m` or `latency_ms`.
+
+- **stage2_subset_admission** returns the admitted and deferred sides of the existing ranking for this capture, with stage 2 still estimating the single admitted pallet.
+- **sent_deferred_roster** writes the sent source index and the deferred source indices onto the pose result for this synchronized pair. Stage 2 still runs once.
+- **largest_face_admission** poses the two largest class-matched faces by `area_px` and marks the other detections deferred. That ranking is which faces are sent, not a width, height, and depth measurement, and it is not a faster inference path.

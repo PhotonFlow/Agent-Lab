@@ -1,0 +1,6 @@
+{
+  "feature_id": "stage2-subset-admission",
+  "hypothesis": "Add select_stage2_subset and Stage2Admission so largest_area with k=2 ranks candidates by area then score, admits the first two (source indices 1 and 2 on the five pallet boxes of areas 2000, 50000, 40000, 30000, and 1000), and defers every other candidate (0, 3, and 4), which clears the 1.75 selection error.",
+  "level": "feature",
+  "summary": "Admit the k largest-area detections and defer the rest through Stage2Admission."
+}

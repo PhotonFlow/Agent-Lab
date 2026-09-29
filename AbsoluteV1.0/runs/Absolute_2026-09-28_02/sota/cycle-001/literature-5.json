@@ -1,0 +1,25 @@
+{
+  "query": "integration constraints for For each synchronized detection and depth pair, send through stage 2 only the pallet select_detection already chooses, and mark every other candidate deferred by publishing its source index on the pose diagnostics together with that pair's RGB and depth capture stamps. The handling process can then tell which pallets in the still-changing scene were detected but not posed. in src",
+  "findings": [
+    "Each ApproximateTime pair calls estimate_pose_chamfer_v3_2 once, on the select_detection winner only, passing that candidate's source_index as instance_id. highest_confidence orders by score then area, largest_area by area then score, and the first tie wins, so every later equal candidate is deferred and is not estimated.",
+    "source_index is the index in that pair's Detection2DArray.detections after dropping empty results and a class_id other than target_class_id. It is not Detection2D.id, which is an optional tracking id and may be empty. The index names a pallet only together with that pair's capture stamps, because the next frame is a new list.",
+    "Put every deferred candidate in the same DiagnosticArray already published on /pps/pallet_pose_diagnostics, one DiagnosticStatus each. KeyValue is a string key and a string value, and a repeated key collapses to one value, so each status carries one decimal source_index plus that pair's input_rgb_stamp and input_depth_stamp. PalletPoseStamped has no source-index field and stays the chosen pose.",
+    "Deferred level is OK (0), with a message other than pose_estimated. The selected failure stays the only WARN (1) and keeps failure_reason. A consumer that keeps one WARN per input_rgb_stamp will treat a deferred WARN as the stage-2 failure and overwrite failure_reason. The handling process sees unposed pallets only if it reads those OK statuses; a WARN-only reader will not.",
+    "Each deferred status needs its own name. The aggregator stores one item per status name and sets the group level to the max child level, so reusing pps_pallet_pose_cpp replaces the selected OK or WARN, and a deferred WARN, ERROR, or STALE raises the group. It subscribes to /diagnostics, republishes near 1 Hz, and can clear KeyValues. This node publishes /pps/pallet_pose_diagnostics, and the handler must use that raw topic to see every pair while the scene is still changing.",
+    "input_rgb_stamp is the detection-array header, which the detector copies from the RGB image. input_depth_stamp is the matched depth header. Encode both as seconds, a dot, and nanosec padded to 9, matching builtin_interfaces/Time whose nanosec is in [0, 1e9). Leave DiagnosticArray.header.stamp as the publish clock: the aggregator warns when that stamp's sec is 0. ApproximateTime already applies setMaxIntervalDuration from sync_slop_s (default 0.10 s), so the two capture stamps can differ.",
+    "The empty-candidate return and the depth-conversion exception return publish no DiagnosticArray. Deferred marks ride on the existing OK and failure publishes, so a pair that currently has no selected status does not emit a deferred-only array.",
+    "The diagnostics publisher stays reliable, volatile, keep-last depth 10, which matches a reliable volatile subscriber. Best-effort sensor QoS would not match. Keep-last drops whole arrays, so one array carries every deferred status of the pair."
+  ],
+  "citations": [
+    "https://raw.githubusercontent.com/ros2/common_interfaces/humble/diagnostic_msgs/msg/DiagnosticStatus.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/humble/diagnostic_msgs/msg/DiagnosticArray.msg",
+    "https://raw.githubusercontent.com/ros2/common_interfaces/humble/diagnostic_msgs/msg/KeyValue.msg",
+    "https://raw.githubusercontent.com/ros2/rcl_interfaces/humble/builtin_interfaces/msg/Time.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/humble/vision_msgs/msg/Detection2DArray.msg",
+    "https://raw.githubusercontent.com/ros-perception/vision_msgs/humble/vision_msgs/msg/Detection2D.msg",
+    "https://raw.githubusercontent.com/ros2/message_filters/humble/include/message_filters/sync_policies/approximate_time.h",
+    "https://raw.githubusercontent.com/ros/diagnostics/ros2-humble/diagnostic_aggregator/include/diagnostic_aggregator/generic_analyzer_base.hpp",
+    "https://raw.githubusercontent.com/ros/diagnostics/ros2-humble/diagnostic_aggregator/src/aggregator.cpp",
+    "https://design.ros2.org/articles/qos.html"
+  ]
+}

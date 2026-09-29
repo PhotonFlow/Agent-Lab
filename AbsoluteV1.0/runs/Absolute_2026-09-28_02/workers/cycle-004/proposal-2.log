@@ -1,0 +1,3 @@
+The feature proposal is in `decisions/cycle-004/proposal-2.json`.
+
+**fork_opening_depth** — On a successful stage-2 estimate, publish the pallet width, height, and depth on the pose result. Width and height are the factory face the chamfer match already uses. Depth is the optical-frame depth of the two fork openings that prototype already cuts, lifted the same way as the face centre. Those two opening centres are written on `PalletPoseStamped` as well. The face pose and the admission split stay as they are.

@@ -1,0 +1,3 @@
+Proposed **pocket_opening_depth** and wrote it to `runs/Absolute_2026-09-28_02/decisions/cycle-003/proposal-2.json`.
+
+For each successful stage-2 estimate, the pose result gains this capture's pallet width, height, and depth. Width and height are the face silhouette in the chamfer frame, and a crop that falls short of the matched factory face stays that factory face. Depth is the median far-side length inside the two fork pockets that same match already places. When those pockets have no far-side return, the result does not report a depth of 0.

@@ -1,0 +1,6 @@
+{
+  "feature_id": "face-extent-metres",
+  "hypothesis": "Publish the inlier-face extent on EstimatePoseOutcome from the valid face points, with width as max x minus min x, height as max y minus min y, and depth as mean z, so the scored 230..410 by 168..312 rectangle at 2.5 m reports 1.0 m by 0.8 m by 2.5 m and clears the 3.0 dimension sentinel.",
+  "level": "feature",
+  "summary": "Add has_dimensions, width_m, height_m, and depth_m on the pose outcome and fill them from the camera-frame extent of the valid face points."
+}

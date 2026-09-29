@@ -1,0 +1,6 @@
+{
+  "feature_id": "face-extent-dimensions",
+  "hypothesis": "Add face-extent dimensions on EstimatePoseOutcome so the pose estimate sets has_dimensions and reports camera-frame width as max x minus min x, height as max y minus min y, and depth as mean z of the valid face points, which is 1.0 m by 0.8 m at 2.5 m and clears the 3.0 dimension sentinel.",
+  "level": "feature",
+  "summary": "Publish the camera-frame extent of valid face points as has_dimensions, width_m, height_m, and depth_m on EstimatePoseOutcome."
+}

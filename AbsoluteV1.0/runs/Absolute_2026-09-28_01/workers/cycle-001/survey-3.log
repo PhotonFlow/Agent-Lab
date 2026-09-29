@@ -1,0 +1,5 @@
+Survey-only output is in `runs/Absolute_2026-09-28_01/sota/cycle-001/survey-3.json`.
+
+Stage-2 latency is the chamfer search in `estimate_pose_chamfer_v3_2`. With the default grids that is about 2.8e4 hypotheses, or about 4.6e4 when the prior search also runs. Each hypothesis copies the rotated prototype and `std::sort`s it for a trimmed mean. The published pose does not use that search: translation is the bbox-centre ray-plane hit, and yaw comes from the plane normal. The inlier-face width, height, and depth pass is one linear loop after the search.
+
+The other costs are the padded precise distance transform, a full-frame depth scan with extra Eigen copies, and up to 100 RANSAC iterations that allocate a residual mask each time. Stage 1, when not using the mock backend, is a 640×640 resize plus a TensorRT copy and execute.

@@ -1,0 +1,6 @@
+{
+  "feature_id": "inlier-face-extent",
+  "hypothesis": "Add inlier-face extent on EstimatePoseOutcome so the pose estimate sets has_dimensions and reports camera-frame width as max x minus min x, height as max y minus min y, and depth as mean z of the valid face points, which is 1.0 m by 0.8 m at 2.5 m and clears the 3.0 dimension sentinel.",
+  "level": "feature",
+  "summary": "Measure the valid face points in the camera frame and publish has_dimensions, width_m, height_m, and depth_m."
+}

@@ -1,0 +1,53 @@
+{
+  "query": "numeric results src already computes that later edits should improve",
+  "metrics": [
+    {
+      "id": "pose_error_m",
+      "description": "Metres of error in the pallet pose estimate_pose_chamfer_v3_2 already publishes as tx, ty, tz, and yaw_rad. Later edits should reduce it.",
+      "direction": "minimize",
+      "target": 0.001,
+      "role": "objective",
+      "path": "/pose_error_m",
+      "noise": 0,
+      "witnesses": [
+        "The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change."
+      ]
+    },
+    {
+      "id": "dimension_error_m",
+      "description": "Metres of error in the pallet width, height, and depth. Later edits should reduce it.",
+      "direction": "minimize",
+      "target": 0.001,
+      "role": "objective",
+      "path": "/dimension_error_m",
+      "noise": 0,
+      "witnesses": [
+        "the pallet width, height, and depth in metres"
+      ]
+    },
+    {
+      "id": "selection_error",
+      "description": "Error in which detected pallets select_detection sends through stage 2 versus those left deferred. Later edits should reduce it.",
+      "direction": "minimize",
+      "target": 0.001,
+      "role": "objective",
+      "path": "/selection_error",
+      "noise": 0,
+      "witnesses": [
+        "which detected pallets are sent through stage 2 versus marked deferred"
+      ]
+    },
+    {
+      "id": "scenario_error",
+      "description": "Combined error of the pallet pose, the pallet width, height, and depth in metres, and stage-2 versus deferred selection. Later edits should reduce it.",
+      "direction": "minimize",
+      "target": 0.001,
+      "role": "objective",
+      "path": "/scenario_error",
+      "noise": 0,
+      "witnesses": [
+        "The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred."
+      ]
+    }
+  ]
+}

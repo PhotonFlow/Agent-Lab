@@ -1,0 +1,59 @@
+diff --git a/geometry_core/include/geometry_core/pipeline_v3_2.hpp b/geometry_core/include/geometry_core/pipeline_v3_2.hpp
+index 0294dfc..8a83ebd 100644
+--- a/geometry_core/include/geometry_core/pipeline_v3_2.hpp
++++ b/geometry_core/include/geometry_core/pipeline_v3_2.hpp
+@@ -74,6 +74,12 @@ struct EstimatePoseOutcome {
+   FailureResult failure{std::nullopt, "", 0};
+   ChamferDebugV3_2 debug;
+   bool has_debug = false;
++  // Metric extents of the inlier face used for the pose. width is the
++  // camera-x span, height the camera-y span, depth the mean range.
++  bool has_dimensions = false;
++  double width_m = 0.0;
++  double height_m = 0.0;
++  double depth_m = 0.0;
+ };
+ 
+ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+diff --git a/geometry_core/src/pipeline_v3_2.cpp b/geometry_core/src/pipeline_v3_2.cpp
+index 3be8856..bd0e0c9 100644
+--- a/geometry_core/src/pipeline_v3_2.cpp
++++ b/geometry_core/src/pipeline_v3_2.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include <algorithm>
+ #include <cmath>
++#include <limits>
+ 
+ #include "geometry_core/backproject.hpp"
+ #include "geometry_core/chamfer.hpp"
+@@ -237,6 +238,29 @@ EstimatePoseOutcome estimate_pose_chamfer_v3_2(const Eigen::Vector4d& bbox_xyxy,
+   outcome.debug.prior_lambda_eff = lambda_eff;
+   outcome.debug.used_prior_fallback = used_prior_fallback;
+ 
++  if (plane_points_3d.rows() > 0) {
++    double min_x = std::numeric_limits<double>::infinity();
++    double max_x = -std::numeric_limits<double>::infinity();
++    double min_y = std::numeric_limits<double>::infinity();
++    double max_y = -std::numeric_limits<double>::infinity();
++    double sum_z = 0.0;
++    const Eigen::Index n = plane_points_3d.rows();
++    for (Eigen::Index i = 0; i < n; ++i) {
++      const double x = plane_points_3d(i, 0);
++      const double y = plane_points_3d(i, 1);
++      const double z = plane_points_3d(i, 2);
++      min_x = std::min(min_x, x);
++      max_x = std::max(max_x, x);
++      min_y = std::min(min_y, y);
++      max_y = std::max(max_y, y);
++      sum_z += z;
++    }
++    outcome.has_dimensions = true;
++    outcome.width_m = max_x - min_x;
++    outcome.height_m = max_y - min_y;
++    outcome.depth_m = sum_z / static_cast<double>(n);
++  }
++
+   return outcome;
+ }
+ 

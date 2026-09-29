@@ -1,0 +1,3 @@
+Research for cycle 3 is in `runs/Absolute_2026-09-27_04/sota/cycle-003/research-3.json`.
+
+The 0.001 figure is the keep margin, not jitter in the measurement. The best `scenario_error` is 0.001999999999999993, which is only the pose term. A new value has to fall strictly below 0.000999999999999993 to be kept, and the run stops only at 0.0. The scorer is `evaluate.py` in run `Absolute_2026-09-27_02`, outside this package copy; editing it is restored as a bad edit.

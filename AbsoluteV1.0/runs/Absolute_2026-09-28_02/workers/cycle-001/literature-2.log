@@ -1,0 +1,13 @@
+The literature note for this query is in `runs/Absolute_2026-09-28_02/sota/cycle-001/literature-2.json`.
+
+The first list is the single `select_detection` residual, with each other candidate marked by its detection-array index on the pose diagnostics together with that pair’s RGB and depth capture stamps. The other methods do not do that:
+
+- **Soft-NMS** keeps overlapping boxes and only lowers their scores.
+- **Frustum PointNets** poses every 2D region.
+- **CenterPoint** refines every detected center.
+- **DETR** labels unmatched queries as no-object.
+- **SORT** turns unmatched detection indexes into new tracks.
+- **Sparse R-CNN** sends its whole learned proposal set through the second head.
+- **Learning to defer** sends the deferred case downstream, which is the opposite gate.
+- **SelectiveNet** abstains, without a source index or the two capture stamps.
+- **Viola–Jones** drops a window at the first rejecting stage.

@@ -1,0 +1,7 @@
+Survey review for cycle 3 is in `runs/Absolute_2026-09-28_02/sota/cycle-003/survey-review.json`. It keeps five points from the three surveys.
+
+- The pose node still has no admission split. `select_detection` returns one candidate by the first-maximum rule, the other class-matched `source_index` values stay in the local vector through both publish calls, and neither `PalletPoseStamped` nor the failure diagnostic records them. The two early returns still publish nothing. Writing those indexes is a few integers; estimating each deferred detection again would repeat the chamfer search.
+- Measured stage-2 time is that one estimate: 45692 grid evaluations, 45700 chamfer evaluations when the prior runs.
+- Each evaluation still copies and fully sorts all 182 contour points.
+- The depth, mask, RANSAC, and distance-image work runs only for the one selected detection, and it would repeat if more than one detection were posed.
+- Stage 1 is a separate process. Its host copies sit upstream of this capture, and the admission integers do not change them.

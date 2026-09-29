@@ -1,0 +1,23 @@
+{
+  "query": "other candidate methods for Publish the stage-2 inlier-face width, height, and depth in metres on /pps/pallet_pose_rich with the pose from that same estimate. Width is the camera-x span of the inlier face, height is the camera-y span, and depth is the mean range. The vehicle's dynamic handling process can then size the pallet from the pose it is about to use while the scene can still change. that are not the first list",
+  "findings": [
+    "Interquartile camera-axis scale: use Q3 minus Q1 of the stage-2 inlier x and y as the spans, and the mean range of that central half as depth. Liu et al. use this interquartile range to scale each point-cloud axis before a 3D box is fit. It is a robust stand-in for the full min-to-max camera span.",
+    "Occupancy-quantile box: sample candidate rotations, take the axis-aligned box of an occupancy quantile of the points, and keep the minimum-volume sample. The published size grows with the requested confidence. It is not the full camera-x span, camera-y span, and mean range of every inlier.",
+    "Covariance oriented box: take the eigenvectors of the inlier covariance and measure extremal extent along those axes. The three lengths follow the point scatter, not the camera x and y axes, and none of them is the mean range.",
+    "Minimum-area rectangle by rotating calipers on the convex hull of the inlier (x, y) projection. One side lies on a hull edge, so the side lengths are not the camera-axis spans, and the construction does not produce a mean range.",
+    "Contour-and-line measurement: fit the face plane, take the convex hull, refine the contour with a Sobel edge, fit 3D lines, then refine width and height with a box-constrained particle filter. Dimensions come from the line model. Raaj, Nair, and Knoll report sub-centimetre agreement on cargo boxes, with errors up to about 0.5 cm.",
+    "Template edge match: fit line segments on the face and keep segments whose lengths fall in a pallet template's width and height ranges, then publish that template size with the pose. The size is the template, not the span of the inlier points.",
+    "Pocket-wise size with a pose: estimate a front-face depth hint, then measure center, left, and right pocket width and height inside an ortho-projection volume and return each with its own pose. That sizes pockets rather than the whole inlier face, and the payload is a detection service rather than one pose message on /pps/pallet_pose_rich.",
+    "Percentile-loss location of the inlier ranges: fit the depth to a high-breakdown percentile of the ranges instead of their arithmetic mean. This tolerates a larger outlier fraction than the mean and therefore does not implement the required mean range."
+  ],
+  "citations": [
+    "YuXuan Liu, Nikhil Mishra, Maximilian Sieb, Yide Shentu, Pieter Abbeel, and Xi Chen, Autoregressive Uncertainty Modeling for 3D Bounding Box Prediction, arXiv:2210.07424, 2022. Interquartile (Q3-Q1) scale per point-cloud axis, and occupancy-quantile minimum-volume boxes.",
+    "S. Gottschalk, M. C. Lin, and D. Manocha, OBBTree: A Hierarchical Structure for Rapid Interference Detection, SIGGRAPH 1996. Covariance eigenvectors, then extremal extent along those axes.",
+    "Godfried T. Toussaint, Solving geometric problems with the rotating calipers, Proc. IEEE MELECON, Athens, 1983. O(n) minimum-area enclosing rectangle; one side is collinear with a convex-hull edge (Freeman and Shapira, CACM 1975).",
+    "OpenCV minAreaRect: rotating calipers on the convex hull, returning a rotated rectangle (center, side lengths, angle), distinct from the axis-aligned bounding rectangle.",
+    "Yaadhav Raaj, Suraj Nair, and Alois Knoll, Precise Measurement of Cargo Boxes for Gantry Robot Palletization in Large Scale Workspaces Using Low-Cost RGB-D Sensors, ACCV 2016, LNCS 10114, pp. 472-486, 2017. RANSAC plane, convex hull, Sobel contour, 3D line fit, particle-filter dimensions.",
+    "US20180304468A1, Methods and Systems for Detecting, Recognizing, and Localizing Pallets. Line segments are kept only when their lengths match a pallet template width and height, and the pose comes from the matched subset.",
+    "ifm O3R getPallet and ifm3d_ros2/msg/PalletDetection.msg: depth hint, then center, left, and right pocket pose with width and height in metres. https://ifm3d.com/latest/PDS/GetPallet/getPallet.html",
+    "Joao Domingos and Joao Xavier, Outlier-resilient model fitting via percentile losses: Methods for general and convex residuals, arXiv preprint, 2024. Percentile fit of a centroid that remains usable at higher outlier rates than the mean."
+  ]
+}

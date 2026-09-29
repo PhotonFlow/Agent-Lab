@@ -1,0 +1,5 @@
+The literature chair verdict is **stands**, written to `runs/Absolute_2026-09-28_02/sota/cycle-001/verdict.json`.
+
+For each synchronized detection and depth pair, stage 2 stays on the one pallet already selected, and the other candidates stay unposed. Isaac ROS FoundationPose 5.0 and Lang2Lift (2025) still do that split, including in a changing outdoor scene, and no retrieved 2024–2026 source publishes the other detections' source indexes with that pair's RGB and depth stamps. Posing every box is still published, and it is the latency this selection avoids. Soft-NMS, tracking, and defer-or-abstain methods do not record a deferred source index with both capture stamps, so they do not replace the single selected pose.The first citation check was stopped because it produced no output. The retry completed, and every URL cited in the verdict returned successfully except one DOI page that was not used.
+
+The literature chair verdict is already written: **stands**, in `runs/Absolute_2026-09-28_02/sota/cycle-001/verdict.json`.

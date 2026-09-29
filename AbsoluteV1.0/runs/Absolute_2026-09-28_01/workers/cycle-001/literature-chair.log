@@ -1,0 +1,5 @@
+The literature chair verdict is **stands**. It is written to `runs/Absolute_2026-09-28_01/sota/cycle-001/verdict.json`.
+
+The current method stays: one pass over the stage-2 plane inliers from that same estimate. Width is the camera-x span, height is the camera-y span, and depth is the mean range, in metres, on the same `/pps/pallet_pose_rich` message as the pose, and only when that estimate produced them.
+
+The other reported methods were dropped as duplicates or as a different size. A stored 1.20 m by 0.14 m prototype, a template or CAD face, an object-frame cuboid, a covariance or minimum-volume box, rotating calipers, and an interquartile or percentile span do not replace that reduction. Putting the three metres on the existing rich message also avoids a second topic.
