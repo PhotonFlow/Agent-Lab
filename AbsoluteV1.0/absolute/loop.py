@@ -1,8 +1,10 @@
-"""Outer runner. One process keeps launching workers until a proposal round admits nothing new."""
+"""Durable optimization coordinator with fresh, bounded-context workers."""
 
 from __future__ import annotations
 
 import json
+import os
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Callable
@@ -29,6 +31,7 @@ from absolute.engine import (
     ensure_copy_repo,
     head_sha,
     measurements_at_target,
+    measure_search,
     now,
     record_baseline,
     record_rejections,
@@ -37,7 +40,9 @@ from absolute.engine import (
     run_eval,
     runner_authority,
     score_stage,
+    search_metric_specs,
     stop_run,
+    status_text,
     unique_proposals,
     validate_charter,
     write_handoff,
@@ -45,7 +50,8 @@ from absolute.engine import (
 from absolute.naming import allocate_run_id
 from absolute.package import copy_package, file_hash, hash_tree, message_fields
 from absolute.prompts import render_prompt
-from absolute.store import atomic_write, load_run, read_json, save_run
+from absolute.launch import LaunchError, WORKER_MODEL, report
+from absolute.store import atomic_write, load_run, read_journal, read_json, run_lock, save_run
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parents[1]
 STAGE_ATTEMPTS = 5
@@ -141,7 +147,7 @@ def parse_decision(payload: Any) -> dict[str, Any]:
 def immutable_in_package(command: list[str], package: Path) -> list[str]:
     found: list[str] = []
     root = package.resolve()
-    for arg in command[1:]:
+    for arg in command:
         path = Path(arg)
         if path.is_absolute():
             if not path.is_file():
@@ -158,9 +164,9 @@ def immutable_in_package(command: list[str], package: Path) -> list[str]:
 def external_scorer_files(command: list[str], package: Path) -> list[Path]:
     files: list[Path] = []
     root = package.resolve()
-    for arg in command[1:]:
+    for arg in command:
         path = Path(arg)
-        if not path.is_file() or path.suffix.lower() not in {".py", ".json"}:
+        if not path.is_file():
             continue
         resolved = path.resolve()
         try:
@@ -233,6 +239,8 @@ def _restore(snap: dict[str, bytes | None]) -> None:
 def _materialize(brief: dict) -> dict:
     ready = dict(brief)
     ready["prompt"] = render_prompt(ready)
+    if ready.get("role") == "optimize" and len(json.dumps(ready).encode("utf-8")) > 64000:
+        raise RuntimeError("optimizer brief exceeds 64KB; shorten the scenario or metric descriptions")
     path = Path(ready["brief_path"])
     path.parent.mkdir(parents=True, exist_ok=True)
     if ready.get("output"):
@@ -305,7 +313,7 @@ def _base_brief(
         "handoff": handoff,
         "immutable": list(charter.get("immutable") or []),
         "measurement": {"baseline": scoreboard.get("baseline"), "best": scoreboard.get("best")},
-        "model": "grok-4.7-xhigh",
+        "model": os.environ.get("ABSOLUTE_MODEL") or WORKER_MODEL,
         "package_copy": str(package),
         "run": str(run_dir),
         "skill": str(FRAMEWORK_ROOT / "SKILL.md"),
@@ -389,7 +397,7 @@ def _discover_metrics(
             scenario_text,
             sealed=sealed,
             gaps=gaps,
-            latency_budget=LATENCY_BUDGET_MS,
+            latency_budget=0.0 if load_run(run_dir).get("search") else LATENCY_BUDGET_MS,
         )
 
     return _retry("metric discovery", once)
@@ -515,7 +523,13 @@ def _finish_gate(run_dir: Path, charter: dict[str, Any], eval_metrics: dict[str,
     at_target = measurements_at_target(charter, eval_metrics)
     run["uncovered_behaviors"] = gaps
     run["proxy_saturated"] = at_target
-    if at_target and gaps:
+    if run.get("search"):
+        run["status"] = "running"
+        run["stop_reason"] = ""
+        run["success"] = False
+        run["sota_verified"] = False
+        run["stage"] = "search"
+    elif at_target and gaps:
         run["success"] = False
         run["status"] = "stopped"
         run["stop_reason"] = "scenario_uncovered"
@@ -544,7 +558,11 @@ def prepare_run(
     timeout_sec: float = 60,
     task: str | None = None,
     launcher: Launcher | None = None,
+    continuous: bool = False,
+    eval_repeats: int = 3,
 ) -> Path:
+    if not 1 <= eval_repeats <= 100:
+        raise ValueError("eval_repeats must be between 1 and 100")
     explicit = metric is not None
     if explicit and (direction is None or noise is None or target is None):
         raise ValueError("an explicit metric needs a direction, noise, and target")
@@ -586,8 +604,10 @@ def prepare_run(
             "stage": "application",
             "status": "starting",
             "version": __version__,
+            **({"search": {"eval_repeats": eval_repeats, "context_window_tokens": 500000}} if continuous else {}),
         },
     )
+    report(run_dir, "baseline_started", package=str(destination))
     eval_metrics = run_eval(list(eval_command), destination, timeout_sec)
     if explicit:
         assert direction is not None and noise is not None and target is not None
@@ -602,9 +622,9 @@ def prepare_run(
             timeout=timeout_sec,
         )
         protected: list[dict[str, Any]] = []
-        if "latency_ms" in eval_metrics:
+        if "latency_ms" in eval_metrics and metric != "latency_ms":
             protected.append(
-                {"direction": "minimize", "max_regression": LATENCY_BUDGET_MS, "name": "latency_ms"}
+            {"direction": "minimize", "max_regression": 0.0 if continuous else LATENCY_BUDGET_MS, "name": "latency_ms"}
             )
         metric_rows = _explicit_metrics(metric, direction, noise, target, protected)
         missing = [row["id"] for row in metric_rows if row["id"] not in eval_metrics]
@@ -644,9 +664,12 @@ def prepare_run(
     run["immutable_hashes"] = hash_tree(destination, immutable) if immutable else {}
     run["message_fields"] = message_fields(destination)
     save_run(run_dir, run)
+    if continuous:
+        eval_metrics = measure_search(run_dir, read_json(run_dir / "charter.json"), "baseline-samples")
     record_baseline(run_dir, eval_metrics)
     atomic_write(run_dir / "eval" / "baseline.json", eval_metrics)
     _finish_gate(run_dir, read_json(run_dir / "charter.json"), eval_metrics)
+    report(run_dir, "baseline_finished", metrics=eval_metrics, status=load_run(run_dir)["status"])
     return run_dir
 
 
@@ -690,6 +713,7 @@ def _set_stage(run_dir: Path, stage: str) -> None:
     run = load_run(run_dir)
     run["stage"] = stage
     save_run(run_dir, run)
+    report(run_dir, "stage", stage=stage)
 
 
 def _worker_brief(run_dir: Path, cycle_n: int, package: Path, charter: dict[str, Any]) -> dict[str, Any]:
@@ -699,7 +723,7 @@ def _worker_brief(run_dir: Path, cycle_n: int, package: Path, charter: dict[str,
     return {
         "cycle": cycle_n,
         "framework_root": str(FRAMEWORK_ROOT),
-        "model": "grok-4.7-xhigh",
+        "model": os.environ.get("ABSOLUTE_MODEL") or WORKER_MODEL,
         "named_penalties": names,
         "package_copy": str(package),
         "run": str(run_dir),
@@ -1158,7 +1182,153 @@ def one_cycle(run_dir: Path, launcher: Launcher) -> dict[str, Any]:
 
 
 
+def _search_cycle(run_dir: Path, launcher: Launcher) -> dict[str, Any]:
+    from absolute.engine import _record_stage
+
+    run = load_run(run_dir)
+    charter = read_json(run_dir / "charter.json")
+    scoreboard = read_json(run_dir / "scoreboard.json")
+    cycle_n = int(scoreboard.get("cycles", 0)) + 1
+    package = Path(run["package_copy"])
+    base_sha = run["script_head"]
+    specs = search_metric_specs(charter)
+    focus = specs[(cycle_n - 1) % len(specs)]
+    strategies = ("local improvement", "algorithm replacement", "robustness and edge cases", "simplification and resource use")
+    strategy = strategies[((cycle_n - 1) // len(specs)) % len(strategies)]
+    scenario_text = Path(run["scenario_path"]).read_text(encoding="utf-8")
+    gaps = _current_gaps(run_dir, scenario_text)
+    run.update(stage="search", uncovered_behaviors=gaps, success=False, sota_verified=False)
+    save_run(run_dir, run)
+    report(run_dir, "cycle_started", cycle=cycle_n, focus=focus["metric"], strategy=strategy, uncovered=len(gaps))
+    before = measure_search(run_dir, charter, f"cycle-{cycle_n:06d}-parent")
+    workers = run_dir / "workers" / f"cycle-{cycle_n:06d}"
+    result = workers / "result.json"
+    result.unlink(missing_ok=True)
+    feedback = [
+        {key: (str(entry[key])[:1500] if key in ("hypothesis", "error") else entry[key])
+         for key in ("cycle", "hypothesis", "outcome", "error", "metrics", "patch", "commit") if key in entry}
+        for entry in read_journal(run_dir, limit=12)
+    ]
+    brief = _worker_brief(run_dir, cycle_n, package, charter)
+    brief.update(
+        role="optimize", brief_path=str(workers / "optimize.json"), result=str(result),
+        scenario_text=scenario_text, focus=focus, strategy=strategy, metrics=specs,
+        measured=before, best=scoreboard["best"], feedback=feedback,
+        uncovered_behaviors=gaps, context_window_tokens=500000,
+        immutable=list(charter.get("immutable") or []),
+    )
+    protected = [run_dir / name for name in ("run.json", "charter.json", "scoreboard.json", "eval/contract.json")]
+    protected.extend(external_scorer_files(list(charter["eval_command"]), package))
+    protected.append(Path(run["scenario_path"]))
+    snapshot = _snapshot(protected)
+    hypothesis = f"{strategy}: {focus['metric']}"
+
+    def integrity_check() -> bool:
+        changed = _tampered(snapshot)
+        if changed:
+            _restore(snapshot)
+        return not changed
+
+    def reject(outcome: str, reason: str) -> dict[str, Any]:
+        with runner_authority():
+            return _record_stage(
+                run_dir, package, outcome=outcome, reason=reason[:2000], base_sha=base_sha,
+                hypothesis=hypothesis, stage="search_edit", cycle_n=cycle_n, metrics=None, feature_id=None,
+            )
+
+    try:
+        _launch_one(launcher, brief)
+        if _tampered(snapshot):
+            _restore(snapshot)
+            entry = reject("bad_edit", "worker changed runner-owned files or scorer")
+        else:
+            payload = _read_json(result)
+            if not isinstance(payload, dict) or not _nonempty(payload.get("hypothesis")):
+                raise ValueError("optimizer result needs a hypothesis and behavior_test")
+            hypothesis = str(payload["hypothesis"])[:1500]
+            report(run_dir, "candidate_ready", cycle=cycle_n, hypothesis=hypothesis)
+            with runner_authority():
+                entry = score_stage(
+                    run_dir, charter, stage="search_edit", cycle_n=cycle_n, hypothesis=hypothesis,
+                    base_sha=base_sha, behavior_test=payload.get("behavior_test"), pre_metrics=before,
+                    integrity_check=integrity_check,
+                )
+    except (LaunchError, OSError, ValueError) as exc:
+        _restore(snapshot)
+        entry = reject("worker_failed" if isinstance(exc, (LaunchError, OSError)) else "bad_edit", str(exc))
+    except BaseException:
+        _restore(snapshot)
+        reset_to(package, base_sha)
+        raise
+    with runner_authority():
+        complete_cycle(run_dir, charter, method_satisfied=True)
+    report(run_dir, "cycle_finished", cycle=cycle_n, outcome=entry["outcome"], reason=entry.get("error", ""), metrics=entry.get("metrics"))
+    print(status_text(run_dir), flush=True)
+    return entry
+
+
+def _pause(run_dir: Path, reason: str) -> None:
+    run = load_run(run_dir)
+    run.update(status="paused", stop_reason=reason)
+    save_run(run_dir, run)
+    write_handoff(run_dir)
+    report(run_dir, "paused", reason=reason)
+
+
+def _cooldown(run_dir: Path, seconds: float) -> None:
+    report(run_dir, "cooldown", seconds=seconds)
+    remaining = seconds
+    while remaining > 0 and not (run_dir / "STOP").exists():
+        interval = min(1.0, remaining)
+        threading.Event().wait(interval)
+        remaining -= interval
+
+
 def run_cycles(run_dir: Path, launcher: Launcher, completed_cycle_limit: int | None = None) -> None:
+    with run_lock(run_dir):
+        if not load_run(run_dir).get("search"):
+            _run_legacy_cycles(run_dir, launcher, completed_cycle_limit)
+            return
+        run = load_run(run_dir)
+        if run.get("status") not in ("running", "paused"):
+            raise RuntimeError(f"cannot continue status {run.get('status')}")
+        run.update(status="running", stop_reason="")
+        save_run(run_dir, run)
+        package = Path(run["package_copy"])
+        if not _tree_matches_script(run, package):
+            reset_to(package, run["script_head"])
+        recent = read_journal(run_dir, limit=1)
+        scoreboard = read_json(run_dir / "scoreboard.json")
+        scoreboard["cycles"] = max(int(scoreboard.get("cycles", 0)), int(recent[-1].get("cycle") or 0) if recent else 0)
+        atomic_write(run_dir / "scoreboard.json", scoreboard)
+        print(status_text(run_dir), flush=True)
+        failures = 0
+        try:
+            while True:
+                if (run_dir / "STOP").exists():
+                    _pause(run_dir, "stop_requested")
+                    return
+                scoreboard = read_json(run_dir / "scoreboard.json")
+                if completed_cycle_limit is not None and int(scoreboard.get("cycles", 0)) >= completed_cycle_limit:
+                    _pause(run_dir, "cycle_budget")
+                    return
+                entry = _search_cycle(run_dir, launcher)
+                failures = failures + 1 if entry["outcome"] == "worker_failed" else 0
+                if failures >= 5:
+                    _pause(run_dir, "worker_failures")
+                    return
+                streak = int(read_json(run_dir / "scoreboard.json").get("no_keep_streak", 0))
+                completed = int(read_json(run_dir / "scoreboard.json").get("cycles", 0))
+                if streak and (completed_cycle_limit is None or completed < completed_cycle_limit):
+                    _cooldown(run_dir, min(300, 2 ** min(streak, 9)))
+        except KeyboardInterrupt:
+            _pause(run_dir, "interrupted")
+        except Exception as exc:
+            _pause(run_dir, f"error: {str(exc)[:1000]}")
+            raise
+
+
+def _run_legacy_cycles(run_dir: Path, launcher: Launcher, completed_cycle_limit: int | None = None) -> None:
     while True:
         if not _ensure_continuable(run_dir):
             print(load_run(run_dir).get("stop_reason") or "", flush=True)
@@ -1194,6 +1364,8 @@ def evolve_package(
     timeout_sec: float = 60,
     task: str | None = None,
     completed_cycle_limit: int | None = None,
+    continuous: bool = True,
+    eval_repeats: int = 3,
 ) -> Path:
     run_dir = prepare_run(
         package=package,
@@ -1207,16 +1379,18 @@ def evolve_package(
         runs_root=runs_root,
         timeout_sec=timeout_sec,
         task=task,
+        continuous=continuous,
+        eval_repeats=eval_repeats,
     )
     print(run_dir, flush=True)
     run_cycles(run_dir, launcher, completed_cycle_limit)
     return run_dir
 
 
-def continue_package(run_dir: Path, launcher: Launcher) -> Path:
+def continue_package(run_dir: Path, launcher: Launcher, completed_cycle_limit: int | None = None) -> Path:
     run_dir = run_dir.resolve()
     print(run_dir, flush=True)
-    run_cycles(run_dir, launcher)
+    run_cycles(run_dir, launcher, completed_cycle_limit)
     return run_dir
 
 

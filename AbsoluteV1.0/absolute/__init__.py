@@ -1,3 +1,3 @@
-"""Absolute v1.0: disk-backed optimization runs for robotics packages."""
+"""Absolute: disk-backed continuous optimization for software stacks."""
 
-__version__ = "1.0"
+__version__ = "1.1.0-dev"

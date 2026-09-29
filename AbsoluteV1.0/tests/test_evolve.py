@@ -7,6 +7,7 @@ import unittest
 from io import StringIO
 from pathlib import Path
 from contextlib import redirect_stderr
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -17,26 +18,53 @@ from absolute.engine import (
     round_is_nothing_new,
     runner_authority,
     score_stage,
+    search_keep_reason,
     target_hit,
     unique_proposals,
     validate_charter,
 )
-from absolute.launch import LaunchError, agent_argv
+from absolute.launch import LaunchError, _run_command, agent_argv
 from absolute.loop import (
     STAGE_ATTEMPTS,
     continue_package,
     evolve_package,
+    external_scorer_files,
+    immutable_in_package,
     literature_queries,
     prepare_run,
 )
 from absolute.package import copy_package
-from absolute.store import load_run, read_journal, read_json
+from absolute.store import load_run, read_journal, read_json, run_lock
 
 TOY = ROOT / "examples" / "toy_stack" / "algo_v1.1"
 WORKER = ROOT / "tests" / "fixtures" / "scheduled_worker.py"
 
 
 class CharterAndQueryTests(unittest.TestCase):
+    def test_native_evaluator_entrypoint_and_data_are_protected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package = root / "package"
+            package.mkdir()
+            (package / "benchmark.bin").write_bytes(b"binary")
+            (package / "dataset.yaml").write_text("cases: []", encoding="utf-8")
+            self.assertEqual(immutable_in_package(["./benchmark.bin", "dataset.yaml"], package), ["benchmark.bin", "dataset.yaml"])
+            scorer = root / "measure.sh"
+            scorer.write_text("exit 0", encoding="utf-8")
+            self.assertEqual(external_scorer_files([str(scorer)], package), [scorer.resolve()])
+
+    def test_search_accepts_secondary_improvements_after_target(self):
+        charter = {"metrics": {
+            "primary": {"name": "score", "direction": "maximize", "noise": 0.1, "target": 5},
+            "protected": [{"name": "memory_mb", "direction": "minimize", "max_regression": 1}],
+        }}
+        baseline = {"score": 5, "memory_mb": 10}
+        self.assertIsNone(search_keep_reason(charter, baseline, {"score": 5, "memory_mb": 7}, baseline))
+        self.assertIn("regressed", search_keep_reason(charter, baseline, {"score": 4, "memory_mb": 7}, baseline))
+        self.assertIn("baseline", search_keep_reason(charter, {"score": 6, "memory_mb": 11}, {"score": 7, "memory_mb": 12}, baseline))
+        self.assertIn("finite", search_keep_reason(charter, baseline, {"score": float("nan"), "memory_mb": 7}, baseline))
+        self.assertIn("no metric", search_keep_reason(charter, baseline, baseline, baseline))
+
     def test_target_hit_uses_the_goal_and_not_the_noise_margin(self):
         self.assertTrue(target_hit({"direction": "maximize", "target": 1}, 1))
         self.assertFalse(target_hit({"direction": "maximize", "target": 1}, 0.9))
@@ -113,6 +141,48 @@ class CharterAndQueryTests(unittest.TestCase):
             self.assertIn(phrase, text)
         self.assertNotIn("research cluster", text)
         self.assertNotIn("completed_cycle_limit", text)
+
+
+class LauncherProgressTests(unittest.TestCase):
+    def test_only_one_runner_can_own_a_folder(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with run_lock(Path(directory)):
+                with self.assertRaisesRegex(RuntimeError, "another runner"):
+                    with run_lock(Path(directory)):
+                        self.fail("second runner acquired lock")
+            with run_lock(Path(directory)):
+                pass
+
+    def test_model_can_be_selected_without_a_fake_context_flag(self):
+        with patch.dict("os.environ", {"ABSOLUTE_MODEL": "chosen-model"}):
+            argv = agent_argv("brief.json", "optimize", which=lambda name: "agent")
+        self.assertIn("chosen-model", argv)
+        self.assertIn("stream-json", argv)
+        self.assertNotIn("--context-window", argv)
+
+    def test_worker_reports_progress_and_preserves_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            brief = {"run": directory, "brief_path": str(root / "worker.json"), "role": "edit", "cycle": 1}
+            output = StringIO()
+            with redirect_stderr(output):
+                _run_command([sys.executable, "-c", "print('worker result')"], brief, directory)
+            self.assertIn("worker_started", output.getvalue())
+            self.assertIn("worker_finished", output.getvalue())
+            self.assertIn("worker result", (root / "worker.log").read_text())
+            events = [json.loads(line) for line in (root / "events.jsonl").read_text().splitlines()]
+            self.assertEqual(events[-1]["returncode"], 0)
+
+    def test_worker_timeout_is_bounded_and_visible(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            brief = {"run": directory, "brief_path": str(root / "worker.json"), "role": "edit"}
+            output = StringIO()
+            with patch.dict("os.environ", {"ABSOLUTE_WORKER_TIMEOUT_SEC": "0.2", "ABSOLUTE_HEARTBEAT_SEC": "0.05"}):
+                with redirect_stderr(output), self.assertRaisesRegex(LaunchError, "exceeded"):
+                    _run_command([sys.executable, "-c", "import threading; threading.Event().wait()"], brief, directory)
+            self.assertIn("worker_heartbeat", output.getvalue())
+            self.assertIn("worker_timeout", output.getvalue())
 
 
 class CopyTests(unittest.TestCase):
@@ -304,6 +374,7 @@ class EvolveTests(unittest.TestCase):
             "launcher": launcher,
             "runs_root": self.runs,
             "timeout_sec": 30,
+            "continuous": False,
         }
         payload.update(kwargs)
         return evolve_package(**payload)
@@ -313,6 +384,7 @@ class EvolveTests(unittest.TestCase):
         main(
             [
                 "evolve",
+                "--until-target",
                 "--package",
                 str(self.stack / "algo_v1.1"),
                 "--scenario",
@@ -383,6 +455,99 @@ class EvolveTests(unittest.TestCase):
         ]
         self.assertGreaterEqual(len({item["pid"] for item in literature}), 8)
         self.assertNotIn("needs_human", (run / "run.json").read_text(encoding="utf-8"))
+
+    def test_continuous_search_rotates_metrics_and_continues_past_target(self):
+        briefs = []
+
+        def launcher(brief):
+            briefs.append(brief)
+            package = Path(brief["package_copy"])
+            _write_algo(package, 5, 8 if brief["cycle"] == 1 else 4)
+            _behavior_test(package, 5, 8 if brief["cycle"] == 1 else 4)
+            ToyLauncher._write(brief["result"], {"hypothesis": "improve score then latency", "behavior_test": [sys.executable, "-B", "-m", "unittest", "test_behavior"]})
+
+        run = self.evolve(launcher, continuous=True, completed_cycle_limit=2, eval_repeats=1)
+        self.assertEqual([brief["role"] for brief in briefs], ["optimize", "optimize"])
+        self.assertEqual([brief["focus"]["metric"] for brief in briefs], ["score", "latency_ms"])
+        self.assertEqual([entry["outcome"] for entry in read_journal(run)], ["baseline", "keep", "keep"])
+        self.assertEqual(load_run(run)["stop_reason"], "cycle_budget")
+        self.assertFalse(load_run(run)["sota_verified"])
+        self.assertTrue(briefs[1]["feedback"])
+        self.assertNotIn("eval_command", briefs[0])
+        self.assertLess(len(json.dumps(briefs[1]).encode()), 64000)
+        self.assertEqual((self.stack / "algo_v1.1" / "algo.py").read_text(), "VALUE = 1\nLATENCY_MS = 10\n")
+
+    def test_continuous_stop_request_and_resume(self):
+        run = self.evolve(lambda brief: self.fail("must not launch"), continuous=True, completed_cycle_limit=0, eval_repeats=1)
+        (run / "STOP").touch()
+        continue_package(run, lambda brief: self.fail("must not launch"))
+        self.assertEqual(load_run(run)["stop_reason"], "stop_requested")
+        (run / "STOP").unlink()
+        continue_package(run, lambda brief: self.fail("must not launch"), completed_cycle_limit=0)
+        self.assertEqual(load_run(run)["stop_reason"], "cycle_budget")
+
+    def test_cli_defaults_to_continuous_search_with_visible_dashboard(self):
+        main([
+            "evolve", "--package", str(self.stack / "algo_v1.1"), "--scenario", str(self.scenario),
+            "--metric", "score", "--direction", "maximize", "--noise", "0.1", "--target", "1",
+            "--max-cycles", "2", "--eval-repeats", "1", "--runs-root", str(self.runs),
+            "--worker", str(WORKER), "--eval", sys.executable, "evaluate.py",
+        ])
+        run = next(self.runs.iterdir())
+        self.assertEqual(load_run(run)["stop_reason"], "cycle_budget")
+        self.assertEqual(read_json(run / "scoreboard.json")["keeps"], 2)
+        events = [json.loads(line) for line in (run / "events.jsonl").read_text().splitlines()]
+        self.assertEqual(sum(entry["event"] == "worker_started" for entry in events), 2)
+        from contextlib import redirect_stdout
+
+        output = StringIO()
+        with redirect_stdout(output):
+            main(["status", "--run", str(run), "--dashboard"])
+        self.assertIn("latency_ms", output.getvalue())
+        self.assertIn("SOTA: unverified", output.getvalue())
+        self.assertIn("[##########]", output.getvalue())
+
+    def test_continuous_interrupt_restores_the_incumbent(self):
+        def launcher(brief):
+            _write_algo(Path(brief["package_copy"]), 999, 999)
+            raise KeyboardInterrupt()
+
+        run = self.evolve(launcher, continuous=True, eval_repeats=1)
+        self.assertEqual(load_run(run)["stop_reason"], "interrupted")
+        self.assertIn("VALUE = 1", (Path(load_run(run)["package_copy"]) / "algo.py").read_text())
+
+    def test_continuous_behavior_test_cannot_rewrite_the_scoreboard(self):
+        def launcher(brief):
+            package = Path(brief["package_copy"])
+            _write_algo(package, 5, 4)
+            board = str(Path(brief["run"]) / "scoreboard.json")
+            (package / "test_guard.py").write_text(
+                f"from pathlib import Path\nPath({board!r}).write_text('{{}}')\n", encoding="utf-8",
+            )
+            ToyLauncher._write(brief["result"], {"hypothesis": "tamper during testing", "behavior_test": [sys.executable, "test_guard.py"]})
+
+        run = self.evolve(launcher, continuous=True, eval_repeats=1, completed_cycle_limit=1)
+        self.assertEqual(read_journal(run)[-1]["outcome"], "bad_edit")
+        self.assertEqual(read_json(run / "scoreboard.json")["best"]["score"], 1)
+
+
+    def test_continuous_worker_failure_rolls_back_and_retries(self):
+        calls = []
+
+        def launcher(brief):
+            calls.append(brief)
+            package = Path(brief["package_copy"])
+            if len(calls) == 1:
+                _write_algo(package, 999, 999)
+                raise LaunchError("transient failure")
+            self.assertIn("VALUE = 1", (package / "algo.py").read_text())
+            _write_algo(package, 5, 4)
+            _behavior_test(package, 5, 4)
+            ToyLauncher._write(brief["result"], {"hypothesis": "recover", "behavior_test": [sys.executable, "-B", "-m", "unittest", "test_behavior"]})
+
+        with patch("absolute.loop._cooldown"):
+            run = self.evolve(launcher, continuous=True, completed_cycle_limit=2, eval_repeats=1)
+        self.assertEqual([entry["outcome"] for entry in read_journal(run)], ["baseline", "worker_failed", "keep"])
 
     def test_missing_scenario_does_not_copy_the_package(self):
         with redirect_stderr(StringIO()):
@@ -481,6 +646,30 @@ class EvolveTests(unittest.TestCase):
         self.assertEqual(entry["outcome"], "revert")
         self.assertEqual(entry["error"], "latency-only")
         self.assertEqual((copy / "algo.py").read_text(encoding="utf-8"), "VALUE = 1\nLATENCY_MS = 10\n")
+
+    def test_search_stage_accepts_latency_only_with_existing_tests(self):
+        run = prepare_run(
+            package=self.stack / "algo_v1.1", scenario=self.scenario,
+            metric="score", direction="maximize", noise=0.1, target=5,
+            eval_command=[sys.executable, "evaluate.py"], runs_root=self.runs,
+        )
+        package = Path(load_run(run)["package_copy"])
+        _write_algo(package, 1, 4)
+        (package / "test_behavior.py").write_text(
+            "import unittest, algo\nclass Behavior(unittest.TestCase):\n"
+            "    def test_score(self):\n        self.assertEqual(algo.VALUE, 1)\n", encoding="utf-8",
+        )
+        with runner_authority():
+            entry = score_stage(
+                run, read_json(run / "charter.json"), stage="search_edit", cycle_n=1,
+                hypothesis="preserve score and reduce latency", base_sha=load_run(run)["script_head"],
+                behavior_test=[sys.executable, "-B", "-m", "unittest", "test_behavior"],
+                pre_metrics={"score": 1, "latency_ms": 10},
+            )
+        self.assertEqual(entry["outcome"], "keep")
+        samples = read_json(run / "eval" / "cycle-000001-candidate.json")["samples"]
+        self.assertEqual(len(samples), 3)
+        self.assertEqual(read_json(run / "scoreboard.json")["best"]["latency_ms"], 4)
 
     def test_removing_a_message_field_is_a_bad_edit(self):
         (self.stack / "algo_v1.1" / "Pose.msg").write_text("float64 width\nfloat64 height\n", encoding="utf-8")
