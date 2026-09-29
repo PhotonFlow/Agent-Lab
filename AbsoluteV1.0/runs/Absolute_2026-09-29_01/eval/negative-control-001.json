@@ -1,0 +1,8 @@
+{
+  "baseline": 0.001999999999999993,
+  "candidate_file": "geometry_core/src/pose.cpp",
+  "control": 0.6666696666599167,
+  "loss": 0.6646696666599167,
+  "metric": "pose_error_m",
+  "status": "sensitive"
+}

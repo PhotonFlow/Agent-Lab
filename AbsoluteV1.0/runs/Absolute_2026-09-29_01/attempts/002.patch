@@ -1,0 +1,347 @@
+diff --git a/geometry_core/src/chamfer.cpp b/geometry_core/src/chamfer.cpp
+index 399e89f..a704a43 100644
+--- a/geometry_core/src/chamfer.cpp
++++ b/geometry_core/src/chamfer.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include <algorithm>
+ #include <cmath>
++#include <limits>
+ #include <stdexcept>
+ #include <vector>
+ 
+@@ -145,6 +146,96 @@ void sample_bilinear_into(const Eigen::Ref<const Eigen::MatrixXd>& points_2d,
+   }
+ }
+ 
++// Bilinear sample of `points + (tx, ty)`. Same parenthesization as
++// sample_bilinear_into on a pre-translated matrix: ((x + tx) - min) / res.
++void sample_bilinear_offset_into(const Eigen::Ref<const Eigen::MatrixXd>& points_2d, double tx,
++                                 double ty, const cv::Mat& dist_img_m, const GridMeta& meta,
++                                 double outside_penalty_m, Eigen::ArrayXd& out) {
++  const int H = dist_img_m.rows;
++  const int W = dist_img_m.cols;
++  const size_t step = static_cast<size_t>(dist_img_m.step1());
++  const float* base = dist_img_m.ptr<float>(0);
++  const double min_x = meta.min_xy.x();
++  const double min_y = meta.min_xy.y();
++  const double resolution_m = meta.resolution_m;
++  const long n = points_2d.rows();
++  const double* xs = points_2d.col(0).data();
++  const double* ys = points_2d.col(1).data();
++  out.setConstant(outside_penalty_m);
++
++  for (long i = 0; i < n; ++i) {
++    const double x = xs[i] + tx;
++    const double y = ys[i] + ty;
++    const double col_f = (x - min_x) / resolution_m;
++    const double row_f = (y - min_y) / resolution_m;
++    const long c0 = static_cast<long>(std::floor(col_f));
++    const long r0 = static_cast<long>(std::floor(row_f));
++    const double dx = col_f - static_cast<double>(c0);
++    const double dy = row_f - static_cast<double>(r0);
++
++    if (r0 >= 0 && r0 + 1 < H && c0 >= 0 && c0 + 1 < W) {
++      const float* row0 = base + static_cast<size_t>(r0) * step;
++      const float* row1 = base + static_cast<size_t>(r0 + 1) * step;
++      const double d00 = static_cast<double>(row0[c0]);
++      const double d01 = static_cast<double>(row0[c0 + 1]);
++      const double d10 = static_cast<double>(row1[c0]);
++      const double d11 = static_cast<double>(row1[c0 + 1]);
++      out(i) = (1.0 - dx) * (1.0 - dy) * d00 + dx * (1.0 - dy) * d01 +
++               (1.0 - dx) * dy * d10 + dx * dy * d11;
++    }
++  }
++}
++
++// Lower bound on the trimmed mean. Bin edges are <= the values placed in
++// that bin, so the sum of the lowest edges is <= the sum of the smallest
++// `keep` distances. One ulp is then shaved off so a tight bound cannot hide
++// an equal-cost tie.
++double histogram_lower_mean(const Eigen::ArrayXd& distances, double trim_fraction) {
++  constexpr int kBins = 512;
++  constexpr double kHistMax = 4.0;  // metres; 4/512 is an exact binary width
++  const long n = distances.size();
++  if (n <= 0) {
++    return 0.0;
++  }
++  long keep = n;
++  if (trim_fraction > 0.0) {
++    keep = std::max<long>(
++        1, static_cast<long>(std::ceil((1.0 - trim_fraction) * static_cast<double>(n))));
++  }
++  const double width = kHistMax / static_cast<double>(kBins);
++  const double inv = 1.0 / width;
++  int counts[kBins] = {};
++  const double* data = distances.data();
++  for (long i = 0; i < n; ++i) {
++    const double d = data[i];
++    int b = 0;
++    if (d > 0.0) {
++      b = static_cast<int>(d * inv);
++      if (b >= kBins) {
++        b = kBins - 1;
++      } else if (b < 0) {
++        b = 0;
++      }
++      while (b > 0 && static_cast<double>(b) * width > d) {
++        --b;
++      }
++    }
++    counts[b] += 1;
++  }
++  double lower = 0.0;
++  long remaining = keep;
++  for (int b = 0; b < kBins && remaining > 0; ++b) {
++    const long take = std::min<long>(counts[b], remaining);
++    lower += static_cast<double>(take) * (static_cast<double>(b) * width);
++    remaining -= take;
++  }
++  lower = std::nextafter(lower, 0.0);
++  if (!(lower > 0.0)) {
++    lower = 0.0;
++  }
++  return lower / static_cast<double>(keep);
++}
++
+ // Trimmed mean over `distances`, using `sorted` as scratch. Keeps the full
+ // std::sort + ascending prefix-sum ordering identical to chamfer_cost_v2.
+ double trimmed_mean_from_distances(Eigen::ArrayXd& distances, double trim_fraction,
+@@ -201,19 +292,65 @@ void rotate_proto_into(const Eigen::Ref<const Eigen::MatrixXd>& proto,
+   out = proto * R.transpose();
+ }
+ 
++double outside_penalty_or_default(const double* outside_penalty_m, const GridMeta& meta) {
++  return outside_penalty_m != nullptr ? *outside_penalty_m : 50.0 * meta.resolution_m;
++}
++
+ double chamfer_cost_from_rotated(const Eigen::MatrixXd& rotated, double tx, double ty,
+                                  const cv::Mat& dist_img_m, const GridMeta& meta,
+                                  double trim_fraction, const double* outside_penalty_m,
+                                  ChamferTls& tls) {
+-  const double penalty = outside_penalty_m != nullptr ? *outside_penalty_m
+-                                                      : 50.0 * meta.resolution_m;
+-  tls.translated = rotated;
+-  tls.translated.col(0).array() += tx;
+-  tls.translated.col(1).array() += ty;
+-  sample_bilinear_into(tls.translated, dist_img_m, meta, penalty, tls.distances);
++  const double penalty = outside_penalty_or_default(outside_penalty_m, meta);
++  sample_bilinear_offset_into(rotated, tx, ty, dist_img_m, meta, penalty, tls.distances);
+   return trimmed_mean_from_distances(tls.distances, trim_fraction, tls.sorted);
+ }
+ 
++double chamfer_cost_from_rotated_reject(const Eigen::MatrixXd& rotated, double tx, double ty,
++                                        const cv::Mat& dist_img_m, const GridMeta& meta,
++                                        double trim_fraction, const double* outside_penalty_m,
++                                        ChamferTls& tls, double reject_at, double* anchor_out,
++                                        bool* is_exact) {
++  const double penalty = outside_penalty_or_default(outside_penalty_m, meta);
++  sample_bilinear_offset_into(rotated, tx, ty, dist_img_m, meta, penalty, tls.distances);
++  const double lower = histogram_lower_mean(tls.distances, trim_fraction);
++  if (lower > reject_at) {
++    if (anchor_out != nullptr) {
++      *anchor_out = lower;
++    }
++    if (is_exact != nullptr) {
++      *is_exact = false;
++    }
++    return reject_at;
++  }
++  const double exact = trimmed_mean_from_distances(tls.distances, trim_fraction, tls.sorted);
++  if (anchor_out != nullptr) {
++    *anchor_out = exact;
++  }
++  if (is_exact != nullptr) {
++    *is_exact = true;
++  }
++  return exact;
++}
++
++bool search_window_inside(const Eigen::MatrixXd& rotated, double tx_lo, double tx_hi,
++                          double ty_lo, double ty_hi, const GridMeta& meta, int rows, int cols) {
++  if (rotated.rows() <= 0 || !(meta.resolution_m > 0.0)) {
++    return false;
++  }
++  const double min_x = rotated.col(0).minCoeff();
++  const double max_x = rotated.col(0).maxCoeff();
++  const double min_y = rotated.col(1).minCoeff();
++  const double max_y = rotated.col(1).maxCoeff();
++  const double res = meta.resolution_m;
++  const double col_lo = (min_x + tx_lo - meta.min_xy.x()) / res;
++  const double col_hi = (max_x + tx_hi - meta.min_xy.x()) / res;
++  const double row_lo = (min_y + ty_lo - meta.min_xy.y()) / res;
++  const double row_hi = (max_y + ty_hi - meta.min_xy.y()) / res;
++  // One-pixel margin so the bilinear neighbourhood stays on the image.
++  return col_lo >= 1.0 && row_lo >= 1.0 && col_hi <= static_cast<double>(cols) - 2.0 &&
++         row_hi <= static_cast<double>(rows) - 2.0;
++}
++
+ }  // namespace chamfer_detail
+ 
+ double chamfer_cost_v2(const Eigen::Ref<const Eigen::MatrixXd>& proto_points_2d,
+@@ -287,6 +424,16 @@ std::pair<PrototypePose2D, double> coarse_chamfer_search_v2(
+     chamfer_detail::ensure_tls_size(tls, proto_points_2d.rows());
+     tls.cached_theta_i = -1;
+ 
++    const double tx_lo = init_pose.tx + dx_values.front();
++    const double tx_hi = init_pose.tx + dx_values.back();
++    const double ty_lo = init_pose.ty + dy_values.front();
++    const double ty_hi = init_pose.ty + dy_values.back();
++    bool theta_lipschitz = false;
++    bool have_bound = false;
++    double bound_anchor = 0.0;
++    double bound_tx = 0.0;
++    double bound_ty = 0.0;
++
+ #pragma omp for schedule(static)
+     for (long flat = 0; flat < total; ++flat) {
+       const long theta_i = flat / (n_y * n_x);
+@@ -299,11 +446,27 @@ std::pair<PrototypePose2D, double> coarse_chamfer_search_v2(
+         chamfer_detail::rotate_proto_into(proto_points_2d, theta, tls.rotated);
+         tls.cached_theta_i = theta_i;
+         tls.cached_theta_rad = theta;
++        theta_lipschitz = chamfer_detail::search_window_inside(
++            tls.rotated, tx_lo, tx_hi, ty_lo, ty_hi, meta, dist_img_m.rows, dist_img_m.cols);
++        have_bound = false;
+       }
+       const double tx = init_pose.tx + dx_values[x_i];
+       const double ty = init_pose.ty + dy_values[y_i];
+-      const double cost = chamfer_detail::chamfer_cost_from_rotated(
+-          tls.rotated, tx, ty, dist_img_m, meta, trim_fraction, outside_penalty_m, tls);
++      if (have_bound && theta_lipschitz &&
++          chamfer_detail::lipschitz_worse(bound_anchor, bound_tx, bound_ty, tx, ty,
++                                           local_best_cost)) {
++        continue;
++      }
++      double anchor = 0.0;
++      bool exact = false;
++      const double cost = chamfer_detail::chamfer_cost_from_rotated_reject(
++          tls.rotated, tx, ty, dist_img_m, meta, trim_fraction, outside_penalty_m, tls,
++          local_best_cost, &anchor, &exact);
++      (void)exact;
++      have_bound = true;
++      bound_anchor = anchor;
++      bound_tx = tx;
++      bound_ty = ty;
+       if (cost < local_best_cost ||
+           (local_best_index < 0 && cost < local_best_cost)) {
+         local_best_cost = cost;
+diff --git a/geometry_core/src/chamfer_internal.hpp b/geometry_core/src/chamfer_internal.hpp
+index 54deadd..80e45e0 100644
+--- a/geometry_core/src/chamfer_internal.hpp
++++ b/geometry_core/src/chamfer_internal.hpp
+@@ -1,5 +1,6 @@
+ #pragma once
+ 
++#include <cmath>
+ #include <vector>
+ 
+ #include "geometry_core/chamfer.hpp"
+@@ -37,5 +38,35 @@ double chamfer_cost_from_rotated(const Eigen::MatrixXd& rotated, double tx, doub
+                                  double trim_fraction, const double* outside_penalty_m,
+                                  ChamferTls& tls);
+ 
++// Same arithmetic as chamfer_cost_from_rotated. When a histogram lower bound
++// already exceeds `reject_at`, skips the trimmed-mean sort and returns
++// `reject_at`. `*anchor_out` receives a value <= the exact cost (exact when
++// computed, otherwise the histogram lower bound) for a Lipschitz prune.
++// `*is_exact` is true when the returned cost is the trimmed mean. Otherwise the
++// cell is proven strictly worse than `reject_at` and the returned cost is
++// `reject_at` itself.
++double chamfer_cost_from_rotated_reject(const Eigen::MatrixXd& rotated, double tx, double ty,
++                                        const cv::Mat& dist_img_m, const GridMeta& meta,
++                                        double trim_fraction, const double* outside_penalty_m,
++                                        ChamferTls& tls, double reject_at, double* anchor_out,
++                                        bool* is_exact);
++
++// True when every contour point, under every translation in the axis-aligned
++// window, lands far enough inside the distance image that bilinear samples
++// never hit the outside penalty. The bilinear distance is then Lipschitz in
++// translation, so a neighbour can be pruned from an evaluated anchor.
++bool search_window_inside(const Eigen::MatrixXd& rotated, double tx_lo, double tx_hi,
++                          double ty_lo, double ty_hi, const GridMeta& meta, int rows, int cols);
++
++// Bilinear samples of a grid-Lipschitz distance change at up to sqrt(2) per
++// metre of translation; 1.5 leaves a margin over that constant.
++inline constexpr double kChamferLipschitz = 1.5;
++
++inline bool lipschitz_worse(double anchor, double ax, double ay, double tx, double ty,
++                            double best_cost) {
++  const double dist = std::hypot(tx - ax, ty - ay);
++  return anchor - kChamferLipschitz * dist > best_cost;
++}
++
+ }  // namespace chamfer_detail
+ }  // namespace geometry_core
+diff --git a/geometry_core/src/chamfer_prior.cpp b/geometry_core/src/chamfer_prior.cpp
+index 138819b..0731003 100644
+--- a/geometry_core/src/chamfer_prior.cpp
++++ b/geometry_core/src/chamfer_prior.cpp
+@@ -1,6 +1,7 @@
+ #include "geometry_core/chamfer_prior.hpp"
+ 
+ #include <cmath>
++#include <limits>
+ #include <vector>
+ 
+ #include "chamfer_internal.hpp"
+@@ -74,6 +75,19 @@ std::pair<PrototypePose2D, double> coarse_chamfer_search_v2_with_prior(
+     chamfer_detail::ensure_tls_size(tls, proto_points_2d.rows());
+     tls.cached_theta_i = -1;
+ 
++    const double tx_lo = init_pose.tx + dx_values.front();
++    const double tx_hi = init_pose.tx + dx_values.back();
++    const double ty_lo = init_pose.ty + dy_values.front();
++    const double ty_hi = init_pose.ty + dy_values.back();
++    bool theta_lipschitz = false;
++    bool have_bound = false;
++    double bound_anchor = 0.0;
++    double bound_tx = 0.0;
++    double bound_ty = 0.0;
++    // The prior search reports the best grid cell, not the init seed, so the
++    // prune threshold starts at +inf and tightens only after an exact cell.
++    double prune_at = std::numeric_limits<double>::infinity();
++
+ #pragma omp for schedule(static)
+     for (long flat = 0; flat < total; ++flat) {
+       const long theta_i = flat / (n_y * n_x);
+@@ -86,14 +100,36 @@ std::pair<PrototypePose2D, double> coarse_chamfer_search_v2_with_prior(
+         chamfer_detail::rotate_proto_into(proto_points_2d, theta, tls.rotated);
+         tls.cached_theta_i = theta_i;
+         tls.cached_theta_rad = theta;
++        theta_lipschitz = chamfer_detail::search_window_inside(
++            tls.rotated, tx_lo, tx_hi, ty_lo, ty_hi, meta, dist_img_m.rows, dist_img_m.cols);
++        have_bound = false;
+       }
+       const double tx = init_pose.tx + dx_values[x_i];
+       const double ty = init_pose.ty + dy_values[y_i];
+-      const double data = chamfer_detail::chamfer_cost_from_rotated(
+-          tls.rotated, tx, ty, dist_img_m, meta, trim_fraction, outside_penalty_m, tls);
+       const double px = tx - anchor_xy.x();
+       const double py = ty - anchor_xy.y();
+-      const double cost = data + prior_lambda * (px * px + py * py);
++      const double reg = prior_lambda * (px * px + py * py);
++      if (have_bound && theta_lipschitz &&
++          chamfer_detail::lipschitz_worse(bound_anchor, bound_tx, bound_ty, tx, ty,
++                                           prune_at - reg)) {
++        continue;
++      }
++      double anchor = 0.0;
++      bool exact = false;
++      const double data = chamfer_detail::chamfer_cost_from_rotated_reject(
++          tls.rotated, tx, ty, dist_img_m, meta, trim_fraction, outside_penalty_m, tls,
++          prune_at - reg, &anchor, &exact);
++      have_bound = true;
++      bound_anchor = anchor;
++      bound_tx = tx;
++      bound_ty = ty;
++      if (!exact) {
++        continue;
++      }
++      const double cost = data + reg;
++      if (cost < prune_at) {
++        prune_at = cost;
++      }
+       if (local_best_index < 0 || cost < local_best_cost) {
+         local_best_cost = cost;
+         local_best_pose = PrototypePose2D{tls.cached_theta_rad, tx, ty};

@@ -1,0 +1,8 @@
+{
+  "baseline": 174.494069,
+  "candidate_file": "geometry_core/src/pose.cpp",
+  "control": 675.424722,
+  "loss": 500.930653,
+  "metric": "latency_ms",
+  "status": "sensitive"
+}

@@ -1,0 +1,142 @@
+[0.113s] Invoking command in '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src/geometry_core -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core
+[0.507s] -- The CXX compiler identification is GNU 13.3.0
+[1.500s] -- Detecting CXX compiler ABI info
+[2.652s] -- Detecting CXX compiler ABI info - done
+[2.676s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[2.678s] -- Detecting CXX compile features
+[2.679s] -- Detecting CXX compile features - done
+[2.832s] -- Found ament_cmake: 2.5.6 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[3.026s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[3.551s] -- Found OpenCV: /usr (found version "4.6.0") found components: core imgproc 
+[5.765s] -- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+[5.766s] -- Found OpenMP: TRUE (found version "4.5")  
+[5.854s] -- Found ament_cmake_gtest: 2.5.6 (/opt/ros/jazzy/share/ament_cmake_gtest/cmake)
+[5.884s] -- Found gtest sources under '/opt/ros/jazzy/src/gtest_vendor': C++ tests using 'Google Test' will be built
+[6.410s] -- The C compiler identification is GNU 13.3.0
+[7.243s] -- Detecting C compiler ABI info
+[8.456s] -- Detecting C compiler ABI info - done
+[8.481s] -- Check for working C compiler: /usr/bin/cc - skipped
+[8.483s] -- Detecting C compile features
+[8.485s] -- Detecting C compile features - done
+[8.570s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[10.056s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[10.058s] -- Found Threads: TRUE  
+[11.099s] -- Configuring done (10.9s)
+[14.342s] -- Generating done (3.1s)
+[15.800s] -- Build files have been written to: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core
+[15.806s] Invoked command in '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src/geometry_core -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core
+[15.810s] Invoking command in '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --build /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core -- -j20 -l20
+[16.058s] [  4%] Building CXX object gtest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[16.061s] [  4%] Building CXX object gtest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[16.129s] [  6%] Building CXX object CMakeFiles/geometry_core.dir/src/version.cpp.o
+[16.136s] [  8%] Building CXX object CMakeFiles/geometry_core.dir/src/transforms.cpp.o
+[16.143s] [ 10%] Building CXX object CMakeFiles/geometry_core.dir/src/pose.cpp.o
+[16.147s] [ 12%] Building CXX object CMakeFiles/geometry_core.dir/src/plane_fit.cpp.o
+[16.161s] [ 14%] Building CXX object CMakeFiles/geometry_core.dir/src/plane_coords.cpp.o
+[16.172s] [ 21%] Building CXX object CMakeFiles/geometry_core.dir/src/face_mask.cpp.o
+[16.173s] [ 21%] Building CXX object CMakeFiles/geometry_core.dir/src/camera_config.cpp.o
+[16.175s] [ 21%] Building CXX object CMakeFiles/geometry_core.dir/src/prototype.cpp.o
+[16.181s] [ 23%] Building CXX object CMakeFiles/geometry_core.dir/src/chamfer.cpp.o
+[16.187s] [ 25%] Building CXX object CMakeFiles/geometry_core.dir/src/chamfer_lm.cpp.o
+[16.197s] [ 27%] Building CXX object CMakeFiles/geometry_core.dir/src/pca_init.cpp.o
+[16.207s] [ 31%] Building CXX object CMakeFiles/geometry_core.dir/src/chamfer_prior.cpp.o
+[16.211s] [ 31%] Building CXX object CMakeFiles/geometry_core.dir/src/backproject.cpp.o
+[16.226s] [ 34%] Building CXX object CMakeFiles/geometry_core.dir/src/pipeline_v3_2.cpp.o
+[17.351s] [ 36%] Linking CXX static library libgtest_main.a
+[17.496s] [ 36%] Built target gtest_main
+[18.096s] /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src/geometry_core/src/plane_fit.cpp: In function ‘geometry_core::Plane geometry_core::ransac_plane_fit(const Eigen::Ref<const Eigen::Matrix<double, -1, -1> >&, double, int, double, std::mt19937_64&)’:
+[18.098s] /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src/geometry_core/src/plane_fit.cpp:82:10: warning: variable ‘best_offset’ set but not used [-Wunused-but-set-variable]
+[18.099s]    82 |   double best_offset = 0.0;
+[18.101s]       |          ^~~~~~~~~~~
+[23.646s] [ 38%] Linking CXX static library libgeometry_core.a
+[24.135s] [ 38%] Built target geometry_core
+[24.300s] [ 40%] Linking CXX static library libgtest.a
+[24.632s] [ 40%] Built target gtest
+[24.959s] [ 55%] Building CXX object CMakeFiles/test_plane_coords.dir/test/test_plane_coords.cpp.o
+[24.960s] [ 55%] Building CXX object CMakeFiles/test_chamfer.dir/test/test_chamfer.cpp.o
+[24.964s] [ 55%] Building CXX object CMakeFiles/test_prototype.dir/test/test_prototype.cpp.o
+[24.971s] [ 55%] Building CXX object CMakeFiles/test_plane_fit.dir/test/test_plane_fit.cpp.o
+[24.976s] [ 55%] Building CXX object CMakeFiles/test_pose.dir/test/test_pose.cpp.o
+[24.978s] [ 55%] Building CXX object CMakeFiles/test_face_mask.dir/test/test_face_mask.cpp.o
+[24.980s] [ 55%] Building CXX object CMakeFiles/test_pca_init.dir/test/test_pca_init.cpp.o
+[24.992s] [ 70%] Building CXX object CMakeFiles/test_frontal_lm_pose.dir/test/test_frontal_lm_pose.cpp.o
+[24.995s] [ 70%] Building CXX object CMakeFiles/test_pipeline_v3_2.dir/test/test_pipeline_v3_2.cpp.o
+[25.000s] [ 70%] Building CXX object CMakeFiles/test_version.dir/test/test_version.cpp.o
+[25.006s] [ 70%] Building CXX object CMakeFiles/test_chamfer_prior.dir/test/test_chamfer_prior.cpp.o
+[25.009s] [ 70%] Building CXX object CMakeFiles/test_backproject.dir/test/test_backproject.cpp.o
+[25.011s] [ 70%] Building CXX object CMakeFiles/test_camera_config.dir/test/test_camera_config.cpp.o
+[25.013s] [ 70%] Building CXX object CMakeFiles/test_transforms.dir/test/test_transforms.cpp.o
+[26.928s] [ 72%] Linking CXX executable test_version
+[27.527s] [ 74%] Linking CXX executable test_pose
+[28.001s] [ 76%] Linking CXX executable test_plane_coords
+[28.058s] [ 78%] Linking CXX executable test_prototype
+[28.201s] [ 80%] Linking CXX executable test_face_mask
+[28.262s] [ 82%] Linking CXX executable test_plane_fit
+[28.286s] [ 85%] Linking CXX executable test_camera_config
+[28.333s] [ 87%] Linking CXX executable test_transforms
+[28.486s] [ 87%] Built target test_version
+[28.541s] [ 89%] Linking CXX executable test_pipeline_v3_2
+[28.600s] [ 91%] Linking CXX executable test_backproject
+[28.805s] [ 93%] Linking CXX executable test_chamfer_prior
+[28.871s] [ 95%] Linking CXX executable test_pca_init
+[29.028s] [ 97%] Linking CXX executable test_frontal_lm_pose
+[29.468s] [100%] Linking CXX executable test_chamfer
+[29.631s] /usr/bin/ld: CMakeFiles/test_camera_config.dir/test/test_camera_config.cpp.o: in function `(anonymous namespace)::write_temp_yaml(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)':
+[29.637s] test_camera_config.cpp:(.text+0x1a1): warning: the use of `tmpnam' is dangerous, better use `mkstemp'
+[30.532s] [100%] Built target test_pose
+[31.482s] [100%] Built target test_prototype
+[31.485s] [100%] Built target test_plane_coords
+[31.705s] [100%] Built target test_face_mask
+[31.996s] [100%] Built target test_plane_fit
+[32.010s] [100%] Built target test_transforms
+[32.147s] [100%] Built target test_camera_config
+[32.412s] [100%] Built target test_chamfer_prior
+[32.537s] [100%] Built target test_backproject
+[32.569s] [100%] Built target test_pca_init
+[32.662s] [100%] Built target test_chamfer
+[32.844s] [100%] Built target test_pipeline_v3_2
+[32.971s] [100%] Built target test_frontal_lm_pose
+[33.216s] Invoked command in '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --build /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core -- -j20 -l20
+[33.257s] Invoking command in '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --install /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core
+[33.271s] -- Install configuration: "Release"
+[33.280s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include
+[33.309s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core
+[33.354s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/backproject.hpp
+[33.480s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/camera_config.hpp
+[33.600s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/chamfer.hpp
+[33.708s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/chamfer_lm.hpp
+[33.828s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/chamfer_prior.hpp
+[33.933s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/face_mask.hpp
+[34.041s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/pca_init.hpp
+[34.158s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/pipeline_v3_2.hpp
+[34.266s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/plane_coords.hpp
+[34.374s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/plane_fit.hpp
+[34.486s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/pose.hpp
+[34.589s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/prototype.hpp
+[34.683s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/schemas.hpp
+[34.790s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/transforms.hpp
+[34.915s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/version.hpp
+[35.026s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/lib/libgeometry_core.a
+[35.176s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/library_path.sh
+[35.272s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/library_path.dsv
+[35.432s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/ament_index/resource_index/package_run_dependencies/geometry_core
+[35.607s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/ament_index/resource_index/parent_prefix_path/geometry_core
+[35.721s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/ament_prefix_path.sh
+[35.832s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/ament_prefix_path.dsv
+[35.931s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/path.sh
+[36.024s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/path.dsv
+[36.132s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.bash
+[36.230s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.sh
+[36.330s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.zsh
+[36.404s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.dsv
+[36.504s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/package.dsv
+[36.652s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/ament_index/resource_index/packages/geometry_core
+[36.798s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_core_targetsExport.cmake
+[36.927s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_core_targetsExport-release.cmake
+[37.054s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/ament_cmake_export_targets-extras.cmake
+[37.172s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/ament_cmake_export_dependencies-extras.cmake
+[37.301s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/ament_cmake_export_include_directories-extras.cmake
+[37.423s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_coreConfig.cmake
+[37.536s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_coreConfig-version.cmake
+[37.658s] -- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/package.xml
+[37.754s] Invoked command in '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --install /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core

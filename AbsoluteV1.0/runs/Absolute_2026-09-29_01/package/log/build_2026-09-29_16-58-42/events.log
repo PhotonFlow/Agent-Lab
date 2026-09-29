@@ -1,0 +1,539 @@
+[0.000000] (-) TimerEvent: {}
+[0.000591] (-) JobUnselected: {'identifier': 'pps_dataset_replay'}
+[0.000900] (-) JobUnselected: {'identifier': 'pps_pallet_pose_cpp'}
+[0.001051] (-) JobUnselected: {'identifier': 'pps_perception_bringup'}
+[0.001265] (-) JobUnselected: {'identifier': 'pps_perception_msgs'}
+[0.001639] (-) JobUnselected: {'identifier': 'pps_rtdetr_detector'}
+[0.001818] (geometry_core) JobQueued: {'identifier': 'geometry_core', 'dependencies': OrderedDict()}
+[0.002054] (geometry_core) JobStarted: {'identifier': 'geometry_core'}
+[0.042858] (geometry_core) JobProgress: {'identifier': 'geometry_core', 'progress': 'cmake'}
+[0.097034] (-) TimerEvent: {}
+[0.103258] (geometry_core) Command: {'cmd': ['/usr/bin/cmake', '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src/geometry_core', '-DBUILD_TESTING=ON', '-DCMAKE_INSTALL_PREFIX=/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core'], 'cwd': '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core', 'env': OrderedDict({'USER': 'alanpeng', 'GZ_CONFIG_PATH': '/opt/ros/jazzy/opt/sdformat_vendor/share/gz', 'SHLVL': '0', 'LD_LIBRARY_PATH': '/opt/ros/jazzy/opt/sdformat_vendor/lib:/opt/ros/jazzy/opt/rviz_ogre_vendor/lib:/opt/ros/jazzy/lib/x86_64-linux-gnu:/opt/ros/jazzy/opt/gz_math_vendor/lib:/opt/ros/jazzy/opt/gz_utils_vendor/lib:/opt/ros/jazzy/opt/gz_tools_vendor/lib:/opt/ros/jazzy/opt/gz_cmake_vendor/lib:/opt/ros/jazzy/lib', 'WT_PROFILE_ID': '{61c54bbd-c2c6-5271-96e7-009a87ff44bf}', 'HOME': '/home/alanpeng', 'OLDPWD': '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src', 'ROS_PYTHON_VERSION': '3', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1001/bus', 'WSL_DISTRO_NAME': 'Ubuntu', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'jazzy', 'LOGNAME': 'alanpeng', 'NAME': 'HUAWEIMatebook', 'WSL_INTEROP': '/run/WSL/34723_interop', 'PULSE_SERVER': 'unix:/mnt/wslg/PulseServer', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'TERM': 'xterm-256color', 'PATH': '/opt/ros/jazzy/opt/gz_tools_vendor/bin:/opt/ros/jazzy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/alanpeng/AppData/Local/cursor-agent/versions/2026.09.28-64d2043:/mnt/c/Users/alanpeng/AppData/Local/cursor-agent/versions/2026.09.26-dd393fe:/mnt/c/Users/alanpeng/anaconda3:/mnt/c/Users/alanpeng/anaconda3/Library/mingw-w64/bin:/mnt/c/Users/alanpeng/anaconda3/Library/usr/bin:/mnt/c/Users/alanpeng/anaconda3/Library/bin:/mnt/c/Users/alanpeng/anaconda3/Scripts:/mnt/c/Users/alanpeng/anaconda3/bin:/mnt/c/Users/alanpeng/anaconda3/condabin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.0/bin/x64:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.0/bin:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/bin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/libnvvp:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:/mnt/c/Windows/System32/OpenSSH:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0:/mnt/c/WINDOWS/System32/OpenSSH:/mnt/c/Program Files/dotnet:/mnt/c/Users/alanpeng/.pixi/bin:/mnt/c/Users/alanpeng/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/alanpeng/.dotnet/tools:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2025.3.1:/mnt/c/Program Files/cursor/resources/app/bin:/mnt/c/Program Files/nodejs:/mnt/c/Users/alanpeng/.local/bin:/mnt/c/Users/alanpeng/.pixi/bin:/mnt/c/Users/alanpeng/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/alanpeng/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/alanpeng/.dotnet/tools:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Users/alanpeng/AppData/Roaming/npm:/mnt/c/Users/alanpeng/AppData/Local/Programs/MiKTeX/miktex/bin/x64:/mnt/c/Users/alanpeng/AppData/Local/Programs/Antigravity/bin:/mnt/c/Users/alanpeng/AppData/Local/cursor-agent:/snap/bin', 'WT_SESSION': '57269acc-ec0d-4b11-80bb-bd872bc159e4', 'XDG_RUNTIME_DIR': '/run/user/1001/', 'DISPLAY': ':0', 'LANG': 'C.UTF-8', 'AMENT_PREFIX_PATH': '/opt/ros/jazzy', 'SHELL': '/bin/bash', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'PWD': '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core', 'XDG_DATA_DIRS': '/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'PYTHONPATH': '/opt/ros/jazzy/lib/python3.12/site-packages', 'COLCON': '1', 'WSL2_GUI_APPS_ENABLED': '1', 'HOSTTYPE': 'x86_64', 'CMAKE_PREFIX_PATH': '/opt/ros/jazzy/opt/sdformat_vendor:/opt/ros/jazzy/opt/gz_math_vendor:/opt/ros/jazzy/opt/gz_utils_vendor:/opt/ros/jazzy/opt/gz_tools_vendor:/opt/ros/jazzy/opt/gz_cmake_vendor:/opt/ros/jazzy', 'WSLENV': 'WT_SESSION:WT_PROFILE_ID:'}), 'shell': False}
+[0.197097] (-) TimerEvent: {}
+[0.297524] (-) TimerEvent: {}
+[0.399070] (-) TimerEvent: {}
+[0.499325] (-) TimerEvent: {}
+[0.508600] (geometry_core) StdoutLine: {'line': b'-- The CXX compiler identification is GNU 13.3.0\n'}
+[0.599394] (-) TimerEvent: {}
+[0.699825] (-) TimerEvent: {}
+[0.800358] (-) TimerEvent: {}
+[0.900649] (-) TimerEvent: {}
+[1.001042] (-) TimerEvent: {}
+[1.101529] (-) TimerEvent: {}
+[1.201744] (-) TimerEvent: {}
+[1.302440] (-) TimerEvent: {}
+[1.403058] (-) TimerEvent: {}
+[1.501188] (geometry_core) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info\n'}
+[1.503093] (-) TimerEvent: {}
+[1.603300] (-) TimerEvent: {}
+[1.703508] (-) TimerEvent: {}
+[1.803727] (-) TimerEvent: {}
+[1.904467] (-) TimerEvent: {}
+[2.005656] (-) TimerEvent: {}
+[2.106132] (-) TimerEvent: {}
+[2.206646] (-) TimerEvent: {}
+[2.307099] (-) TimerEvent: {}
+[2.407653] (-) TimerEvent: {}
+[2.509735] (-) TimerEvent: {}
+[2.610970] (-) TimerEvent: {}
+[2.653278] (geometry_core) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info - done\n'}
+[2.677471] (geometry_core) StdoutLine: {'line': b'-- Check for working CXX compiler: /usr/bin/c++ - skipped\n'}
+[2.679705] (geometry_core) StdoutLine: {'line': b'-- Detecting CXX compile features\n'}
+[2.680351] (geometry_core) StdoutLine: {'line': b'-- Detecting CXX compile features - done\n'}
+[2.711271] (-) TimerEvent: {}
+[2.811924] (-) TimerEvent: {}
+[2.832492] (geometry_core) StdoutLine: {'line': b'-- Found ament_cmake: 2.5.6 (/opt/ros/jazzy/share/ament_cmake/cmake)\n'}
+[2.912033] (-) TimerEvent: {}
+[3.012682] (-) TimerEvent: {}
+[3.027251] (geometry_core) StdoutLine: {'line': b'-- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter \n'}
+[3.112798] (-) TimerEvent: {}
+[3.213424] (-) TimerEvent: {}
+[3.313892] (-) TimerEvent: {}
+[3.414254] (-) TimerEvent: {}
+[3.514867] (-) TimerEvent: {}
+[3.551654] (geometry_core) StdoutLine: {'line': b'-- Found OpenCV: /usr (found version "4.6.0") found components: core imgproc \n'}
+[3.615007] (-) TimerEvent: {}
+[3.716165] (-) TimerEvent: {}
+[3.816959] (-) TimerEvent: {}
+[3.917961] (-) TimerEvent: {}
+[4.018810] (-) TimerEvent: {}
+[4.119867] (-) TimerEvent: {}
+[4.220930] (-) TimerEvent: {}
+[4.321278] (-) TimerEvent: {}
+[4.422018] (-) TimerEvent: {}
+[4.522523] (-) TimerEvent: {}
+[4.623253] (-) TimerEvent: {}
+[4.723729] (-) TimerEvent: {}
+[4.824717] (-) TimerEvent: {}
+[4.927414] (-) TimerEvent: {}
+[5.032553] (-) TimerEvent: {}
+[5.136110] (-) TimerEvent: {}
+[5.236684] (-) TimerEvent: {}
+[5.339178] (-) TimerEvent: {}
+[5.445144] (-) TimerEvent: {}
+[5.545770] (-) TimerEvent: {}
+[5.646318] (-) TimerEvent: {}
+[5.747405] (-) TimerEvent: {}
+[5.766532] (geometry_core) StdoutLine: {'line': b'-- Found OpenMP_CXX: -fopenmp (found version "4.5") \n'}
+[5.767463] (geometry_core) StdoutLine: {'line': b'-- Found OpenMP: TRUE (found version "4.5")  \n'}
+[5.847739] (-) TimerEvent: {}
+[5.854552] (geometry_core) StdoutLine: {'line': b'-- Found ament_cmake_gtest: 2.5.6 (/opt/ros/jazzy/share/ament_cmake_gtest/cmake)\n'}
+[5.885608] (geometry_core) StdoutLine: {'line': b"-- Found gtest sources under '/opt/ros/jazzy/src/gtest_vendor': C++ tests using 'Google Test' will be built\n"}
+[5.948094] (-) TimerEvent: {}
+[6.049838] (-) TimerEvent: {}
+[6.150894] (-) TimerEvent: {}
+[6.256103] (-) TimerEvent: {}
+[6.367378] (-) TimerEvent: {}
+[6.411041] (geometry_core) StdoutLine: {'line': b'-- The C compiler identification is GNU 13.3.0\n'}
+[6.469211] (-) TimerEvent: {}
+[6.574514] (-) TimerEvent: {}
+[6.676356] (-) TimerEvent: {}
+[6.780683] (-) TimerEvent: {}
+[6.886099] (-) TimerEvent: {}
+[6.990750] (-) TimerEvent: {}
+[7.098176] (-) TimerEvent: {}
+[7.201296] (-) TimerEvent: {}
+[7.243872] (geometry_core) StdoutLine: {'line': b'-- Detecting C compiler ABI info\n'}
+[7.304011] (-) TimerEvent: {}
+[7.404768] (-) TimerEvent: {}
+[7.510377] (-) TimerEvent: {}
+[7.617352] (-) TimerEvent: {}
+[7.721011] (-) TimerEvent: {}
+[7.826407] (-) TimerEvent: {}
+[7.927704] (-) TimerEvent: {}
+[8.031736] (-) TimerEvent: {}
+[8.133628] (-) TimerEvent: {}
+[8.238934] (-) TimerEvent: {}
+[8.343893] (-) TimerEvent: {}
+[8.446138] (-) TimerEvent: {}
+[8.457517] (geometry_core) StdoutLine: {'line': b'-- Detecting C compiler ABI info - done\n'}
+[8.481972] (geometry_core) StdoutLine: {'line': b'-- Check for working C compiler: /usr/bin/cc - skipped\n'}
+[8.483947] (geometry_core) StdoutLine: {'line': b'-- Detecting C compile features\n'}
+[8.485829] (geometry_core) StdoutLine: {'line': b'-- Detecting C compile features - done\n'}
+[8.548577] (-) TimerEvent: {}
+[8.570768] (geometry_core) StdoutLine: {'line': b'-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n'}
+[8.652334] (-) TimerEvent: {}
+[8.757270] (-) TimerEvent: {}
+[8.862540] (-) TimerEvent: {}
+[8.965692] (-) TimerEvent: {}
+[9.071530] (-) TimerEvent: {}
+[9.172278] (-) TimerEvent: {}
+[9.273168] (-) TimerEvent: {}
+[9.374065] (-) TimerEvent: {}
+[9.474999] (-) TimerEvent: {}
+[9.575793] (-) TimerEvent: {}
+[9.676803] (-) TimerEvent: {}
+[9.777796] (-) TimerEvent: {}
+[9.878820] (-) TimerEvent: {}
+[9.982630] (-) TimerEvent: {}
+[10.056674] (geometry_core) StdoutLine: {'line': b'-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n'}
+[10.058686] (geometry_core) StdoutLine: {'line': b'-- Found Threads: TRUE  \n'}
+[10.082739] (-) TimerEvent: {}
+[10.183990] (-) TimerEvent: {}
+[10.284635] (-) TimerEvent: {}
+[10.385781] (-) TimerEvent: {}
+[10.486511] (-) TimerEvent: {}
+[10.587249] (-) TimerEvent: {}
+[10.687929] (-) TimerEvent: {}
+[10.788722] (-) TimerEvent: {}
+[10.889519] (-) TimerEvent: {}
+[10.990342] (-) TimerEvent: {}
+[11.091001] (-) TimerEvent: {}
+[11.099784] (geometry_core) StdoutLine: {'line': b'-- Configuring done (10.9s)\n'}
+[11.191161] (-) TimerEvent: {}
+[11.291929] (-) TimerEvent: {}
+[11.392488] (-) TimerEvent: {}
+[11.493373] (-) TimerEvent: {}
+[11.593824] (-) TimerEvent: {}
+[11.694805] (-) TimerEvent: {}
+[11.795837] (-) TimerEvent: {}
+[11.896501] (-) TimerEvent: {}
+[11.997060] (-) TimerEvent: {}
+[12.097923] (-) TimerEvent: {}
+[12.199014] (-) TimerEvent: {}
+[12.299776] (-) TimerEvent: {}
+[12.400452] (-) TimerEvent: {}
+[12.501068] (-) TimerEvent: {}
+[12.601651] (-) TimerEvent: {}
+[12.702198] (-) TimerEvent: {}
+[12.802877] (-) TimerEvent: {}
+[12.903610] (-) TimerEvent: {}
+[13.011154] (-) TimerEvent: {}
+[13.119907] (-) TimerEvent: {}
+[13.224472] (-) TimerEvent: {}
+[13.333100] (-) TimerEvent: {}
+[13.434140] (-) TimerEvent: {}
+[13.542906] (-) TimerEvent: {}
+[13.651586] (-) TimerEvent: {}
+[13.757708] (-) TimerEvent: {}
+[13.868636] (-) TimerEvent: {}
+[13.971834] (-) TimerEvent: {}
+[14.072517] (-) TimerEvent: {}
+[14.172959] (-) TimerEvent: {}
+[14.273278] (-) TimerEvent: {}
+[14.343658] (geometry_core) StdoutLine: {'line': b'-- Generating done (3.1s)\n'}
+[14.373439] (-) TimerEvent: {}
+[14.474077] (-) TimerEvent: {}
+[14.574880] (-) TimerEvent: {}
+[14.676022] (-) TimerEvent: {}
+[14.776736] (-) TimerEvent: {}
+[14.877089] (-) TimerEvent: {}
+[14.977980] (-) TimerEvent: {}
+[15.078424] (-) TimerEvent: {}
+[15.178962] (-) TimerEvent: {}
+[15.279641] (-) TimerEvent: {}
+[15.380032] (-) TimerEvent: {}
+[15.480737] (-) TimerEvent: {}
+[15.581690] (-) TimerEvent: {}
+[15.682714] (-) TimerEvent: {}
+[15.783484] (-) TimerEvent: {}
+[15.801614] (geometry_core) StdoutLine: {'line': b'-- Build files have been written to: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core\n'}
+[15.805754] (geometry_core) CommandEnded: {'returncode': 0}
+[15.808734] (geometry_core) JobProgress: {'identifier': 'geometry_core', 'progress': 'build'}
+[15.811875] (geometry_core) Command: {'cmd': ['/usr/bin/cmake', '--build', '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core', '--', '-j20', '-l20'], 'cwd': '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core', 'env': OrderedDict({'USER': 'alanpeng', 'GZ_CONFIG_PATH': '/opt/ros/jazzy/opt/sdformat_vendor/share/gz', 'SHLVL': '0', 'LD_LIBRARY_PATH': '/opt/ros/jazzy/opt/sdformat_vendor/lib:/opt/ros/jazzy/opt/rviz_ogre_vendor/lib:/opt/ros/jazzy/lib/x86_64-linux-gnu:/opt/ros/jazzy/opt/gz_math_vendor/lib:/opt/ros/jazzy/opt/gz_utils_vendor/lib:/opt/ros/jazzy/opt/gz_tools_vendor/lib:/opt/ros/jazzy/opt/gz_cmake_vendor/lib:/opt/ros/jazzy/lib', 'WT_PROFILE_ID': '{61c54bbd-c2c6-5271-96e7-009a87ff44bf}', 'HOME': '/home/alanpeng', 'OLDPWD': '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src', 'ROS_PYTHON_VERSION': '3', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1001/bus', 'WSL_DISTRO_NAME': 'Ubuntu', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'jazzy', 'LOGNAME': 'alanpeng', 'NAME': 'HUAWEIMatebook', 'WSL_INTEROP': '/run/WSL/34723_interop', 'PULSE_SERVER': 'unix:/mnt/wslg/PulseServer', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'TERM': 'xterm-256color', 'PATH': '/opt/ros/jazzy/opt/gz_tools_vendor/bin:/opt/ros/jazzy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/alanpeng/AppData/Local/cursor-agent/versions/2026.09.28-64d2043:/mnt/c/Users/alanpeng/AppData/Local/cursor-agent/versions/2026.09.26-dd393fe:/mnt/c/Users/alanpeng/anaconda3:/mnt/c/Users/alanpeng/anaconda3/Library/mingw-w64/bin:/mnt/c/Users/alanpeng/anaconda3/Library/usr/bin:/mnt/c/Users/alanpeng/anaconda3/Library/bin:/mnt/c/Users/alanpeng/anaconda3/Scripts:/mnt/c/Users/alanpeng/anaconda3/bin:/mnt/c/Users/alanpeng/anaconda3/condabin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.0/bin/x64:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.0/bin:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/bin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/libnvvp:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:/mnt/c/Windows/System32/OpenSSH:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0:/mnt/c/WINDOWS/System32/OpenSSH:/mnt/c/Program Files/dotnet:/mnt/c/Users/alanpeng/.pixi/bin:/mnt/c/Users/alanpeng/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/alanpeng/.dotnet/tools:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2025.3.1:/mnt/c/Program Files/cursor/resources/app/bin:/mnt/c/Program Files/nodejs:/mnt/c/Users/alanpeng/.local/bin:/mnt/c/Users/alanpeng/.pixi/bin:/mnt/c/Users/alanpeng/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/alanpeng/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/alanpeng/.dotnet/tools:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Users/alanpeng/AppData/Roaming/npm:/mnt/c/Users/alanpeng/AppData/Local/Programs/MiKTeX/miktex/bin/x64:/mnt/c/Users/alanpeng/AppData/Local/Programs/Antigravity/bin:/mnt/c/Users/alanpeng/AppData/Local/cursor-agent:/snap/bin', 'WT_SESSION': '57269acc-ec0d-4b11-80bb-bd872bc159e4', 'XDG_RUNTIME_DIR': '/run/user/1001/', 'DISPLAY': ':0', 'LANG': 'C.UTF-8', 'AMENT_PREFIX_PATH': '/opt/ros/jazzy', 'SHELL': '/bin/bash', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'PWD': '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core', 'XDG_DATA_DIRS': '/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'PYTHONPATH': '/opt/ros/jazzy/lib/python3.12/site-packages', 'COLCON': '1', 'WSL2_GUI_APPS_ENABLED': '1', 'HOSTTYPE': 'x86_64', 'CMAKE_PREFIX_PATH': '/opt/ros/jazzy/opt/sdformat_vendor:/opt/ros/jazzy/opt/gz_math_vendor:/opt/ros/jazzy/opt/gz_utils_vendor:/opt/ros/jazzy/opt/gz_tools_vendor:/opt/ros/jazzy/opt/gz_cmake_vendor:/opt/ros/jazzy', 'WSLENV': 'WT_SESSION:WT_PROFILE_ID:'}), 'shell': False}
+[15.883593] (-) TimerEvent: {}
+[15.983887] (-) TimerEvent: {}
+[16.058149] (geometry_core) StdoutLine: {'line': b'[  4%] Building CXX object gtest/CMakeFiles/gtest.dir/src/gtest-all.cc.o\n'}
+[16.060967] (geometry_core) StdoutLine: {'line': b'[  4%] Building CXX object gtest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o\n'}
+[16.083997] (-) TimerEvent: {}
+[16.130380] (geometry_core) StdoutLine: {'line': b'[  6%] Building CXX object CMakeFiles/geometry_core.dir/src/version.cpp.o\n'}
+[16.136819] (geometry_core) StdoutLine: {'line': b'[  8%] Building CXX object CMakeFiles/geometry_core.dir/src/transforms.cpp.o\n'}
+[16.143006] (geometry_core) StdoutLine: {'line': b'[ 10%] Building CXX object CMakeFiles/geometry_core.dir/src/pose.cpp.o\n'}
+[16.147855] (geometry_core) StdoutLine: {'line': b'[ 12%] Building CXX object CMakeFiles/geometry_core.dir/src/plane_fit.cpp.o\n'}
+[16.161478] (geometry_core) StdoutLine: {'line': b'[ 14%] Building CXX object CMakeFiles/geometry_core.dir/src/plane_coords.cpp.o\n'}
+[16.171463] (geometry_core) StdoutLine: {'line': b'[ 21%] Building CXX object CMakeFiles/geometry_core.dir/src/face_mask.cpp.o\n'}
+[16.174234] (geometry_core) StdoutLine: {'line': b'[ 21%] Building CXX object CMakeFiles/geometry_core.dir/src/camera_config.cpp.o\n'}
+[16.176040] (geometry_core) StdoutLine: {'line': b'[ 21%] Building CXX object CMakeFiles/geometry_core.dir/src/prototype.cpp.o\n'}
+[16.181158] (geometry_core) StdoutLine: {'line': b'[ 23%] Building CXX object CMakeFiles/geometry_core.dir/src/chamfer.cpp.o\n'}
+[16.184024] (-) TimerEvent: {}
+[16.187189] (geometry_core) StdoutLine: {'line': b'[ 25%] Building CXX object CMakeFiles/geometry_core.dir/src/chamfer_lm.cpp.o\n'}
+[16.195323] (geometry_core) StdoutLine: {'line': b'[ 27%] Building CXX object CMakeFiles/geometry_core.dir/src/pca_init.cpp.o\n'}
+[16.206721] (geometry_core) StdoutLine: {'line': b'[ 31%] Building CXX object CMakeFiles/geometry_core.dir/src/chamfer_prior.cpp.o\n'}
+[16.210510] (geometry_core) StdoutLine: {'line': b'[ 31%] Building CXX object CMakeFiles/geometry_core.dir/src/backproject.cpp.o\n'}
+[16.225237] (geometry_core) StdoutLine: {'line': b'[ 34%] Building CXX object CMakeFiles/geometry_core.dir/src/pipeline_v3_2.cpp.o\n'}
+[16.284196] (-) TimerEvent: {}
+[16.384874] (-) TimerEvent: {}
+[16.485460] (-) TimerEvent: {}
+[16.586075] (-) TimerEvent: {}
+[16.686558] (-) TimerEvent: {}
+[16.787115] (-) TimerEvent: {}
+[16.887713] (-) TimerEvent: {}
+[16.988413] (-) TimerEvent: {}
+[17.089099] (-) TimerEvent: {}
+[17.189841] (-) TimerEvent: {}
+[17.290518] (-) TimerEvent: {}
+[17.352004] (geometry_core) StdoutLine: {'line': b'[ 36%] Linking CXX static library libgtest_main.a\n'}
+[17.390679] (-) TimerEvent: {}
+[17.491322] (-) TimerEvent: {}
+[17.496950] (geometry_core) StdoutLine: {'line': b'[ 36%] Built target gtest_main\n'}
+[17.591497] (-) TimerEvent: {}
+[17.692169] (-) TimerEvent: {}
+[17.792788] (-) TimerEvent: {}
+[17.893488] (-) TimerEvent: {}
+[17.994216] (-) TimerEvent: {}
+[18.094873] (-) TimerEvent: {}
+[18.096958] (geometry_core) StderrLine: {'line': b'/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src/geometry_core/src/plane_fit.cpp: In function \xe2\x80\x98geometry_core::Plane geometry_core::ransac_plane_fit(const Eigen::Ref<const Eigen::Matrix<double, -1, -1> >&, double, int, double, std::mt19937_64&)\xe2\x80\x99:\n'}
+[18.098695] (geometry_core) StderrLine: {'line': b'/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src/geometry_core/src/plane_fit.cpp:82:10: warning: variable \xe2\x80\x98best_offset\xe2\x80\x99 set but not used [-Wunused-but-set-variable]\n'}
+[18.100095] (geometry_core) StderrLine: {'line': b'   82 |   double best_offset = 0.0;\n'}
+[18.101649] (geometry_core) StderrLine: {'line': b'      |          ^~~~~~~~~~~\n'}
+[18.195052] (-) TimerEvent: {}
+[18.295706] (-) TimerEvent: {}
+[18.396380] (-) TimerEvent: {}
+[18.496927] (-) TimerEvent: {}
+[18.597677] (-) TimerEvent: {}
+[18.698416] (-) TimerEvent: {}
+[18.799136] (-) TimerEvent: {}
+[18.899833] (-) TimerEvent: {}
+[19.000486] (-) TimerEvent: {}
+[19.101062] (-) TimerEvent: {}
+[19.201836] (-) TimerEvent: {}
+[19.302519] (-) TimerEvent: {}
+[19.403330] (-) TimerEvent: {}
+[19.504257] (-) TimerEvent: {}
+[19.605315] (-) TimerEvent: {}
+[19.706351] (-) TimerEvent: {}
+[19.806941] (-) TimerEvent: {}
+[19.907608] (-) TimerEvent: {}
+[20.010837] (-) TimerEvent: {}
+[20.111873] (-) TimerEvent: {}
+[20.212814] (-) TimerEvent: {}
+[20.313647] (-) TimerEvent: {}
+[20.414071] (-) TimerEvent: {}
+[20.515048] (-) TimerEvent: {}
+[20.615722] (-) TimerEvent: {}
+[20.716555] (-) TimerEvent: {}
+[20.817109] (-) TimerEvent: {}
+[20.918278] (-) TimerEvent: {}
+[21.019224] (-) TimerEvent: {}
+[21.120013] (-) TimerEvent: {}
+[21.220877] (-) TimerEvent: {}
+[21.321517] (-) TimerEvent: {}
+[21.422625] (-) TimerEvent: {}
+[21.523356] (-) TimerEvent: {}
+[21.624077] (-) TimerEvent: {}
+[21.725254] (-) TimerEvent: {}
+[21.826832] (-) TimerEvent: {}
+[21.927863] (-) TimerEvent: {}
+[22.028816] (-) TimerEvent: {}
+[22.131844] (-) TimerEvent: {}
+[22.232386] (-) TimerEvent: {}
+[22.333033] (-) TimerEvent: {}
+[22.434117] (-) TimerEvent: {}
+[22.534815] (-) TimerEvent: {}
+[22.635745] (-) TimerEvent: {}
+[22.736124] (-) TimerEvent: {}
+[22.837237] (-) TimerEvent: {}
+[22.937987] (-) TimerEvent: {}
+[23.038746] (-) TimerEvent: {}
+[23.139759] (-) TimerEvent: {}
+[23.240481] (-) TimerEvent: {}
+[23.341145] (-) TimerEvent: {}
+[23.442074] (-) TimerEvent: {}
+[23.542803] (-) TimerEvent: {}
+[23.643518] (-) TimerEvent: {}
+[23.647953] (geometry_core) StdoutLine: {'line': b'[ 38%] Linking CXX static library libgeometry_core.a\n'}
+[23.743652] (-) TimerEvent: {}
+[23.844073] (-) TimerEvent: {}
+[23.946828] (-) TimerEvent: {}
+[24.047273] (-) TimerEvent: {}
+[24.137143] (geometry_core) StdoutLine: {'line': b'[ 38%] Built target geometry_core\n'}
+[24.147362] (-) TimerEvent: {}
+[24.247738] (-) TimerEvent: {}
+[24.302105] (geometry_core) StdoutLine: {'line': b'[ 40%] Linking CXX static library libgtest.a\n'}
+[24.347844] (-) TimerEvent: {}
+[24.448319] (-) TimerEvent: {}
+[24.548722] (-) TimerEvent: {}
+[24.633365] (geometry_core) StdoutLine: {'line': b'[ 40%] Built target gtest\n'}
+[24.648812] (-) TimerEvent: {}
+[24.752285] (-) TimerEvent: {}
+[24.854793] (-) TimerEvent: {}
+[24.958152] (-) TimerEvent: {}
+[24.959872] (geometry_core) StdoutLine: {'line': b'[ 55%] Building CXX object CMakeFiles/test_plane_coords.dir/test/test_plane_coords.cpp.o\n'}
+[24.961552] (geometry_core) StdoutLine: {'line': b'[ 55%] Building CXX object CMakeFiles/test_chamfer.dir/test/test_chamfer.cpp.o\n'}
+[24.963157] (geometry_core) StdoutLine: {'line': b'[ 55%] Building CXX object CMakeFiles/test_prototype.dir/test/test_prototype.cpp.o\n'}
+[24.968313] (geometry_core) StdoutLine: {'line': b'[ 55%] Building CXX object CMakeFiles/test_plane_fit.dir/test/test_plane_fit.cpp.o\n'}
+[24.974754] (geometry_core) StdoutLine: {'line': b'[ 55%] Building CXX object CMakeFiles/test_pose.dir/test/test_pose.cpp.o\n'}
+[24.978906] (geometry_core) StdoutLine: {'line': b'[ 55%] Building CXX object CMakeFiles/test_face_mask.dir/test/test_face_mask.cpp.o\n'}
+[24.980437] (geometry_core) StdoutLine: {'line': b'[ 55%] Building CXX object CMakeFiles/test_pca_init.dir/test/test_pca_init.cpp.o\n'}
+[24.993137] (geometry_core) StdoutLine: {'line': b'[ 70%] Building CXX object CMakeFiles/test_frontal_lm_pose.dir/test/test_frontal_lm_pose.cpp.o\n'}
+[24.994432] (geometry_core) StdoutLine: {'line': b'[ 70%] Building CXX object CMakeFiles/test_pipeline_v3_2.dir/test/test_pipeline_v3_2.cpp.o\n'}
+[24.998635] (geometry_core) StdoutLine: {'line': b'[ 70%] Building CXX object CMakeFiles/test_version.dir/test/test_version.cpp.o\n'}
+[25.003418] (geometry_core) StdoutLine: {'line': b'[ 70%] Building CXX object CMakeFiles/test_chamfer_prior.dir/test/test_chamfer_prior.cpp.o\n'}
+[25.009462] (geometry_core) StdoutLine: {'line': b'[ 70%] Building CXX object CMakeFiles/test_backproject.dir/test/test_backproject.cpp.o\n'}
+[25.011614] (geometry_core) StdoutLine: {'line': b'[ 70%] Building CXX object CMakeFiles/test_camera_config.dir/test/test_camera_config.cpp.o\n'}
+[25.013460] (geometry_core) StdoutLine: {'line': b'[ 70%] Building CXX object CMakeFiles/test_transforms.dir/test/test_transforms.cpp.o\n'}
+[25.058317] (-) TimerEvent: {}
+[25.158820] (-) TimerEvent: {}
+[25.259286] (-) TimerEvent: {}
+[25.359999] (-) TimerEvent: {}
+[25.462871] (-) TimerEvent: {}
+[25.563484] (-) TimerEvent: {}
+[25.664317] (-) TimerEvent: {}
+[25.765033] (-) TimerEvent: {}
+[25.865706] (-) TimerEvent: {}
+[25.966354] (-) TimerEvent: {}
+[26.066977] (-) TimerEvent: {}
+[26.192695] (-) TimerEvent: {}
+[26.293336] (-) TimerEvent: {}
+[26.393991] (-) TimerEvent: {}
+[26.494725] (-) TimerEvent: {}
+[26.595401] (-) TimerEvent: {}
+[26.696025] (-) TimerEvent: {}
+[26.796651] (-) TimerEvent: {}
+[26.897278] (-) TimerEvent: {}
+[26.928607] (geometry_core) StdoutLine: {'line': b'[ 72%] Linking CXX executable test_version\n'}
+[26.997456] (-) TimerEvent: {}
+[27.098052] (-) TimerEvent: {}
+[27.198709] (-) TimerEvent: {}
+[27.299291] (-) TimerEvent: {}
+[27.399838] (-) TimerEvent: {}
+[27.500434] (-) TimerEvent: {}
+[27.527964] (geometry_core) StdoutLine: {'line': b'[ 74%] Linking CXX executable test_pose\n'}
+[27.600608] (-) TimerEvent: {}
+[27.701274] (-) TimerEvent: {}
+[27.801898] (-) TimerEvent: {}
+[27.902813] (-) TimerEvent: {}
+[28.002348] (geometry_core) StdoutLine: {'line': b'[ 76%] Linking CXX executable test_plane_coords\n'}
+[28.004160] (-) TimerEvent: {}
+[28.059658] (geometry_core) StdoutLine: {'line': b'[ 78%] Linking CXX executable test_prototype\n'}
+[28.104327] (-) TimerEvent: {}
+[28.201618] (geometry_core) StdoutLine: {'line': b'[ 80%] Linking CXX executable test_face_mask\n'}
+[28.204451] (-) TimerEvent: {}
+[28.262225] (geometry_core) StdoutLine: {'line': b'[ 82%] Linking CXX executable test_plane_fit\n'}
+[28.286390] (geometry_core) StdoutLine: {'line': b'[ 85%] Linking CXX executable test_camera_config\n'}
+[28.304575] (-) TimerEvent: {}
+[28.333230] (geometry_core) StdoutLine: {'line': b'[ 87%] Linking CXX executable test_transforms\n'}
+[28.404760] (-) TimerEvent: {}
+[28.486151] (geometry_core) StdoutLine: {'line': b'[ 87%] Built target test_version\n'}
+[28.504872] (-) TimerEvent: {}
+[28.540278] (geometry_core) StdoutLine: {'line': b'[ 89%] Linking CXX executable test_pipeline_v3_2\n'}
+[28.599087] (geometry_core) StdoutLine: {'line': b'[ 91%] Linking CXX executable test_backproject\n'}
+[28.604953] (-) TimerEvent: {}
+[28.706248] (-) TimerEvent: {}
+[28.802825] (geometry_core) StdoutLine: {'line': b'[ 93%] Linking CXX executable test_chamfer_prior\n'}
+[28.808768] (-) TimerEvent: {}
+[28.868533] (geometry_core) StdoutLine: {'line': b'[ 95%] Linking CXX executable test_pca_init\n'}
+[28.908897] (-) TimerEvent: {}
+[29.010885] (-) TimerEvent: {}
+[29.025792] (geometry_core) StdoutLine: {'line': b'[ 97%] Linking CXX executable test_frontal_lm_pose\n'}
+[29.110997] (-) TimerEvent: {}
+[29.212911] (-) TimerEvent: {}
+[29.314789] (-) TimerEvent: {}
+[29.415555] (-) TimerEvent: {}
+[29.467746] (geometry_core) StdoutLine: {'line': b'[100%] Linking CXX executable test_chamfer\n'}
+[29.515663] (-) TimerEvent: {}
+[29.617509] (-) TimerEvent: {}
+[29.627449] (geometry_core) StderrLine: {'line': b"/usr/bin/ld: CMakeFiles/test_camera_config.dir/test/test_camera_config.cpp.o: in function `(anonymous namespace)::write_temp_yaml(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)':\n"}
+[29.634328] (geometry_core) StderrLine: {'line': b"test_camera_config.cpp:(.text+0x1a1): warning: the use of `tmpnam' is dangerous, better use `mkstemp'\n"}
+[29.717632] (-) TimerEvent: {}
+[29.819270] (-) TimerEvent: {}
+[29.921199] (-) TimerEvent: {}
+[30.021964] (-) TimerEvent: {}
+[30.123861] (-) TimerEvent: {}
+[30.225447] (-) TimerEvent: {}
+[30.326828] (-) TimerEvent: {}
+[30.428849] (-) TimerEvent: {}
+[30.529517] (-) TimerEvent: {}
+[30.531188] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_pose\n'}
+[30.629718] (-) TimerEvent: {}
+[30.730522] (-) TimerEvent: {}
+[30.831103] (-) TimerEvent: {}
+[30.932691] (-) TimerEvent: {}
+[31.033867] (-) TimerEvent: {}
+[31.134510] (-) TimerEvent: {}
+[31.235122] (-) TimerEvent: {}
+[31.336070] (-) TimerEvent: {}
+[31.437200] (-) TimerEvent: {}
+[31.480209] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_prototype\n'}
+[31.484710] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_plane_coords\n'}
+[31.537311] (-) TimerEvent: {}
+[31.638533] (-) TimerEvent: {}
+[31.704640] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_face_mask\n'}
+[31.738649] (-) TimerEvent: {}
+[31.839850] (-) TimerEvent: {}
+[31.940907] (-) TimerEvent: {}
+[31.996673] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_plane_fit\n'}
+[32.010413] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_transforms\n'}
+[32.041247] (-) TimerEvent: {}
+[32.142165] (-) TimerEvent: {}
+[32.147201] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_camera_config\n'}
+[32.242402] (-) TimerEvent: {}
+[32.343355] (-) TimerEvent: {}
+[32.411519] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_chamfer_prior\n'}
+[32.443582] (-) TimerEvent: {}
+[32.537199] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_backproject\n'}
+[32.543698] (-) TimerEvent: {}
+[32.570229] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_pca_init\n'}
+[32.643832] (-) TimerEvent: {}
+[32.663529] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_chamfer\n'}
+[32.743973] (-) TimerEvent: {}
+[32.844643] (-) TimerEvent: {}
+[32.845407] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_pipeline_v3_2\n'}
+[32.944813] (-) TimerEvent: {}
+[32.972244] (geometry_core) StdoutLine: {'line': b'[100%] Built target test_frontal_lm_pose\n'}
+[33.044944] (-) TimerEvent: {}
+[33.145386] (-) TimerEvent: {}
+[33.217261] (geometry_core) CommandEnded: {'returncode': 0}
+[33.244353] (geometry_core) JobProgress: {'identifier': 'geometry_core', 'progress': 'install'}
+[33.245549] (-) TimerEvent: {}
+[33.258175] (geometry_core) Command: {'cmd': ['/usr/bin/cmake', '--install', '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core'], 'cwd': '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core', 'env': OrderedDict({'USER': 'alanpeng', 'GZ_CONFIG_PATH': '/opt/ros/jazzy/opt/sdformat_vendor/share/gz', 'SHLVL': '0', 'LD_LIBRARY_PATH': '/opt/ros/jazzy/opt/sdformat_vendor/lib:/opt/ros/jazzy/opt/rviz_ogre_vendor/lib:/opt/ros/jazzy/lib/x86_64-linux-gnu:/opt/ros/jazzy/opt/gz_math_vendor/lib:/opt/ros/jazzy/opt/gz_utils_vendor/lib:/opt/ros/jazzy/opt/gz_tools_vendor/lib:/opt/ros/jazzy/opt/gz_cmake_vendor/lib:/opt/ros/jazzy/lib', 'WT_PROFILE_ID': '{61c54bbd-c2c6-5271-96e7-009a87ff44bf}', 'HOME': '/home/alanpeng', 'OLDPWD': '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src', 'ROS_PYTHON_VERSION': '3', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1001/bus', 'WSL_DISTRO_NAME': 'Ubuntu', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'jazzy', 'LOGNAME': 'alanpeng', 'NAME': 'HUAWEIMatebook', 'WSL_INTEROP': '/run/WSL/34723_interop', 'PULSE_SERVER': 'unix:/mnt/wslg/PulseServer', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'TERM': 'xterm-256color', 'PATH': '/opt/ros/jazzy/opt/gz_tools_vendor/bin:/opt/ros/jazzy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/alanpeng/AppData/Local/cursor-agent/versions/2026.09.28-64d2043:/mnt/c/Users/alanpeng/AppData/Local/cursor-agent/versions/2026.09.26-dd393fe:/mnt/c/Users/alanpeng/anaconda3:/mnt/c/Users/alanpeng/anaconda3/Library/mingw-w64/bin:/mnt/c/Users/alanpeng/anaconda3/Library/usr/bin:/mnt/c/Users/alanpeng/anaconda3/Library/bin:/mnt/c/Users/alanpeng/anaconda3/Scripts:/mnt/c/Users/alanpeng/anaconda3/bin:/mnt/c/Users/alanpeng/anaconda3/condabin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.0/bin/x64:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.0/bin:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/bin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/libnvvp:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:/mnt/c/Windows/System32/OpenSSH:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0:/mnt/c/WINDOWS/System32/OpenSSH:/mnt/c/Program Files/dotnet:/mnt/c/Users/alanpeng/.pixi/bin:/mnt/c/Users/alanpeng/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/alanpeng/.dotnet/tools:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2025.3.1:/mnt/c/Program Files/cursor/resources/app/bin:/mnt/c/Program Files/nodejs:/mnt/c/Users/alanpeng/.local/bin:/mnt/c/Users/alanpeng/.pixi/bin:/mnt/c/Users/alanpeng/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/alanpeng/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/alanpeng/.dotnet/tools:/mnt/c/Users/alanpeng/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Users/alanpeng/AppData/Roaming/npm:/mnt/c/Users/alanpeng/AppData/Local/Programs/MiKTeX/miktex/bin/x64:/mnt/c/Users/alanpeng/AppData/Local/Programs/Antigravity/bin:/mnt/c/Users/alanpeng/AppData/Local/cursor-agent:/snap/bin', 'WT_SESSION': '57269acc-ec0d-4b11-80bb-bd872bc159e4', 'XDG_RUNTIME_DIR': '/run/user/1001/', 'DISPLAY': ':0', 'LANG': 'C.UTF-8', 'AMENT_PREFIX_PATH': '/opt/ros/jazzy', 'SHELL': '/bin/bash', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'PWD': '/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core', 'XDG_DATA_DIRS': '/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'PYTHONPATH': '/opt/ros/jazzy/lib/python3.12/site-packages', 'COLCON': '1', 'WSL2_GUI_APPS_ENABLED': '1', 'HOSTTYPE': 'x86_64', 'CMAKE_PREFIX_PATH': '/opt/ros/jazzy/opt/sdformat_vendor:/opt/ros/jazzy/opt/gz_math_vendor:/opt/ros/jazzy/opt/gz_utils_vendor:/opt/ros/jazzy/opt/gz_tools_vendor:/opt/ros/jazzy/opt/gz_cmake_vendor:/opt/ros/jazzy', 'WSLENV': 'WT_SESSION:WT_PROFILE_ID:'}), 'shell': False}
+[33.271767] (geometry_core) StdoutLine: {'line': b'-- Install configuration: "Release"\n'}
+[33.280899] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include\n'}
+[33.310173] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core\n'}
+[33.345708] (-) TimerEvent: {}
+[33.354261] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/backproject.hpp\n'}
+[33.445826] (-) TimerEvent: {}
+[33.480125] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/camera_config.hpp\n'}
+[33.545960] (-) TimerEvent: {}
+[33.601440] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/chamfer.hpp\n'}
+[33.646079] (-) TimerEvent: {}
+[33.709299] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/chamfer_lm.hpp\n'}
+[33.746196] (-) TimerEvent: {}
+[33.828652] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/chamfer_prior.hpp\n'}
+[33.846293] (-) TimerEvent: {}
+[33.933606] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/face_mask.hpp\n'}
+[33.946408] (-) TimerEvent: {}
+[34.042358] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/pca_init.hpp\n'}
+[34.046489] (-) TimerEvent: {}
+[34.146780] (-) TimerEvent: {}
+[34.158229] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/pipeline_v3_2.hpp\n'}
+[34.246892] (-) TimerEvent: {}
+[34.267483] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/plane_coords.hpp\n'}
+[34.347007] (-) TimerEvent: {}
+[34.374124] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/plane_fit.hpp\n'}
+[34.447124] (-) TimerEvent: {}
+[34.486967] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/pose.hpp\n'}
+[34.547241] (-) TimerEvent: {}
+[34.589762] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/prototype.hpp\n'}
+[34.647407] (-) TimerEvent: {}
+[34.684365] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/schemas.hpp\n'}
+[34.747536] (-) TimerEvent: {}
+[34.790660] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/transforms.hpp\n'}
+[34.847650] (-) TimerEvent: {}
+[34.915423] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/version.hpp\n'}
+[34.947811] (-) TimerEvent: {}
+[35.026831] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/lib/libgeometry_core.a\n'}
+[35.047923] (-) TimerEvent: {}
+[35.148456] (-) TimerEvent: {}
+[35.177397] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/library_path.sh\n'}
+[35.248576] (-) TimerEvent: {}
+[35.273144] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/library_path.dsv\n'}
+[35.348703] (-) TimerEvent: {}
+[35.432982] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/ament_index/resource_index/package_run_dependencies/geometry_core\n'}
+[35.448797] (-) TimerEvent: {}
+[35.549360] (-) TimerEvent: {}
+[35.607409] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/ament_index/resource_index/parent_prefix_path/geometry_core\n'}
+[35.649498] (-) TimerEvent: {}
+[35.722397] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/ament_prefix_path.sh\n'}
+[35.749615] (-) TimerEvent: {}
+[35.832470] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/ament_prefix_path.dsv\n'}
+[35.849723] (-) TimerEvent: {}
+[35.932177] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/path.sh\n'}
+[35.949897] (-) TimerEvent: {}
+[36.025403] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/path.dsv\n'}
+[36.050010] (-) TimerEvent: {}
+[36.132211] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.bash\n'}
+[36.150161] (-) TimerEvent: {}
+[36.230713] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.sh\n'}
+[36.250279] (-) TimerEvent: {}
+[36.331429] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.zsh\n'}
+[36.350476] (-) TimerEvent: {}
+[36.404937] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.dsv\n'}
+[36.450554] (-) TimerEvent: {}
+[36.505667] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/package.dsv\n'}
+[36.550852] (-) TimerEvent: {}
+[36.651449] (-) TimerEvent: {}
+[36.653064] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/ament_index/resource_index/packages/geometry_core\n'}
+[36.751563] (-) TimerEvent: {}
+[36.799013] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_core_targetsExport.cmake\n'}
+[36.851727] (-) TimerEvent: {}
+[36.927378] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_core_targetsExport-release.cmake\n'}
+[36.951843] (-) TimerEvent: {}
+[37.052470] (-) TimerEvent: {}
+[37.053894] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/ament_cmake_export_targets-extras.cmake\n'}
+[37.152615] (-) TimerEvent: {}
+[37.172663] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/ament_cmake_export_dependencies-extras.cmake\n'}
+[37.252892] (-) TimerEvent: {}
+[37.301946] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/ament_cmake_export_include_directories-extras.cmake\n'}
+[37.353043] (-) TimerEvent: {}
+[37.423280] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_coreConfig.cmake\n'}
+[37.453286] (-) TimerEvent: {}
+[37.536915] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_coreConfig-version.cmake\n'}
+[37.553419] (-) TimerEvent: {}
+[37.653977] (-) TimerEvent: {}
+[37.657862] (geometry_core) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/package.xml\n'}
+[37.754110] (-) TimerEvent: {}
+[37.755434] (geometry_core) CommandEnded: {'returncode': 0}
+[37.854200] (-) TimerEvent: {}
+[37.955197] (-) TimerEvent: {}
+[38.055860] (-) TimerEvent: {}
+[38.156445] (-) TimerEvent: {}
+[38.256797] (-) TimerEvent: {}
+[38.357662] (-) TimerEvent: {}
+[38.458403] (-) TimerEvent: {}
+[38.558718] (-) TimerEvent: {}
+[38.659406] (-) TimerEvent: {}
+[38.760083] (-) TimerEvent: {}
+[38.860843] (-) TimerEvent: {}
+[38.878090] (geometry_core) JobEnded: {'identifier': 'geometry_core', 'rc': 0}
+[38.892597] (-) EventReactorShutdown: {}

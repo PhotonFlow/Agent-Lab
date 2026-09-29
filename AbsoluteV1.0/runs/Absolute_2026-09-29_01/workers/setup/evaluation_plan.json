@@ -1,0 +1,49 @@
+{
+  "assets": {
+    "build": [
+      "geometry_core/CMakeLists.txt",
+      "geometry_core/package.xml",
+      "pps_dataset_replay/package.xml",
+      "pps_pallet_pose_cpp/CMakeLists.txt",
+      "pps_pallet_pose_cpp/package.xml",
+      "pps_perception_bringup/package.xml",
+      "pps_perception_msgs/CMakeLists.txt",
+      "pps_perception_msgs/package.xml",
+      "pps_rtdetr_detector/package.xml"
+    ],
+    "data": [],
+    "evaluators": [],
+    "tests": [
+      "geometry_core/test/test_backproject.cpp",
+      "geometry_core/test/test_camera_config.cpp",
+      "geometry_core/test/test_chamfer.cpp",
+      "geometry_core/test/test_chamfer_prior.cpp",
+      "geometry_core/test/test_face_mask.cpp",
+      "geometry_core/test/test_pca_init.cpp",
+      "geometry_core/test/test_pipeline_v3_2.cpp",
+      "geometry_core/test/test_plane_coords.cpp",
+      "geometry_core/test/test_plane_fit.cpp",
+      "geometry_core/test/test_pose.cpp",
+      "geometry_core/test/test_prototype.cpp",
+      "geometry_core/test/test_transforms.cpp",
+      "geometry_core/test/test_version.cpp",
+      "pps_pallet_pose_cpp/test/test_depth_utils.cpp",
+      "pps_pallet_pose_cpp/test/test_detection_utils.cpp",
+      "pps_perception_bringup/test/test_full_pipeline_launch.py",
+      "pps_rtdetr_detector/test/test_detector_mock.py",
+      "pps_rtdetr_detector/test/test_postprocess.py",
+      "pps_rtdetr_detector/test/test_preprocess.py"
+    ],
+    "truncated": false
+  },
+  "brief_path": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\setup\\evaluation_plan.json",
+  "cycle": 0,
+  "framework_root": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0",
+  "model": "grok-4.7-xhigh",
+  "output": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\setup\\evaluation_plan-result.json",
+  "package_copy": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src",
+  "prompt": "ROLE: evaluation_plan. Define application outcomes before inspecting evaluator results.\nRead scenario_text and the candidate's interfaces. Use assets only to assess what evidence may be available.\nDo not limit requirements to metrics already printed by the stack. Do not edit any code or execute robot actuation.\nWrite one JSON object to output: metrics and requirements arrays.\nMetric: {\"id\":\"quality\", \"description\":\"what is measured\", \"direction\":\"maximize\", \"role\":\"objective\", \"path\":\"/quality\", \"target\":null, \"noise\":0, \"min_effect\":0, \"max_regression\":0, \"aggregation\":\"median\", \"units\":\"unit\", \"witnesses\":[]}.\nUse role protected for constraints, worst aggregation for failure/safety counts, and hard_limit for non-negotiable bounds.\nTargets may be null. Never invent a safety threshold, physical label, or a noise estimate; document unknowns as validation needs.\nRequirement: {\"text\":\"exact scenario requirement\", \"metrics\":[\"quality\"], \"validation_needed\":\"specific data, oracle, conditions, or hardware still needed\"}.\nSeparate noise, useful improvement, and allowed regression. Explicitly represent requirements that cannot yet be measured.\nDo not optimize the candidate, score it, or change runner state. Do not claim verified coverage.",
+  "role": "evaluation_plan",
+  "run": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01",
+  "scenario_text": "The pps source is the pallet perception stack on an AGV. The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change. The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred.\n\noutput: pose pose_error_m minimize 0.001 0\noutput: dimensions dimension_error_m minimize 0.001 0\noutput: selection selection_error minimize 0.001 0\noutput: scenario scenario_error minimize 0.001 0\nprotected: latency_ms minimize 5\n"
+}

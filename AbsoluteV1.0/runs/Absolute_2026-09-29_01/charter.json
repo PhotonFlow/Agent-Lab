@@ -1,0 +1,69 @@
+{
+  "edit_policy": "except_immutable",
+  "eval_command": [
+    "C:\\Users\\alanpeng\\anaconda3\\python.exe",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\measure.py"
+  ],
+  "eval_timeout_sec": 300.0,
+  "feature_catalog": [],
+  "immutable": [
+    "geometry_core/test/test_backproject.cpp",
+    "geometry_core/test/test_camera_config.cpp",
+    "geometry_core/test/test_chamfer.cpp",
+    "geometry_core/test/test_chamfer_prior.cpp",
+    "geometry_core/test/test_face_mask.cpp",
+    "geometry_core/test/test_pca_init.cpp",
+    "geometry_core/test/test_pipeline_v3_2.cpp",
+    "geometry_core/test/test_plane_coords.cpp",
+    "geometry_core/test/test_plane_fit.cpp",
+    "geometry_core/test/test_pose.cpp",
+    "geometry_core/test/test_prototype.cpp",
+    "geometry_core/test/test_transforms.cpp",
+    "geometry_core/test/test_version.cpp",
+    "pps_pallet_pose_cpp/test/test_depth_utils.cpp",
+    "pps_pallet_pose_cpp/test/test_detection_utils.cpp",
+    "pps_perception_bringup/test/test_full_pipeline_launch.py",
+    "pps_rtdetr_detector/test/test_detector_mock.py",
+    "pps_rtdetr_detector/test/test_postprocess.py",
+    "pps_rtdetr_detector/test/test_preprocess.py"
+  ],
+  "loop": "continuous",
+  "metrics": {
+    "primary": {
+      "direction": "minimize",
+      "name": "pose_error_m",
+      "noise": 0.001,
+      "target": 0.0
+    },
+    "protected": [
+      {
+        "aggregation": "worst",
+        "direction": "minimize",
+        "max_regression": 5.0,
+        "min_effect": 0.0,
+        "name": "latency_ms",
+        "noise": 0.0,
+        "units": "ms"
+      }
+    ]
+  },
+  "mutable": [],
+  "required_outputs": [
+    {
+      "aggregation": "median",
+      "direction": "minimize",
+      "id": "pose_error_m",
+      "max_regression": 0.0,
+      "metric": "pose_error_m",
+      "min_effect": 0.0,
+      "noise": 0.001,
+      "target": 0.0,
+      "units": "m"
+    }
+  ],
+  "stops": {
+    "max_cycles": 1,
+    "plateau": 1
+  },
+  "task": "evolve src against qualified measurements"
+}

@@ -1,0 +1,256 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-d99346943733dea8d2f1.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					]
+				},
+				{
+					"build" : "gtest",
+					"jsonFile" : "directory-gtest-Release-0908a8c91ddba5d6c989.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "/opt/ros/jazzy/src/gtest_vendor",
+					"targetIndexes" : 
+					[
+						2,
+						3
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "geometry_core",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "gtest",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "geometry_core::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-geometry_core-Release-89e8d0ae22c29a204ffd.json",
+					"name" : "geometry_core",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "geometry_core_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-geometry_core_uninstall-Release-17e7166d67195f129d73.json",
+					"name" : "geometry_core_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "gtest::@0af4add9fe94340e763e",
+					"jsonFile" : "target-gtest-Release-e40d167ecf2fcefd4e3f.json",
+					"name" : "gtest",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "gtest_main::@0af4add9fe94340e763e",
+					"jsonFile" : "target-gtest_main-Release-a23390096f996dbf212c.json",
+					"name" : "gtest_main",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_backproject::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_backproject-Release-754467fe3e8523f01307.json",
+					"name" : "test_backproject",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_camera_config::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_camera_config-Release-f3108a2f67756377a9de.json",
+					"name" : "test_camera_config",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_chamfer::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_chamfer-Release-0aadcdab79664ee767da.json",
+					"name" : "test_chamfer",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_chamfer_prior::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_chamfer_prior-Release-100382850a8cb449ef43.json",
+					"name" : "test_chamfer_prior",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_face_mask::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_face_mask-Release-13bb1aaa9f283ecc174b.json",
+					"name" : "test_face_mask",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_frontal_lm_pose::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_frontal_lm_pose-Release-6be175890aaf15ed7ea3.json",
+					"name" : "test_frontal_lm_pose",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_pca_init::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_pca_init-Release-6a1e7e80a6a8b4a834af.json",
+					"name" : "test_pca_init",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_pipeline_v3_2::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_pipeline_v3_2-Release-fa815cfe1de954033492.json",
+					"name" : "test_pipeline_v3_2",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_plane_coords::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_plane_coords-Release-0b05fe78c186ca82d1eb.json",
+					"name" : "test_plane_coords",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_plane_fit::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_plane_fit-Release-7b575022464cec73f03c.json",
+					"name" : "test_plane_fit",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_pose::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_pose-Release-3ffc64876b25c55de2f7.json",
+					"name" : "test_pose",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_prototype::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_prototype-Release-24bae54308dca84e8156.json",
+					"name" : "test_prototype",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_transforms::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_transforms-Release-7b123dc8e9b82f1ca7fe.json",
+					"name" : "test_transforms",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_version::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_version-Release-a4bd32fb0e42bb0ed90e.json",
+					"name" : "test_version",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-Release-5ae5d64340dbf8121540.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core",
+		"source" : "/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src/geometry_core"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

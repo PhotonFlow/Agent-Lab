@@ -1,0 +1,90 @@
+{
+  "available_metrics": [
+    "_cases",
+    "latency_ms",
+    "pose_error_m"
+  ],
+  "cases": [
+    {
+      "id": "synthetic_fronto_parallel"
+    }
+  ],
+  "directories": {},
+  "eval_command": [
+    "C:\\Users\\alanpeng\\anaconda3\\python.exe",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\measure.py"
+  ],
+  "files": [
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\measure.py",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\guard.py",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\oracle.py",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\harness.cpp",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\build_and_run.sh"
+  ],
+  "hashes": {
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\build_and_run.sh": "30ec8770c61f29094a6c5a836d55fe9c005b4d933890d8c96105247afffab25a",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\guard.py": "b6aed0df3957829146cd17e6c7f2347c9d29c77cb973be23044e5ed881a0f435",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\harness.cpp": "52d2e100ed9d5f193ad352c1ef84f0b9751dc77142e3c529756e22153f386ef6",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\measure.py": "b5cd4bbe638e3a0c8af32453355596efb39deafa2b3ffb17611a4da52c78c2a0",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\oracle.py": "8a5bb120c30c53f1662750f44af43ec39eb9b7a448dcc2781dfbc1b9b9a6bba0",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\plan.json": "e38ac9031219e6d33ddd6d1168f4898fa73e889b2d25e2996511268374494863",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_backproject.cpp": "3ba6b23cf3f38f9f7c90fa9ed569acf09ca7b24cd314998563bfa366be59c37f",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_camera_config.cpp": "6ba46ace349edeaf7b17fa4587f42de00080a56ed682f346f350ce8031c1cc30",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_chamfer.cpp": "90f71012a4b1d2a309accfec2b7776a8a1919d0c451f28fbb7d6ee7f75f0bff1",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_chamfer_prior.cpp": "13aea861f2a13142df8afd5d4dcde47f2898a8f104f46381f96db15c7ec1ba18",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_face_mask.cpp": "13d7e4a4cbc8e6b3071570b248e468c07a8c4dfaa34aa11130c1a3fa5e268007",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_pca_init.cpp": "496d48084a229ff4e1149eb506bbff4d525dc3755821b66301238fe8191d799a",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_pipeline_v3_2.cpp": "85a68ee725fe8f400c0c60550c8ae8c1e4035d91d0135b1a608e7969f3401d1b",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_plane_coords.cpp": "1f61729fb9d79141e394a6acfcf3ae73db1abb00125b409474cf78ab0fb8f0dd",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_plane_fit.cpp": "d760c69a183507e39689a8bc363fb4d712322680035ff28ea3fe4eebbb306b17",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_pose.cpp": "9f6d4162c0fcbecaafc2cc667cce3c408297a8325cfa649796aea6b3c24e024f",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_prototype.cpp": "b4f628fe3ccd6e79bd5fb4f50352c365cc2c3ff7e86eea09e2953947fc9a2d62",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_transforms.cpp": "0cf69dd0b7df0f3ef9dc9488289bf48515b526973b02a611e229bfc676dd2cc5",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\geometry_core\\test\\test_version.cpp": "aee311cb0d80b0bdd792978f2fb298b217a92c1a4fdca9c2087364656eb51f0a",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\pps_pallet_pose_cpp\\test\\test_depth_utils.cpp": "05f987e587f80a4e9d7e97c08f3716b5dd20ccc8c6ae35e756187b1f314f15fe",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\pps_pallet_pose_cpp\\test\\test_detection_utils.cpp": "4287d10285310056cc44817bf1260afe3c291968082e5d6175ed9575b3d293ab",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\pps_perception_bringup\\test\\test_full_pipeline_launch.py": "a239fe4f78438974d428502a4661a48681e2aa5c6caf1e74c639c2c5e9e01638",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\pps_rtdetr_detector\\test\\test_detector_mock.py": "a01d20d5a46ef2ebb52e5a17c047f49df6d1842cdaf644e9d9db222dcf74462d",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\pps_rtdetr_detector\\test\\test_postprocess.py": "5de688939f14a0f0dc724b404bf3e0812df9ee1c00fdecf406cebf6cc51431fa",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src\\pps_rtdetr_detector\\test\\test_preprocess.py": "6ad9e7907db861599ec45378982f63c6df13f1ef1c807f22d4ae73c618502527",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\scenarios\\pps-agv-dynamic-handling.md": "c0712551276622c25136d2bbebce9ee88e3570650194aa4a5f77cdae76e5e124",
+    "C:\\Users\\alanpeng\\anaconda3\\python.exe": "aa88c4a01a9a69c64a1abda1cf3e25408f6d728f649b926829e1f66cc5e4102b"
+  },
+  "limitations": [
+    "One synthetic textureless fronto-parallel plane. This is not a labelled AGV capture, not a moving scene, and not a multi-pallet case.",
+    "dimension_error_m is not measured. PoseResult and PalletPoseStamped do not publish pallet width, height, and depth. Prototype face sizes are templates (1.20 m by 0.14 m), not an estimate, and they disagree with the synthetic face (1.20 m by 0.80 m). No pallet-thickness label is in the tree. eval_dataset_combined and pallet_pose_estimation.eval_report_common are absent.",
+    "selection_error is not measured. There is no ground-truth roster of which detections must enter stage 2 versus stay deferred. select_detection returns one candidate or none and does not publish the deferred set. Treating the current highest-confidence rule as truth would score the implementation against itself.",
+    "scenario_error is not measured. The scenario does not state how pose, dimensions, and selection combine, and it states no physical unit for that combination.",
+    "latency_ms is one warm single-thread stage-2 call on this WSL host. It is not end-to-end latency on the vehicle computer with the detector, time sync, load, and a handling deadline. Unchanged repeats on this host already spread by more than the sealed 5 ms regression allowance (about 174 ms to 187 ms).",
+    "The yaw-to-metre lever arm is the geometry of this synthetic box, not a scale stated by the scenario.",
+    "These generated cases do not prove real-world accuracy, exhaustive coverage, or state of the art. No robot run was performed.",
+    "Additional measurements required: dimension_error_m, selection_error, scenario_error",
+    "Sensitivity checks do not prove oracle correctness, domain completeness, or SOTA."
+  ],
+  "measured_metric_ids": [
+    "pose_error_m",
+    "latency_ms"
+  ],
+  "negative_controls": [
+    {
+      "metric": "pose_error_m",
+      "path": "geometry_core/src/pose.cpp",
+      "replacement": "#include \"geometry_core/pose.hpp\"\n\n#include <cmath>\n\nnamespace geometry_core {\n\ndouble yaw_from_normal_camera(const Eigen::Vector3d& n_toward_cam) {\n  return std::atan2(n_toward_cam.x(), -n_toward_cam.z()) + 1.0;\n}\n\n}  // namespace geometry_core\n"
+    },
+    {
+      "metric": "latency_ms",
+      "path": "geometry_core/src/pose.cpp",
+      "replacement": "#include \"geometry_core/pose.hpp\"\n\n#include <chrono>\n#include <cmath>\n#include <thread>\n\nnamespace geometry_core {\n\ndouble yaw_from_normal_camera(const Eigen::Vector3d& n_toward_cam) {\n  std::this_thread::sleep_for(std::chrono::milliseconds(500));\n  return std::atan2(n_toward_cam.x(), -n_toward_cam.z());\n}\n\n}  // namespace geometry_core\n"
+    }
+  ],
+  "oracle": "pose_error_m is the Euclidean residual in metres of geometry_core estimate_pose_chamfer_v3_2 against the analytical scene constructed in geometry_core/test/test_pipeline_v3_2.cpp (RecoversFrontoParallelPoseOnSyntheticScene): coincident pinhole cameras, a flat depth plane at z = 2 m, and an RGB box centred on the principal point with half-size 300 by 40 px. Ground truth is that construction (tx = 0, ty = 0, tz = 2, yaw = 0), not a stored estimator output. Yaw is a rotation about the camera vertical axis, so its residual is converted with the box half-width at z = 2, which is 2/3 m per radian. A rejected pose scores 5 m, the stage-2 depth_max_m gate. latency_ms is the wall-clock time of the seed-0 call after one discarded warmup, built at -O3 with OMP_NUM_THREADS=1.",
+  "origin": "generated",
+  "qualification": "executable",
+  "validation_commands": [
+    [
+      "C:\\Users\\alanpeng\\anaconda3\\python.exe",
+      "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\guard.py"
+    ]
+  ],
+  "version": 1
+}

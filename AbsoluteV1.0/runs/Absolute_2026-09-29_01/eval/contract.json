@@ -1,0 +1,55 @@
+{
+  "edits": "reject",
+  "metrics": [
+    {
+      "aggregation": "worst",
+      "description": "Latency of producing the handling result. The scenario marks it protected and states minimize 5. That 5 is only the allowed regression in milliseconds. It is not measurement noise and not an absolute ceiling, so target and hard_limit are unset. Noise and useful improvement are 0 because no timing noise or effect size was stated; that 0 is not a calibrated timing floor. Worst-case aggregation is used so a slow repeat cannot hide.",
+      "direction": "minimize",
+      "id": "latency_ms",
+      "max_regression": 5.0,
+      "min_effect": 0.0,
+      "noise": 0.0,
+      "path": "/latency_ms",
+      "role": "protected",
+      "target": null,
+      "units": "ms",
+      "witnesses": [
+        "protected: latency_ms minimize 5"
+      ]
+    },
+    {
+      "aggregation": "median",
+      "description": "Metres of error in the pallet pose the vehicle's dynamic handling process needs. The candidate publishes tx, ty, tz, and yaw_rad in the camera RGB optical frame on PalletPoseStamped and as geometry_msgs/Pose. The scenario line is read in metric, direction, noise, target order: noise 0.001 and target 0. That 0.001 is the stated noise token, not a calibrated repeatability estimate. Useful improvement and allowed regression are recorded separately as 0 because the scenario does not state them.",
+      "direction": "minimize",
+      "id": "pose_error_m",
+      "max_regression": 0.0,
+      "min_effect": 0.0,
+      "noise": 0.001,
+      "path": "/pose_error_m",
+      "role": "objective",
+      "target": 0.0,
+      "units": "m",
+      "witnesses": [
+        "The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change.",
+        "output: pose pose_error_m minimize 0.001 0"
+      ]
+    }
+  ],
+  "obligations": [
+    "The pps source is the pallet perception stack on an AGV. The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change. The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred.",
+    "The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change.",
+    "The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred.",
+    "output: pose pose_error_m minimize 0.001 0",
+    "output: dimensions dimension_error_m minimize 0.001 0",
+    "output: selection selection_error minimize 0.001 0",
+    "output: scenario scenario_error minimize 0.001 0",
+    "protected: latency_ms minimize 5"
+  ],
+  "schema_version": "1",
+  "seal": {
+    "contract_hash": "33ed238fba724876d8318088c350af0af7cc696a3a7f18aad3830d29f2c2ce2e",
+    "created_at": "2026-09-29T07:48:35+00:00",
+    "discovery_inputs_hash": "0ceb24b430ccdf1942c6acd42e2f17f0fc5c4dd22659572c050e7c9be2c4ece2",
+    "schema_version": "1"
+  }
+}

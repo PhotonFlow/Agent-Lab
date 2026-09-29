@@ -1,0 +1,4 @@
+{
+  "hypothesis": "The two-stage chamfer grid spends about 31 ms enumerating a bilinear distance transform whose frontal translation minimum already lies inside the depth-pixel ball replaced by the ray-plane centre. Levenberg-Marquardt on those same residuals (Fitzgibbon LM-ICP) still recovers a 2 cm offset when the match is real, so the frontal centre stays on the ray and pose_error_m stays 0 while that search drops below a millisecond.",
+  "behavior_test": ["python", "geometry_core/test/run_frontal_lm_pose.py"]
+}

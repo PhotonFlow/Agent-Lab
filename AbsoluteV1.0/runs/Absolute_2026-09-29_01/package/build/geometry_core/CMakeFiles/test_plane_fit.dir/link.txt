@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/test_plane_fit.dir/test/test_plane_fit.cpp.o -o test_plane_fit  gtest/libgtest_main.a gtest/libgtest.a libgeometry_core.a -pthread /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.6.0 /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.6.0 -lyaml-cpp /usr/lib/gcc/x86_64-linux-gnu/13/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.a 

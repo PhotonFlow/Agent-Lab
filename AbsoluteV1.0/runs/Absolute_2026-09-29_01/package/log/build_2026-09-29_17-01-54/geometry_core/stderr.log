@@ -1,0 +1,2 @@
+/usr/bin/ld: CMakeFiles/test_camera_config.dir/test/test_camera_config.cpp.o: in function `(anonymous namespace)::write_temp_yaml(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)':
+test_camera_config.cpp:(.text+0x1a1): warning: the use of `tmpnam' is dangerous, better use `mkstemp'

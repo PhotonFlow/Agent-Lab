@@ -1,0 +1,20 @@
+{
+  "metrics": {
+    "latency_ms": 173.294496,
+    "pose_error_m": 0.0
+  },
+  "samples": [
+    {
+      "latency_ms": 173.294496,
+      "pose_error_m": 0.0
+    },
+    {
+      "latency_ms": 171.742098,
+      "pose_error_m": 0.0
+    },
+    {
+      "latency_ms": 171.281976,
+      "pose_error_m": 0.0
+    }
+  ]
+}

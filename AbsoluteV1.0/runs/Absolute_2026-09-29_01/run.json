@@ -1,0 +1,142 @@
+{
+  "admitted_feature": null,
+  "application_hash": "",
+  "baseline_eval_command": [
+    "C:\\Users\\alanpeng\\anaconda3\\python.exe",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\measure.py"
+  ],
+  "benchmark_sha256": "7d2055ab2bb2792768280b4cf94bc3d8bcc13af56b284817ee5109eafc8aec1e",
+  "contract_sha256": "5d166308de0795fddece6fe62ebc798baf4593ede6f951c029b10263606ab68c",
+  "created_at": "2026-09-29T07:14:08+00:00",
+  "discovery_round": 1,
+  "entry": "evolve",
+  "eval_mode": "measured",
+  "evaluation_scope": "generated",
+  "external_scorer": [],
+  "framework": "Absolute",
+  "goal": {
+    "direction": "minimize",
+    "metric": "pose_error_m",
+    "noise": 0.001,
+    "target": 0.0
+  },
+  "id": "Absolute_2026-09-29_01",
+  "immutable_hashes": {
+    "geometry_core/test/test_backproject.cpp": "3ba6b23cf3f38f9f7c90fa9ed569acf09ca7b24cd314998563bfa366be59c37f",
+    "geometry_core/test/test_camera_config.cpp": "6ba46ace349edeaf7b17fa4587f42de00080a56ed682f346f350ce8031c1cc30",
+    "geometry_core/test/test_chamfer.cpp": "90f71012a4b1d2a309accfec2b7776a8a1919d0c451f28fbb7d6ee7f75f0bff1",
+    "geometry_core/test/test_chamfer_prior.cpp": "13aea861f2a13142df8afd5d4dcde47f2898a8f104f46381f96db15c7ec1ba18",
+    "geometry_core/test/test_face_mask.cpp": "13d7e4a4cbc8e6b3071570b248e468c07a8c4dfaa34aa11130c1a3fa5e268007",
+    "geometry_core/test/test_pca_init.cpp": "496d48084a229ff4e1149eb506bbff4d525dc3755821b66301238fe8191d799a",
+    "geometry_core/test/test_pipeline_v3_2.cpp": "85a68ee725fe8f400c0c60550c8ae8c1e4035d91d0135b1a608e7969f3401d1b",
+    "geometry_core/test/test_plane_coords.cpp": "1f61729fb9d79141e394a6acfcf3ae73db1abb00125b409474cf78ab0fb8f0dd",
+    "geometry_core/test/test_plane_fit.cpp": "d760c69a183507e39689a8bc363fb4d712322680035ff28ea3fe4eebbb306b17",
+    "geometry_core/test/test_pose.cpp": "9f6d4162c0fcbecaafc2cc667cce3c408297a8325cfa649796aea6b3c24e024f",
+    "geometry_core/test/test_prototype.cpp": "b4f628fe3ccd6e79bd5fb4f50352c365cc2c3ff7e86eea09e2953947fc9a2d62",
+    "geometry_core/test/test_transforms.cpp": "0cf69dd0b7df0f3ef9dc9488289bf48515b526973b02a611e229bfc676dd2cc5",
+    "geometry_core/test/test_version.cpp": "aee311cb0d80b0bdd792978f2fb298b217a92c1a4fdca9c2087364656eb51f0a",
+    "pps_pallet_pose_cpp/test/test_depth_utils.cpp": "05f987e587f80a4e9d7e97c08f3716b5dd20ccc8c6ae35e756187b1f314f15fe",
+    "pps_pallet_pose_cpp/test/test_detection_utils.cpp": "4287d10285310056cc44817bf1260afe3c291968082e5d6175ed9575b3d293ab",
+    "pps_perception_bringup/test/test_full_pipeline_launch.py": "a239fe4f78438974d428502a4661a48681e2aa5c6caf1e74c639c2c5e9e01638",
+    "pps_rtdetr_detector/test/test_detector_mock.py": "a01d20d5a46ef2ebb52e5a17c047f49df6d1842cdaf644e9d9db222dcf74462d",
+    "pps_rtdetr_detector/test/test_postprocess.py": "5de688939f14a0f0dc724b404bf3e0812df9ee1c00fdecf406cebf6cc51431fa",
+    "pps_rtdetr_detector/test/test_preprocess.py": "6ad9e7907db861599ec45378982f63c6df13f1ef1c807f22d4ae73c618502527"
+  },
+  "message_fields": [
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:header",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:pose",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:yaw_rad",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:face_normal_rgb",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:plane_inlier_ratio",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:n_face_points",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:chamfer_cost_m",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:accepted",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:quality_reasons",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:failure_reason",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:geometry_source",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:preset_id",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:input_rgb_stamp",
+    "pps_perception_msgs/msg/PalletPoseStamped.msg:input_depth_stamp"
+  ],
+  "message_schema": {
+    "pps_perception_msgs/msg/PalletPoseStamped.msg": [
+      "std_msgs/Header header",
+      "geometry_msgs/Pose pose",
+      "float64 yaw_rad",
+      "float64[3] face_normal_rgb",
+      "float64 plane_inlier_ratio",
+      "int32 n_face_points",
+      "float64 chamfer_cost_m",
+      "bool accepted",
+      "string[] quality_reasons",
+      "string failure_reason",
+      "string geometry_source",
+      "string preset_id",
+      "builtin_interfaces/Time input_rgb_stamp",
+      "builtin_interfaces/Time input_depth_stamp"
+    ],
+    "pps_perception_msgs/srv/GetActivePrototype.srv": [
+      "---",
+      "bool success",
+      "string message",
+      "string prototype_id",
+      "string source_kind",
+      "string source_path",
+      "uint32 point_count",
+      "float64 face_width_m",
+      "float64 face_height_m"
+    ],
+    "pps_perception_msgs/srv/ListPrototypes.srv": [
+      "---",
+      "string[] prototype_ids",
+      "string active_id"
+    ],
+    "pps_perception_msgs/srv/LoadPrototype.srv": [
+      "string prototype_id",
+      "string json_path",
+      "float64 contour_spacing_m",
+      "---",
+      "bool success",
+      "string message"
+    ],
+    "pps_perception_msgs/srv/SetActivePrototype.srv": [
+      "string prototype_id",
+      "---",
+      "bool success",
+      "string message"
+    ]
+  },
+  "package_copy": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\package\\src",
+  "scenario_hash": "c0712551276622c25136d2bbebce9ee88e3570650194aa4a5f77cdae76e5e124",
+  "scenario_path": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\scenarios\\pps-agv-dynamic-handling.md",
+  "script_head": "cc4afdbb4077b9bde8012f16dfdaa2d5f1305106",
+  "search": {
+    "context_window_tokens": 500000,
+    "eval_repeats": 3
+  },
+  "setup": {
+    "direction": null,
+    "eval_command": null,
+    "metric": null,
+    "noise": null,
+    "target": null,
+    "task": null,
+    "timeout_sec": 300.0
+  },
+  "setup_complete": true,
+  "sota_verified": false,
+  "source_package": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\pps_v3.4_ros\\src",
+  "stage": "search",
+  "status": "paused",
+  "stop_reason": "error: can only concatenate str (not \"NoneType\") to str",
+  "success": false,
+  "task": "evolve src against qualified measurements",
+  "uncovered_behaviors": [
+    "The pps source is the pallet perception stack on an AGV. The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change. The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred.",
+    "The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change.",
+    "output: dimensions dimension_error_m minimize 0.001 0",
+    "output: selection selection_error minimize 0.001 0",
+    "output: scenario scenario_error minimize 0.001 0"
+  ],
+  "version": "1.1.0-dev"
+}

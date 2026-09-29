@@ -1,0 +1,136 @@
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 2.5.6 (/opt/ros/jazzy/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+-- Found OpenCV: /usr (found version "4.6.0") found components: core imgproc 
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5")  
+-- Found ament_cmake_gtest: 2.5.6 (/opt/ros/jazzy/share/ament_cmake_gtest/cmake)
+-- Found gtest sources under '/opt/ros/jazzy/src/gtest_vendor': C++ tests using 'Google Test' will be built
+-- The C compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Configuring done (10.9s)
+-- Generating done (3.1s)
+-- Build files have been written to: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/build/geometry_core
+[  4%] Building CXX object gtest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[  4%] Building CXX object gtest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[  6%] Building CXX object CMakeFiles/geometry_core.dir/src/version.cpp.o
+[  8%] Building CXX object CMakeFiles/geometry_core.dir/src/transforms.cpp.o
+[ 10%] Building CXX object CMakeFiles/geometry_core.dir/src/pose.cpp.o
+[ 12%] Building CXX object CMakeFiles/geometry_core.dir/src/plane_fit.cpp.o
+[ 14%] Building CXX object CMakeFiles/geometry_core.dir/src/plane_coords.cpp.o
+[ 21%] Building CXX object CMakeFiles/geometry_core.dir/src/face_mask.cpp.o
+[ 21%] Building CXX object CMakeFiles/geometry_core.dir/src/camera_config.cpp.o
+[ 21%] Building CXX object CMakeFiles/geometry_core.dir/src/prototype.cpp.o
+[ 23%] Building CXX object CMakeFiles/geometry_core.dir/src/chamfer.cpp.o
+[ 25%] Building CXX object CMakeFiles/geometry_core.dir/src/chamfer_lm.cpp.o
+[ 27%] Building CXX object CMakeFiles/geometry_core.dir/src/pca_init.cpp.o
+[ 31%] Building CXX object CMakeFiles/geometry_core.dir/src/chamfer_prior.cpp.o
+[ 31%] Building CXX object CMakeFiles/geometry_core.dir/src/backproject.cpp.o
+[ 34%] Building CXX object CMakeFiles/geometry_core.dir/src/pipeline_v3_2.cpp.o
+[ 36%] Linking CXX static library libgtest_main.a
+[ 36%] Built target gtest_main
+/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src/geometry_core/src/plane_fit.cpp: In function ‘geometry_core::Plane geometry_core::ransac_plane_fit(const Eigen::Ref<const Eigen::Matrix<double, -1, -1> >&, double, int, double, std::mt19937_64&)’:
+/mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/src/geometry_core/src/plane_fit.cpp:82:10: warning: variable ‘best_offset’ set but not used [-Wunused-but-set-variable]
+   82 |   double best_offset = 0.0;
+      |          ^~~~~~~~~~~
+[ 38%] Linking CXX static library libgeometry_core.a
+[ 38%] Built target geometry_core
+[ 40%] Linking CXX static library libgtest.a
+[ 40%] Built target gtest
+[ 55%] Building CXX object CMakeFiles/test_plane_coords.dir/test/test_plane_coords.cpp.o
+[ 55%] Building CXX object CMakeFiles/test_chamfer.dir/test/test_chamfer.cpp.o
+[ 55%] Building CXX object CMakeFiles/test_prototype.dir/test/test_prototype.cpp.o
+[ 55%] Building CXX object CMakeFiles/test_plane_fit.dir/test/test_plane_fit.cpp.o
+[ 55%] Building CXX object CMakeFiles/test_pose.dir/test/test_pose.cpp.o
+[ 55%] Building CXX object CMakeFiles/test_face_mask.dir/test/test_face_mask.cpp.o
+[ 55%] Building CXX object CMakeFiles/test_pca_init.dir/test/test_pca_init.cpp.o
+[ 70%] Building CXX object CMakeFiles/test_frontal_lm_pose.dir/test/test_frontal_lm_pose.cpp.o
+[ 70%] Building CXX object CMakeFiles/test_pipeline_v3_2.dir/test/test_pipeline_v3_2.cpp.o
+[ 70%] Building CXX object CMakeFiles/test_version.dir/test/test_version.cpp.o
+[ 70%] Building CXX object CMakeFiles/test_chamfer_prior.dir/test/test_chamfer_prior.cpp.o
+[ 70%] Building CXX object CMakeFiles/test_backproject.dir/test/test_backproject.cpp.o
+[ 70%] Building CXX object CMakeFiles/test_camera_config.dir/test/test_camera_config.cpp.o
+[ 70%] Building CXX object CMakeFiles/test_transforms.dir/test/test_transforms.cpp.o
+[ 72%] Linking CXX executable test_version
+[ 74%] Linking CXX executable test_pose
+[ 76%] Linking CXX executable test_plane_coords
+[ 78%] Linking CXX executable test_prototype
+[ 80%] Linking CXX executable test_face_mask
+[ 82%] Linking CXX executable test_plane_fit
+[ 85%] Linking CXX executable test_camera_config
+[ 87%] Linking CXX executable test_transforms
+[ 87%] Built target test_version
+[ 89%] Linking CXX executable test_pipeline_v3_2
+[ 91%] Linking CXX executable test_backproject
+[ 93%] Linking CXX executable test_chamfer_prior
+[ 95%] Linking CXX executable test_pca_init
+[ 97%] Linking CXX executable test_frontal_lm_pose
+[100%] Linking CXX executable test_chamfer
+/usr/bin/ld: CMakeFiles/test_camera_config.dir/test/test_camera_config.cpp.o: in function `(anonymous namespace)::write_temp_yaml(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)':
+test_camera_config.cpp:(.text+0x1a1): warning: the use of `tmpnam' is dangerous, better use `mkstemp'
+[100%] Built target test_pose
+[100%] Built target test_prototype
+[100%] Built target test_plane_coords
+[100%] Built target test_face_mask
+[100%] Built target test_plane_fit
+[100%] Built target test_transforms
+[100%] Built target test_camera_config
+[100%] Built target test_chamfer_prior
+[100%] Built target test_backproject
+[100%] Built target test_pca_init
+[100%] Built target test_chamfer
+[100%] Built target test_pipeline_v3_2
+[100%] Built target test_frontal_lm_pose
+-- Install configuration: "Release"
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/backproject.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/camera_config.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/chamfer.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/chamfer_lm.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/chamfer_prior.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/face_mask.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/pca_init.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/pipeline_v3_2.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/plane_coords.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/plane_fit.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/pose.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/prototype.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/schemas.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/transforms.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/include/geometry_core/version.hpp
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/lib/libgeometry_core.a
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/library_path.sh
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/library_path.dsv
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/ament_index/resource_index/package_run_dependencies/geometry_core
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/ament_index/resource_index/parent_prefix_path/geometry_core
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/ament_prefix_path.sh
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/ament_prefix_path.dsv
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/path.sh
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/environment/path.dsv
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.bash
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.sh
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.zsh
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/local_setup.dsv
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/package.dsv
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/ament_index/resource_index/packages/geometry_core
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_core_targetsExport.cmake
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_core_targetsExport-release.cmake
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/ament_cmake_export_targets-extras.cmake
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/ament_cmake_export_dependencies-extras.cmake
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/ament_cmake_export_include_directories-extras.cmake
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_coreConfig.cmake
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/cmake/geometry_coreConfig-version.cmake
+-- Installing: /mnt/c/Users/alanpeng/Desktop/Self-envolve_agent/AbsoluteV1.0/runs/Absolute_2026-09-29_01/package/install/geometry_core/share/geometry_core/package.xml

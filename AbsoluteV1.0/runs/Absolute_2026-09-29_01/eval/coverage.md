@@ -1,0 +1,31 @@
+# Evaluation coverage
+
+Measured proxies are not verified domain coverage.
+
+- unmeasured: The pps source is the pallet perception stack on an AGV. The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change. The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred.
+  Needed: This sentence is still unmeasured as a whole. The asset inventory has no dataset files and no evaluator entry point. geometry_core unit tests, detector unit tests, and the synthetic launch test do not supply an AGV handling log, a changing scene, or labelled pallet pose, size, and selection. A scalar proxy for one clause is not coverage of this sentence.
+- unmeasured: The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change.
+  Needed: Need time-aligned captures in which the scene moves, the pose's input_rgb_stamp and input_depth_stamp, and a handling deadline for when that pose is too late. ApproximateTime pairing and the synthetic static pallet do not provide this. No staleness or clearance threshold is stated, so none is set.
+- measured_proxy: The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred.
+  Needed: Need an oracle for pose, true width, height, and depth in metres, and which detections must enter stage 2 versus stay deferred, including more than one pallet. PalletPoseStamped publishes pose, yaw_rad, and capture stamps, not width, height, depth, or a deferred roster. The launch test only checks one synthetic frontal PoseStamped against coarse bounds. No labelled data file is inventoried.
+- measured_proxy: output: pose pose_error_m minimize 0.001 0
+  Needed: Need ground-truth tx, ty, tz, and yaw in the camera RGB optical frame on representative pallets. The stated noise token 0.001 m is not a repeatability study, and no regression budget was granted. The synthetic launch check uses bounds much wider than this metric.
+- unmeasured: output: dimensions dimension_error_m minimize 0.001 0
+  Needed: Need ground-truth pallet width, height, and depth in metres and a published estimate of those three. PoseResult has tz only, and the prototype service exposes template face sizes. The stated noise token 0.001 m is not a calibrated floor, and no regression budget was granted.
+- unmeasured: output: selection selection_error minimize 0.001 0
+  Needed: Need ground-truth labels for which detections in a capture are sent through stage 2 and which are deferred, including ties and multiple pallets. select_detection returns one candidate and does not publish the deferred set. No physical unit was stated. If this error is a failure count, its aggregation should be worst; that is not established. The noise token 0.001 is not a calibrated count or rate.
+- unmeasured: output: scenario scenario_error minimize 0.001 0
+  Needed: Need a stated combination rule across pose, dimensions, and selection, plus the oracles those outputs require. The scenario states neither the rule nor a physical unit. The noise token 0.001 is not a calibrated floor, and no regression budget was granted.
+- measured_proxy: protected: latency_ms minimize 5
+  Needed: Need end-to-end latency on the vehicle computer, with warmup, load, and repeats. The stated 5 is allowed regression in milliseconds only, not measurement noise and not an absolute ceiling. Timing noise is uncalibrated. Detector debug timings and unit tests are not that measurement.
+
+## Limitations
+- One synthetic textureless fronto-parallel plane. This is not a labelled AGV capture, not a moving scene, and not a multi-pallet case.
+- dimension_error_m is not measured. PoseResult and PalletPoseStamped do not publish pallet width, height, and depth. Prototype face sizes are templates (1.20 m by 0.14 m), not an estimate, and they disagree with the synthetic face (1.20 m by 0.80 m). No pallet-thickness label is in the tree. eval_dataset_combined and pallet_pose_estimation.eval_report_common are absent.
+- selection_error is not measured. There is no ground-truth roster of which detections must enter stage 2 versus stay deferred. select_detection returns one candidate or none and does not publish the deferred set. Treating the current highest-confidence rule as truth would score the implementation against itself.
+- scenario_error is not measured. The scenario does not state how pose, dimensions, and selection combine, and it states no physical unit for that combination.
+- latency_ms is one warm single-thread stage-2 call on this WSL host. It is not end-to-end latency on the vehicle computer with the detector, time sync, load, and a handling deadline. Unchanged repeats on this host already spread by more than the sealed 5 ms regression allowance (about 174 ms to 187 ms).
+- The yaw-to-metre lever arm is the geometry of this synthetic box, not a scale stated by the scenario.
+- These generated cases do not prove real-world accuracy, exhaustive coverage, or state of the art. No robot run was performed.
+- Additional measurements required: dimension_error_m, selection_error, scenario_error
+- Sensitivity checks do not prove oracle correctness, domain completeness, or SOTA.

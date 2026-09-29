@@ -1,0 +1,128 @@
+{
+  "metrics": [
+    {
+      "id": "pose_error_m",
+      "description": "Metres of error in the pallet pose the vehicle's dynamic handling process needs. The candidate publishes tx, ty, tz, and yaw_rad in the camera RGB optical frame on PalletPoseStamped and as geometry_msgs/Pose. The scenario line is read in metric, direction, noise, target order: noise 0.001 and target 0. That 0.001 is the stated noise token, not a calibrated repeatability estimate. Useful improvement and allowed regression are recorded separately as 0 because the scenario does not state them.",
+      "direction": "minimize",
+      "role": "objective",
+      "path": "/pose_error_m",
+      "target": 0,
+      "noise": 0.001,
+      "min_effect": 0,
+      "max_regression": 0,
+      "aggregation": "median",
+      "units": "m",
+      "witnesses": [
+        "The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change.",
+        "output: pose pose_error_m minimize 0.001 0"
+      ]
+    },
+    {
+      "id": "dimension_error_m",
+      "description": "Metres of error in pallet width, height, and depth. The scenario asks for those three sizes in metres. PoseResult carries tz but not estimated width or height, and GetActivePrototype face_width_m and face_height_m are template sizes, not the pallet estimate. Scenario line policy, separated: noise 0.001, target 0, min_effect 0, max_regression 0. The noise token is not a calibrated floor.",
+      "direction": "minimize",
+      "role": "objective",
+      "path": "/dimension_error_m",
+      "target": 0,
+      "noise": 0.001,
+      "min_effect": 0,
+      "max_regression": 0,
+      "aggregation": "median",
+      "units": "m",
+      "witnesses": [
+        "the pallet width, height, and depth in metres",
+        "output: dimensions dimension_error_m minimize 0.001 0"
+      ]
+    },
+    {
+      "id": "selection_error",
+      "description": "Error in which detected pallets are sent through stage 2 versus marked deferred. select_detection returns one candidate or none and does not publish the deferred set. No physical unit is stated, so none is assigned. Scenario line policy, separated: noise 0.001, target 0, min_effect 0, max_regression 0. The noise token is not a calibrated count or rate. Median aggregation is used because the scenario does not say this is a failure count.",
+      "direction": "minimize",
+      "role": "objective",
+      "path": "/selection_error",
+      "target": 0,
+      "noise": 0.001,
+      "min_effect": 0,
+      "max_regression": 0,
+      "aggregation": "median",
+      "witnesses": [
+        "which detected pallets are sent through stage 2 versus marked deferred",
+        "output: selection selection_error minimize 0.001 0"
+      ]
+    },
+    {
+      "id": "scenario_error",
+      "description": "Combined error of the pallet pose, the pallet width, height, and depth in metres, and stage-2 versus deferred selection. The scenario does not state the combination rule or a physical unit. Scenario line policy, separated: noise 0.001, target 0, min_effect 0, max_regression 0. The noise token is not a calibrated floor.",
+      "direction": "minimize",
+      "role": "objective",
+      "path": "/scenario_error",
+      "target": 0,
+      "noise": 0.001,
+      "min_effect": 0,
+      "max_regression": 0,
+      "aggregation": "median",
+      "witnesses": [
+        "The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred.",
+        "output: scenario scenario_error minimize 0.001 0"
+      ]
+    },
+    {
+      "id": "latency_ms",
+      "description": "Latency of producing the handling result. The scenario marks it protected and states minimize 5. That 5 is only the allowed regression in milliseconds. It is not measurement noise and not an absolute ceiling, so target and hard_limit are unset. Noise and useful improvement are 0 because no timing noise or effect size was stated; that 0 is not a calibrated timing floor. Worst-case aggregation is used so a slow repeat cannot hide.",
+      "direction": "minimize",
+      "role": "protected",
+      "path": "/latency_ms",
+      "target": null,
+      "noise": 0,
+      "min_effect": 0,
+      "max_regression": 5,
+      "aggregation": "worst",
+      "units": "ms",
+      "witnesses": [
+        "protected: latency_ms minimize 5"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "text": "The pps source is the pallet perception stack on an AGV. The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change. The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred.",
+      "metrics": [],
+      "validation_needed": "This sentence is still unmeasured as a whole. The asset inventory has no dataset files and no evaluator entry point. geometry_core unit tests, detector unit tests, and the synthetic launch test do not supply an AGV handling log, a changing scene, or labelled pallet pose, size, and selection. A scalar proxy for one clause is not coverage of this sentence."
+    },
+    {
+      "text": "The user is the vehicle's dynamic handling process: it needs a pallet pose while the scene can still change.",
+      "metrics": [],
+      "validation_needed": "Need time-aligned captures in which the scene moves, the pose's input_rgb_stamp and input_depth_stamp, and a handling deadline for when that pose is too late. ApproximateTime pairing and the synthetic static pallet do not provide this. No staleness or clearance threshold is stated, so none is set."
+    },
+    {
+      "text": "The outputs that matter are the pallet pose, the pallet width, height, and depth in metres, and which detected pallets are sent through stage 2 versus marked deferred.",
+      "metrics": ["pose_error_m", "dimension_error_m", "selection_error", "scenario_error"],
+      "validation_needed": "Need an oracle for pose, true width, height, and depth in metres, and which detections must enter stage 2 versus stay deferred, including more than one pallet. PalletPoseStamped publishes pose, yaw_rad, and capture stamps, not width, height, depth, or a deferred roster. The launch test only checks one synthetic frontal PoseStamped against coarse bounds. No labelled data file is inventoried."
+    },
+    {
+      "text": "output: pose pose_error_m minimize 0.001 0",
+      "metrics": ["pose_error_m"],
+      "validation_needed": "Need ground-truth tx, ty, tz, and yaw in the camera RGB optical frame on representative pallets. The stated noise token 0.001 m is not a repeatability study, and no regression budget was granted. The synthetic launch check uses bounds much wider than this metric."
+    },
+    {
+      "text": "output: dimensions dimension_error_m minimize 0.001 0",
+      "metrics": ["dimension_error_m"],
+      "validation_needed": "Need ground-truth pallet width, height, and depth in metres and a published estimate of those three. PoseResult has tz only, and the prototype service exposes template face sizes. The stated noise token 0.001 m is not a calibrated floor, and no regression budget was granted."
+    },
+    {
+      "text": "output: selection selection_error minimize 0.001 0",
+      "metrics": ["selection_error"],
+      "validation_needed": "Need ground-truth labels for which detections in a capture are sent through stage 2 and which are deferred, including ties and multiple pallets. select_detection returns one candidate and does not publish the deferred set. No physical unit was stated. If this error is a failure count, its aggregation should be worst; that is not established. The noise token 0.001 is not a calibrated count or rate."
+    },
+    {
+      "text": "output: scenario scenario_error minimize 0.001 0",
+      "metrics": ["scenario_error"],
+      "validation_needed": "Need a stated combination rule across pose, dimensions, and selection, plus the oracles those outputs require. The scenario states neither the rule nor a physical unit. The noise token 0.001 is not a calibrated floor, and no regression budget was granted."
+    },
+    {
+      "text": "protected: latency_ms minimize 5",
+      "metrics": ["latency_ms"],
+      "validation_needed": "Need end-to-end latency on the vehicle computer, with warmup, load, and repeats. The stated 5 is allowed regression in milliseconds only, not measurement noise and not an absolute ceiling. Timing noise is uncalibrated. Detector debug timings and unit tests are not that measurement."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/test_frontal_lm_pose.dir/test/test_frontal_lm_pose.cpp.o"
+  "CMakeFiles/test_frontal_lm_pose.dir/test/test_frontal_lm_pose.cpp.o.d"
+  "test_frontal_lm_pose"
+  "test_frontal_lm_pose.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/test_frontal_lm_pose.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/test_pca_init.dir/test/test_pca_init.cpp.o -o test_pca_init  gtest/libgtest_main.a gtest/libgtest.a libgeometry_core.a -pthread /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.6.0 /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.6.0 -lyaml-cpp /usr/lib/gcc/x86_64-linux-gnu/13/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.a 

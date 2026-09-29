@@ -1,0 +1,7 @@
+{
+  "hypothesis": "Depth-pixel clipping shifts the chamfer centre by 2 mm on the frontal pallet. That shift is inside the silhouette's half-pixel quantization radius, so the pose keeps the sub-pixel bbox-ray/plane centre instead.",
+  "behavior_test": [
+    "python",
+    "geometry_core/test/test_frontal_centre_bias.py"
+  ]
+}

@@ -1,0 +1,256 @@
+{"time": "2026-09-29T07:14:08+00:00", "event": "setup_worker", "role": "evaluation_plan"}
+{"time": "2026-09-29T07:14:08+00:00", "event": "worker_started", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "log": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\setup\\evaluation_plan.log"}
+{"time": "2026-09-29T07:14:38+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 30.0, "log_bytes": 16714}
+{"time": "2026-09-29T07:15:08+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 60.0, "log_bytes": 75891}
+{"time": "2026-09-29T07:15:38+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 90.1, "log_bytes": 193081}
+{"time": "2026-09-29T07:16:08+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 120.1, "log_bytes": 265287}
+{"time": "2026-09-29T07:16:38+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 150.1, "log_bytes": 304171}
+{"time": "2026-09-29T07:17:08+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 180.1, "log_bytes": 331371}
+{"time": "2026-09-29T07:17:38+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 210.1, "log_bytes": 403278}
+{"time": "2026-09-29T07:18:08+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 240.1, "log_bytes": 443536}
+{"time": "2026-09-29T07:18:38+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 270.1, "log_bytes": 481488}
+{"time": "2026-09-29T07:19:08+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 300.1, "log_bytes": 536751}
+{"time": "2026-09-29T07:19:38+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 330.1, "log_bytes": 566804}
+{"time": "2026-09-29T07:20:08+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 360.1, "log_bytes": 589899}
+{"time": "2026-09-29T07:20:38+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 390.1, "log_bytes": 589899}
+{"time": "2026-09-29T07:21:08+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 420.1, "log_bytes": 602928}
+{"time": "2026-09-29T07:21:38+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 450.2, "log_bytes": 635518}
+{"time": "2026-09-29T07:22:08+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 480.2, "log_bytes": 670124}
+{"time": "2026-09-29T07:22:38+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 510.2, "log_bytes": 687889}
+{"time": "2026-09-29T07:23:08+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 540.2, "log_bytes": 715794}
+{"time": "2026-09-29T07:23:38+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 570.2, "log_bytes": 743976}
+{"time": "2026-09-29T07:24:08+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 600.2, "log_bytes": 766189}
+{"time": "2026-09-29T07:24:38+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 630.2, "log_bytes": 787515}
+{"time": "2026-09-29T07:25:08+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "elapsed_sec": 660.2, "log_bytes": 840027}
+{"time": "2026-09-29T07:25:14+00:00", "event": "worker_finished", "cycle": 0, "role": "evaluation_plan", "index": null, "pid": 39488, "returncode": 0, "elapsed_sec": 666.0, "log": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\setup\\evaluation_plan.log"}
+{"time": "2026-09-29T07:25:14+00:00", "event": "setup_worker", "role": "benchmark_build"}
+{"time": "2026-09-29T07:25:14+00:00", "event": "worker_started", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "log": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\setup\\benchmark_build.log"}
+{"time": "2026-09-29T07:25:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 30.0, "log_bytes": 17508}
+{"time": "2026-09-29T07:26:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 60.1, "log_bytes": 67815}
+{"time": "2026-09-29T07:26:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 90.1, "log_bytes": 135173}
+{"time": "2026-09-29T07:27:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 120.1, "log_bytes": 183211}
+{"time": "2026-09-29T07:27:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 150.1, "log_bytes": 223859}
+{"time": "2026-09-29T07:28:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 180.1, "log_bytes": 266868}
+{"time": "2026-09-29T07:28:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 210.1, "log_bytes": 305351}
+{"time": "2026-09-29T07:29:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 240.1, "log_bytes": 340378}
+{"time": "2026-09-29T07:29:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 270.1, "log_bytes": 377114}
+{"time": "2026-09-29T07:30:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 300.1, "log_bytes": 402890}
+{"time": "2026-09-29T07:30:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 330.1, "log_bytes": 429570}
+{"time": "2026-09-29T07:31:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 360.1, "log_bytes": 459276}
+{"time": "2026-09-29T07:31:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 390.2, "log_bytes": 498574}
+{"time": "2026-09-29T07:32:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 420.2, "log_bytes": 519445}
+{"time": "2026-09-29T07:32:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 450.2, "log_bytes": 544671}
+{"time": "2026-09-29T07:33:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 480.2, "log_bytes": 573390}
+{"time": "2026-09-29T07:33:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 510.2, "log_bytes": 593264}
+{"time": "2026-09-29T07:34:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 540.2, "log_bytes": 629879}
+{"time": "2026-09-29T07:34:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 570.2, "log_bytes": 648950}
+{"time": "2026-09-29T07:35:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 600.2, "log_bytes": 682047}
+{"time": "2026-09-29T07:35:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 630.2, "log_bytes": 714300}
+{"time": "2026-09-29T07:36:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 660.3, "log_bytes": 738503}
+{"time": "2026-09-29T07:36:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 690.3, "log_bytes": 765130}
+{"time": "2026-09-29T07:37:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 720.3, "log_bytes": 793631}
+{"time": "2026-09-29T07:37:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 750.3, "log_bytes": 827558}
+{"time": "2026-09-29T07:38:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 780.3, "log_bytes": 854917}
+{"time": "2026-09-29T07:38:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 810.3, "log_bytes": 880011}
+{"time": "2026-09-29T07:39:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 840.3, "log_bytes": 910895}
+{"time": "2026-09-29T07:39:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 870.3, "log_bytes": 933683}
+{"time": "2026-09-29T07:40:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 900.3, "log_bytes": 978475}
+{"time": "2026-09-29T07:40:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 930.4, "log_bytes": 1023471}
+{"time": "2026-09-29T07:41:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 960.4, "log_bytes": 1060086}
+{"time": "2026-09-29T07:41:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 990.4, "log_bytes": 1070959}
+{"time": "2026-09-29T07:42:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 1020.4, "log_bytes": 1075962}
+{"time": "2026-09-29T07:42:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 1050.4, "log_bytes": 1102289}
+{"time": "2026-09-29T07:43:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 1080.4, "log_bytes": 1134799}
+{"time": "2026-09-29T07:43:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 1110.4, "log_bytes": 1154243}
+{"time": "2026-09-29T07:44:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 1140.4, "log_bytes": 1154243}
+{"time": "2026-09-29T07:44:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 1170.4, "log_bytes": 1154243}
+{"time": "2026-09-29T07:45:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 1200.4, "log_bytes": 1176143}
+{"time": "2026-09-29T07:45:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 1230.4, "log_bytes": 1209628}
+{"time": "2026-09-29T07:46:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 1260.5, "log_bytes": 1222185}
+{"time": "2026-09-29T07:46:44+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 1290.5, "log_bytes": 1251848}
+{"time": "2026-09-29T07:47:14+00:00", "event": "worker_heartbeat", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "elapsed_sec": 1320.5, "log_bytes": 1276248}
+{"time": "2026-09-29T07:47:30+00:00", "event": "worker_finished", "cycle": 0, "role": "benchmark_build", "index": null, "pid": 14264, "returncode": 0, "elapsed_sec": 1335.8, "log": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\setup\\benchmark_build.log"}
+{"time": "2026-09-29T07:47:30+00:00", "event": "regression_test", "label": "qualification", "index": 1}
+{"time": "2026-09-29T07:47:31+00:00", "event": "negative_control", "index": 1, "metric": "pose_error_m"}
+{"time": "2026-09-29T07:48:02+00:00", "event": "negative_control", "index": 2, "metric": "latency_ms"}
+{"time": "2026-09-29T07:48:35+00:00", "event": "evaluation", "label": "baseline-samples", "sample": 1, "total": 3}
+{"time": "2026-09-29T07:48:35+00:00", "event": "evaluation", "label": "baseline-samples", "sample": 2, "total": 3}
+{"time": "2026-09-29T07:48:36+00:00", "event": "evaluation", "label": "baseline-samples", "sample": 3, "total": 3}
+{"time": "2026-09-29T07:48:37+00:00", "event": "evaluation_ready", "scope": "generated", "metrics": {"pose_error_m": 0.001999999999999993, "latency_ms": 182.626425}}
+{"time": "2026-09-29T07:48:37+00:00", "event": "cycle_started", "cycle": 1, "focus": "pose_error_m", "strategy": "local improvement", "uncovered": 5}
+{"time": "2026-09-29T07:48:37+00:00", "event": "evaluation", "label": "cycle-000001-parent", "sample": 1, "total": 3}
+{"time": "2026-09-29T07:48:38+00:00", "event": "evaluation", "label": "cycle-000001-parent", "sample": 2, "total": 3}
+{"time": "2026-09-29T07:48:39+00:00", "event": "evaluation", "label": "cycle-000001-parent", "sample": 3, "total": 3}
+{"time": "2026-09-29T07:48:39+00:00", "event": "worker_started", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "log": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\cycle-000001\\optimize.log"}
+{"time": "2026-09-29T07:49:09+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 30.0, "log_bytes": 18108}
+{"time": "2026-09-29T07:49:39+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 60.0, "log_bytes": 96198}
+{"time": "2026-09-29T07:50:09+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 90.0, "log_bytes": 148205}
+{"time": "2026-09-29T07:50:39+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 120.0, "log_bytes": 196103}
+{"time": "2026-09-29T07:51:09+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 150.1, "log_bytes": 229126}
+{"time": "2026-09-29T07:51:39+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 180.1, "log_bytes": 258279}
+{"time": "2026-09-29T07:52:09+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 210.1, "log_bytes": 290347}
+{"time": "2026-09-29T07:52:39+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 240.1, "log_bytes": 356010}
+{"time": "2026-09-29T07:53:09+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 270.1, "log_bytes": 395587}
+{"time": "2026-09-29T07:53:39+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 300.1, "log_bytes": 422806}
+{"time": "2026-09-29T07:54:09+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 330.1, "log_bytes": 443629}
+{"time": "2026-09-29T07:54:39+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 360.1, "log_bytes": 468292}
+{"time": "2026-09-29T07:55:09+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 390.2, "log_bytes": 492363}
+{"time": "2026-09-29T07:55:39+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 420.2, "log_bytes": 521057}
+{"time": "2026-09-29T07:56:09+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 450.2, "log_bytes": 557659}
+{"time": "2026-09-29T07:56:39+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 480.2, "log_bytes": 598134}
+{"time": "2026-09-29T07:57:09+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 510.2, "log_bytes": 643201}
+{"time": "2026-09-29T07:57:40+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 540.2, "log_bytes": 672896}
+{"time": "2026-09-29T07:58:10+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 570.2, "log_bytes": 672896}
+{"time": "2026-09-29T07:58:40+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 600.2, "log_bytes": 730056}
+{"time": "2026-09-29T07:59:10+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 630.2, "log_bytes": 758236}
+{"time": "2026-09-29T07:59:40+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 660.2, "log_bytes": 796536}
+{"time": "2026-09-29T08:00:10+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 690.3, "log_bytes": 815416}
+{"time": "2026-09-29T08:00:40+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 720.3, "log_bytes": 834058}
+{"time": "2026-09-29T08:01:10+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 750.3, "log_bytes": 860721}
+{"time": "2026-09-29T08:01:40+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 780.3, "log_bytes": 874084}
+{"time": "2026-09-29T08:02:10+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 810.3, "log_bytes": 889319}
+{"time": "2026-09-29T08:02:40+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 840.3, "log_bytes": 920567}
+{"time": "2026-09-29T08:03:10+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 870.3, "log_bytes": 941539}
+{"time": "2026-09-29T08:03:40+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 900.3, "log_bytes": 964771}
+{"time": "2026-09-29T08:04:10+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 930.3, "log_bytes": 990174}
+{"time": "2026-09-29T08:04:40+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 960.3, "log_bytes": 1014080}
+{"time": "2026-09-29T08:05:10+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 990.3, "log_bytes": 1059108}
+{"time": "2026-09-29T08:05:40+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 1020.3, "log_bytes": 1084291}
+{"time": "2026-09-29T08:06:10+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 1050.4, "log_bytes": 1107753}
+{"time": "2026-09-29T08:06:40+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 1080.4, "log_bytes": 1150018}
+{"time": "2026-09-29T08:07:10+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 1110.4, "log_bytes": 1178842}
+{"time": "2026-09-29T08:07:40+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 1140.4, "log_bytes": 1226157}
+{"time": "2026-09-29T08:08:10+00:00", "event": "worker_heartbeat", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "elapsed_sec": 1170.4, "log_bytes": 1256671}
+{"time": "2026-09-29T08:08:34+00:00", "event": "worker_finished", "cycle": 1, "role": "optimize", "index": null, "pid": 17116, "returncode": 0, "elapsed_sec": 1195.1, "log": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\cycle-000001\\optimize.log"}
+{"time": "2026-09-29T08:08:34+00:00", "event": "candidate_ready", "cycle": 1, "hypothesis": "Depth-pixel clipping shifts the chamfer centre by 2 mm on the frontal pallet. That shift is inside the silhouette's half-pixel quantization radius, so the pose keeps the sub-pixel bbox-ray/plane centre instead."}
+{"time": "2026-09-29T08:08:34+00:00", "event": "regression_test", "label": "cycle-000001", "index": 1}
+{"time": "2026-09-29T08:08:34+00:00", "event": "behavior_test", "cycle": 1}
+{"time": "2026-09-29T08:08:35+00:00", "event": "evaluation", "label": "cycle-000001-candidate", "sample": 1, "total": 3}
+{"time": "2026-09-29T08:08:40+00:00", "event": "evaluation", "label": "cycle-000001-candidate", "sample": 2, "total": 3}
+{"time": "2026-09-29T08:08:41+00:00", "event": "evaluation", "label": "cycle-000001-candidate", "sample": 3, "total": 3}
+{"time": "2026-09-29T08:08:42+00:00", "event": "cycle_finished", "cycle": 1, "outcome": "keep", "reason": "", "metrics": {"pose_error_m": 0.0, "latency_ms": 173.294496}}
+{"time": "2026-09-29T08:08:42+00:00", "event": "cycle_started", "cycle": 2, "focus": "latency_ms", "strategy": "local improvement", "uncovered": 5}
+{"time": "2026-09-29T08:08:42+00:00", "event": "evaluation", "label": "cycle-000002-parent", "sample": 1, "total": 3}
+{"time": "2026-09-29T08:08:43+00:00", "event": "evaluation", "label": "cycle-000002-parent", "sample": 2, "total": 3}
+{"time": "2026-09-29T08:08:43+00:00", "event": "evaluation", "label": "cycle-000002-parent", "sample": 3, "total": 3}
+{"time": "2026-09-29T08:08:44+00:00", "event": "worker_started", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "log": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\cycle-000002\\optimize.log"}
+{"time": "2026-09-29T08:09:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 30.0, "log_bytes": 34388}
+{"time": "2026-09-29T08:09:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 60.0, "log_bytes": 90924}
+{"time": "2026-09-29T08:10:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 90.0, "log_bytes": 152875}
+{"time": "2026-09-29T08:10:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 120.1, "log_bytes": 185714}
+{"time": "2026-09-29T08:11:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 150.1, "log_bytes": 231780}
+{"time": "2026-09-29T08:11:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 180.1, "log_bytes": 271844}
+{"time": "2026-09-29T08:12:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 210.1, "log_bytes": 299405}
+{"time": "2026-09-29T08:12:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 240.1, "log_bytes": 336407}
+{"time": "2026-09-29T08:13:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 270.1, "log_bytes": 364357}
+{"time": "2026-09-29T08:13:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 300.1, "log_bytes": 386647}
+{"time": "2026-09-29T08:14:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 330.1, "log_bytes": 415927}
+{"time": "2026-09-29T08:14:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 360.1, "log_bytes": 436764}
+{"time": "2026-09-29T08:15:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 390.1, "log_bytes": 455185}
+{"time": "2026-09-29T08:15:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 420.2, "log_bytes": 465472}
+{"time": "2026-09-29T08:16:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 450.2, "log_bytes": 506636}
+{"time": "2026-09-29T08:16:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 480.2, "log_bytes": 506935}
+{"time": "2026-09-29T08:17:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 510.2, "log_bytes": 567231}
+{"time": "2026-09-29T08:17:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 540.2, "log_bytes": 578547}
+{"time": "2026-09-29T08:18:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 570.2, "log_bytes": 590927}
+{"time": "2026-09-29T08:18:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 600.2, "log_bytes": 590927}
+{"time": "2026-09-29T08:19:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 630.2, "log_bytes": 640650}
+{"time": "2026-09-29T08:19:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 660.2, "log_bytes": 670150}
+{"time": "2026-09-29T08:20:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 690.2, "log_bytes": 695157}
+{"time": "2026-09-29T08:20:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 720.2, "log_bytes": 721914}
+{"time": "2026-09-29T08:21:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 750.2, "log_bytes": 749406}
+{"time": "2026-09-29T08:21:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 780.2, "log_bytes": 768104}
+{"time": "2026-09-29T08:22:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 810.3, "log_bytes": 789101}
+{"time": "2026-09-29T08:22:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 840.3, "log_bytes": 815698}
+{"time": "2026-09-29T08:23:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 870.3, "log_bytes": 851096}
+{"time": "2026-09-29T08:23:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 900.3, "log_bytes": 872615}
+{"time": "2026-09-29T08:24:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 930.3, "log_bytes": 893588}
+{"time": "2026-09-29T08:24:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 960.3, "log_bytes": 918453}
+{"time": "2026-09-29T08:25:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 990.3, "log_bytes": 937672}
+{"time": "2026-09-29T08:25:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1020.3, "log_bytes": 960324}
+{"time": "2026-09-29T08:26:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1050.3, "log_bytes": 983510}
+{"time": "2026-09-29T08:26:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1080.3, "log_bytes": 1005870}
+{"time": "2026-09-29T08:27:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1110.4, "log_bytes": 1030912}
+{"time": "2026-09-29T08:27:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1140.4, "log_bytes": 1052994}
+{"time": "2026-09-29T08:28:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1170.4, "log_bytes": 1081486}
+{"time": "2026-09-29T08:28:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1200.4, "log_bytes": 1107170}
+{"time": "2026-09-29T08:29:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1230.4, "log_bytes": 1136833}
+{"time": "2026-09-29T08:29:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1260.4, "log_bytes": 1161605}
+{"time": "2026-09-29T08:30:14+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1290.4, "log_bytes": 1227004}
+{"time": "2026-09-29T08:30:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1320.5, "log_bytes": 1323175}
+{"time": "2026-09-29T08:31:15+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1350.5, "log_bytes": 1343557}
+{"time": "2026-09-29T08:31:45+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1380.5, "log_bytes": 1399143}
+{"time": "2026-09-29T08:32:15+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1410.5, "log_bytes": 1440171}
+{"time": "2026-09-29T08:32:45+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1440.5, "log_bytes": 1466893}
+{"time": "2026-09-29T08:33:15+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1470.5, "log_bytes": 1607229}
+{"time": "2026-09-29T08:33:45+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1500.5, "log_bytes": 1664820}
+{"time": "2026-09-29T08:34:15+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1530.5, "log_bytes": 1682597}
+{"time": "2026-09-29T08:34:45+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1560.5, "log_bytes": 1718384}
+{"time": "2026-09-29T08:35:15+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1590.5, "log_bytes": 1718384}
+{"time": "2026-09-29T08:35:45+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1620.5, "log_bytes": 1721095}
+{"time": "2026-09-29T08:36:15+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1650.5, "log_bytes": 1721095}
+{"time": "2026-09-29T08:36:45+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1680.6, "log_bytes": 1721095}
+{"time": "2026-09-29T08:37:15+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1710.6, "log_bytes": 1721095}
+{"time": "2026-09-29T08:37:45+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1740.6, "log_bytes": 1721095}
+{"time": "2026-09-29T08:38:15+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1770.6, "log_bytes": 1721095}
+{"time": "2026-09-29T08:38:44+00:00", "event": "worker_heartbeat", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "elapsed_sec": 1800.0, "log_bytes": 1786036}
+{"time": "2026-09-29T08:38:44+00:00", "event": "worker_timeout", "cycle": 2, "role": "optimize", "index": null, "pid": 28312, "timeout_sec": 1800.0}
+{"time": "2026-09-29T08:38:45+00:00", "event": "cycle_finished", "cycle": 2, "outcome": "worker_failed", "reason": "optimize exceeded 1800s; see C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\cycle-000002\\optimize.log", "metrics": null}
+{"time": "2026-09-29T08:38:45+00:00", "event": "cooldown", "seconds": 2}
+{"time": "2026-09-29T08:38:47+00:00", "event": "cycle_started", "cycle": 3, "focus": "pose_error_m", "strategy": "algorithm replacement", "uncovered": 5}
+{"time": "2026-09-29T08:38:47+00:00", "event": "evaluation", "label": "cycle-000003-parent", "sample": 1, "total": 3}
+{"time": "2026-09-29T08:38:47+00:00", "event": "evaluation", "label": "cycle-000003-parent", "sample": 2, "total": 3}
+{"time": "2026-09-29T08:38:48+00:00", "event": "evaluation", "label": "cycle-000003-parent", "sample": 3, "total": 3}
+{"time": "2026-09-29T08:38:49+00:00", "event": "worker_started", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "log": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\cycle-000003\\optimize.log"}
+{"time": "2026-09-29T08:39:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 30.0, "log_bytes": 26203}
+{"time": "2026-09-29T08:39:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 60.0, "log_bytes": 42992}
+{"time": "2026-09-29T08:40:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 90.0, "log_bytes": 94970}
+{"time": "2026-09-29T08:40:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 120.0, "log_bytes": 147138}
+{"time": "2026-09-29T08:41:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 150.1, "log_bytes": 205946}
+{"time": "2026-09-29T08:41:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 180.1, "log_bytes": 243572}
+{"time": "2026-09-29T08:42:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 210.1, "log_bytes": 290853}
+{"time": "2026-09-29T08:42:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 240.1, "log_bytes": 310869}
+{"time": "2026-09-29T08:43:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 270.1, "log_bytes": 340568}
+{"time": "2026-09-29T08:43:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 300.1, "log_bytes": 370273}
+{"time": "2026-09-29T08:44:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 330.1, "log_bytes": 417934}
+{"time": "2026-09-29T08:44:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 360.1, "log_bytes": 462348}
+{"time": "2026-09-29T08:45:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 390.2, "log_bytes": 487958}
+{"time": "2026-09-29T08:45:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 420.2, "log_bytes": 521109}
+{"time": "2026-09-29T08:46:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 450.2, "log_bytes": 546238}
+{"time": "2026-09-29T08:46:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 480.2, "log_bytes": 577413}
+{"time": "2026-09-29T08:47:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 510.2, "log_bytes": 602729}
+{"time": "2026-09-29T08:47:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 540.2, "log_bytes": 623466}
+{"time": "2026-09-29T08:48:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 570.2, "log_bytes": 650135}
+{"time": "2026-09-29T08:48:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 600.2, "log_bytes": 670434}
+{"time": "2026-09-29T08:49:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 630.2, "log_bytes": 682916}
+{"time": "2026-09-29T08:49:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 660.2, "log_bytes": 701190}
+{"time": "2026-09-29T08:50:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 690.2, "log_bytes": 725305}
+{"time": "2026-09-29T08:50:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 720.3, "log_bytes": 749091}
+{"time": "2026-09-29T08:51:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 750.3, "log_bytes": 769753}
+{"time": "2026-09-29T08:51:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 780.3, "log_bytes": 796960}
+{"time": "2026-09-29T08:52:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 810.3, "log_bytes": 818752}
+{"time": "2026-09-29T08:52:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 840.3, "log_bytes": 848652}
+{"time": "2026-09-29T08:53:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 870.3, "log_bytes": 883966}
+{"time": "2026-09-29T08:53:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 900.3, "log_bytes": 907277}
+{"time": "2026-09-29T08:54:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 930.3, "log_bytes": 934540}
+{"time": "2026-09-29T08:54:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 960.3, "log_bytes": 960205}
+{"time": "2026-09-29T08:55:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 990.3, "log_bytes": 993791}
+{"time": "2026-09-29T08:55:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1020.4, "log_bytes": 1014577}
+{"time": "2026-09-29T08:56:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1050.4, "log_bytes": 1040688}
+{"time": "2026-09-29T08:56:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1080.4, "log_bytes": 1076554}
+{"time": "2026-09-29T08:57:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1110.4, "log_bytes": 1083887}
+{"time": "2026-09-29T08:57:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1140.4, "log_bytes": 1217166}
+{"time": "2026-09-29T08:58:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1170.4, "log_bytes": 1252607}
+{"time": "2026-09-29T08:58:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1200.4, "log_bytes": 1286881}
+{"time": "2026-09-29T08:59:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1230.4, "log_bytes": 1286881}
+{"time": "2026-09-29T08:59:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1260.4, "log_bytes": 1310387}
+{"time": "2026-09-29T09:00:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1290.4, "log_bytes": 1331462}
+{"time": "2026-09-29T09:00:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1320.4, "log_bytes": 1404985}
+{"time": "2026-09-29T09:01:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1350.5, "log_bytes": 1416651}
+{"time": "2026-09-29T09:01:49+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1380.5, "log_bytes": 1518626}
+{"time": "2026-09-29T09:02:19+00:00", "event": "worker_heartbeat", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "elapsed_sec": 1410.5, "log_bytes": 1534065}
+{"time": "2026-09-29T09:02:47+00:00", "event": "worker_finished", "cycle": 3, "role": "optimize", "index": null, "pid": 19868, "returncode": 0, "elapsed_sec": 1438.2, "log": "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\workers\\cycle-000003\\optimize.log"}
+{"time": "2026-09-29T09:02:47+00:00", "event": "candidate_ready", "cycle": 3, "hypothesis": "The two-stage chamfer grid spends about 31 ms enumerating a bilinear distance transform whose frontal translation minimum already lies inside the depth-pixel ball replaced by the ray-plane centre. Levenberg-Marquardt on those same residuals (Fitzgibbon LM-ICP) still recovers a 2 cm offset when the match is real, so the frontal centre stays on the ray and pose_error_m stays 0 while that search drops below a millisecond."}
+{"time": "2026-09-29T09:02:47+00:00", "event": "regression_test", "label": "cycle-000003", "index": 1}
+{"time": "2026-09-29T09:02:47+00:00", "event": "behavior_test", "cycle": 3}
+{"time": "2026-09-29T09:02:54+00:00", "event": "paused", "reason": "error: can only concatenate str (not \"NoneType\") to str"}

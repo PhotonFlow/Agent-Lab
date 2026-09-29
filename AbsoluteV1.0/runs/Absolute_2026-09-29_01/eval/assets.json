@@ -1,0 +1,37 @@
+{
+  "build": [
+    "geometry_core/CMakeLists.txt",
+    "geometry_core/package.xml",
+    "pps_dataset_replay/package.xml",
+    "pps_pallet_pose_cpp/CMakeLists.txt",
+    "pps_pallet_pose_cpp/package.xml",
+    "pps_perception_bringup/package.xml",
+    "pps_perception_msgs/CMakeLists.txt",
+    "pps_perception_msgs/package.xml",
+    "pps_rtdetr_detector/package.xml"
+  ],
+  "data": [],
+  "evaluators": [],
+  "tests": [
+    "geometry_core/test/test_backproject.cpp",
+    "geometry_core/test/test_camera_config.cpp",
+    "geometry_core/test/test_chamfer.cpp",
+    "geometry_core/test/test_chamfer_prior.cpp",
+    "geometry_core/test/test_face_mask.cpp",
+    "geometry_core/test/test_pca_init.cpp",
+    "geometry_core/test/test_pipeline_v3_2.cpp",
+    "geometry_core/test/test_plane_coords.cpp",
+    "geometry_core/test/test_plane_fit.cpp",
+    "geometry_core/test/test_pose.cpp",
+    "geometry_core/test/test_prototype.cpp",
+    "geometry_core/test/test_transforms.cpp",
+    "geometry_core/test/test_version.cpp",
+    "pps_pallet_pose_cpp/test/test_depth_utils.cpp",
+    "pps_pallet_pose_cpp/test/test_detection_utils.cpp",
+    "pps_perception_bringup/test/test_full_pipeline_launch.py",
+    "pps_rtdetr_detector/test/test_detector_mock.py",
+    "pps_rtdetr_detector/test/test_postprocess.py",
+    "pps_rtdetr_detector/test/test_preprocess.py"
+  ],
+  "truncated": false
+}

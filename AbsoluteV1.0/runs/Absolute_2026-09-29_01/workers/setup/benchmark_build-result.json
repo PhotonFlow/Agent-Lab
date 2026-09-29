@@ -1,0 +1,46 @@
+{
+  "eval_command": [
+    "C:\\Users\\alanpeng\\anaconda3\\python.exe",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\measure.py"
+  ],
+  "validation_commands": [
+    [
+      "C:\\Users\\alanpeng\\anaconda3\\python.exe",
+      "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\guard.py"
+    ]
+  ],
+  "files": [
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\measure.py",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\guard.py",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\oracle.py",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\harness.cpp",
+    "C:\\Users\\alanpeng\\Desktop\\Self-envolve_agent\\AbsoluteV1.0\\runs\\Absolute_2026-09-29_01\\eval\\benchmark\\build_and_run.sh"
+  ],
+  "cases": [
+    {
+      "id": "synthetic_fronto_parallel"
+    }
+  ],
+  "oracle": "pose_error_m is the Euclidean residual in metres of geometry_core estimate_pose_chamfer_v3_2 against the analytical scene constructed in geometry_core/test/test_pipeline_v3_2.cpp (RecoversFrontoParallelPoseOnSyntheticScene): coincident pinhole cameras, a flat depth plane at z = 2 m, and an RGB box centred on the principal point with half-size 300 by 40 px. Ground truth is that construction (tx = 0, ty = 0, tz = 2, yaw = 0), not a stored estimator output. Yaw is a rotation about the camera vertical axis, so its residual is converted with the box half-width at z = 2, which is 2/3 m per radian. A rejected pose scores 5 m, the stage-2 depth_max_m gate. latency_ms is the wall-clock time of the seed-0 call after one discarded warmup, built at -O3 with OMP_NUM_THREADS=1.",
+  "limitations": [
+    "One synthetic textureless fronto-parallel plane. This is not a labelled AGV capture, not a moving scene, and not a multi-pallet case.",
+    "dimension_error_m is not measured. PoseResult and PalletPoseStamped do not publish pallet width, height, and depth. Prototype face sizes are templates (1.20 m by 0.14 m), not an estimate, and they disagree with the synthetic face (1.20 m by 0.80 m). No pallet-thickness label is in the tree. eval_dataset_combined and pallet_pose_estimation.eval_report_common are absent.",
+    "selection_error is not measured. There is no ground-truth roster of which detections must enter stage 2 versus stay deferred. select_detection returns one candidate or none and does not publish the deferred set. Treating the current highest-confidence rule as truth would score the implementation against itself.",
+    "scenario_error is not measured. The scenario does not state how pose, dimensions, and selection combine, and it states no physical unit for that combination.",
+    "latency_ms is one warm single-thread stage-2 call on this WSL host. It is not end-to-end latency on the vehicle computer with the detector, time sync, load, and a handling deadline. Unchanged repeats on this host already spread by more than the sealed 5 ms regression allowance (about 174 ms to 187 ms).",
+    "The yaw-to-metre lever arm is the geometry of this synthetic box, not a scale stated by the scenario.",
+    "These generated cases do not prove real-world accuracy, exhaustive coverage, or state of the art. No robot run was performed."
+  ],
+  "negative_controls": [
+    {
+      "metric": "pose_error_m",
+      "path": "geometry_core/src/pose.cpp",
+      "replacement": "#include \"geometry_core/pose.hpp\"\n\n#include <cmath>\n\nnamespace geometry_core {\n\ndouble yaw_from_normal_camera(const Eigen::Vector3d& n_toward_cam) {\n  return std::atan2(n_toward_cam.x(), -n_toward_cam.z()) + 1.0;\n}\n\n}  // namespace geometry_core\n"
+    },
+    {
+      "metric": "latency_ms",
+      "path": "geometry_core/src/pose.cpp",
+      "replacement": "#include \"geometry_core/pose.hpp\"\n\n#include <chrono>\n#include <cmath>\n#include <thread>\n\nnamespace geometry_core {\n\ndouble yaw_from_normal_camera(const Eigen::Vector3d& n_toward_cam) {\n  std::this_thread::sleep_for(std::chrono::milliseconds(500));\n  return std::atan2(n_toward_cam.x(), -n_toward_cam.z());\n}\n\n}  // namespace geometry_core\n"
+    }
+  ]
+}
